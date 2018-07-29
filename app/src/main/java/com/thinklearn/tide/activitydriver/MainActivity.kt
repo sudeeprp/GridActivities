@@ -1,0 +1,151 @@
+package com.thinklearn.tide.activitydriver
+
+import android.content.Context
+import android.content.Intent
+import android.support.v7.app.AppCompatActivity
+import android.os.Bundle
+import android.view.Window
+import android.view.WindowManager
+import android.widget.Button
+
+
+val TeacherListJson =
+"""
+{
+  "teachers":
+    [{
+       "teacher_id": 1,
+       "name": "teacher one",
+       "thumbnail": "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"
+     },
+     {
+       "teacher_id": 2,
+       "name": "teacher two",
+       "thumbnail": "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"
+     }]
+}
+""".trimIndent()
+
+fun TeacherIdentificationIntent(context: Context): Intent {
+    var intent = Intent(context, TeacherIdentification::class.java)
+    intent.putExtra("TEACHER_LIST", TeacherListJson.toString())
+    return intent
+}
+
+
+val StudentListJson =
+"""
+{
+  "students":
+    [{"student_id": 1,
+      "name": "student one",
+      "birth_date": "12-02-2003",
+      "gender": "boy",
+      "grade": 1,
+      "thumbnail": "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",
+      "next_activity": [{"subject": "French", "next": "F-Basic words"}, {"subject": "Mathematics", "next": "M-Counting"}]},
+     {"student_id": 2,
+      "name": "student two",
+      "birth_date": "15-04-2003",
+      "gender": "girl",
+      "grade": 2,
+      "thumbnail": "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",
+      "next_activity": [{"subject": "French", "next": "F-Advanced words"}, {"subject": "Mathematics", "next": "M-Addition"}]}]
+}
+""".trimIndent()
+
+fun StudentIdentificationIntent(context: Context): Intent {
+    var intent = Intent(context, StudentIdentification::class.java)
+    intent.putExtra("STUDENT_LIST", StudentListJson.toString())
+    return intent
+}
+
+
+val StudentProfileJson =
+"""
+{
+  "student":
+    {"student_id": 1,
+     "name": "student one",
+     "birth_date": "12-02-2003",
+     "gender": "boy",
+     "grade": 1,
+     "thumbnail": "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",
+     "next_activity": [{"subject": "French", "next": "F-Basic words"}, {"subject": "Mathematics", "next": "M-Counting"}]
+    }
+}
+""".trimIndent()
+
+fun StudentProfileIntent(context: Context): Intent {
+    var intent = Intent(context, StudentProfile::class.java)
+    intent.putExtra("STUDENT_PROFILE", StudentProfileJson.toString())
+    return intent
+}
+
+
+val AttendanceJson =
+"""
+{
+  "attendance":
+          [{"date": "01-10-2018", "absent": [1, 3]},
+           {"date": "02-10-2018", "absent": [3]}],
+  "students":
+          [{"student_id": 1,
+            "name": "student one",
+            "birth_date": "12-02-2003",
+            "gender": "boy", "grade": 1,
+            "thumbnail": "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",
+            "next_activity": [{"subject": "French", "next": "F-Basic words"}]},
+           {"student_id": 2,
+            "name": "student two",
+            "birth_date": "15-04-2003",
+            "gender": "girl",
+            "grade": 2,
+            "thumbnail": "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",
+            "next_activity": [{"subject": "French", "next": "F-Advanced words"}]}]
+           {"student_id": 3,
+            "name": "student three",
+            "birth_date": "12-03-2003",
+            "gender": "boy",
+            "grade": 2,
+            "thumbnail": "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",
+            "next_activity": [{"subject": "French", "next": "F-Letters"}]}]
+           {"student_id": 4,
+            "name": "student four",
+            "birth_date": "27-01-2003",
+            "gender": "girl",
+            "grade": 1,
+            "thumbnail": "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",
+            "next_activity": [{"subject": "French", "next": "F-Sounds"}]}]
+}
+""".trimIndent()
+
+fun AttendanceIntent(context: Context): Intent {
+    var intent = Intent(context, Attendance::class.java)
+    intent.putExtra("ATTENDANCE", AttendanceJson.toString())
+    return intent
+}
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        getSupportActionBar()?.hide();
+        setContentView(R.layout.activity_main)
+
+        val teacherIdentButton = findViewById<Button>(R.id.StartTeacherIdent)
+        teacherIdentButton.setOnClickListener { startActivityForResult(TeacherIdentificationIntent(this), 3) }
+
+        val studentIdentButton = findViewById<Button>(R.id.StartStudentIdent)
+        studentIdentButton.setOnClickListener { startActivityForResult(StudentIdentificationIntent(this), 3) }
+
+        val studentProfileButton = findViewById<Button>(R.id.StartStudentProfile)
+        studentProfileButton.setOnClickListener { startActivityForResult(StudentProfileIntent(this), 3)}
+
+        val attendanceButton = findViewById<Button>(R.id.StartAttendance)
+        attendanceButton.setOnClickListener { startActivityForResult(AttendanceIntent(this), 3)}
+    }
+}
