@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".StudentProfile">
 
-    <HorizontalScrollView android:layout_height="match_parent"
+    <Button android:layout_height="wrap_content"
+        android:id="@+id/DoneButton"
+        android:layout_width="match_parent"
+        android:text="Done"
+        android:textSize="18sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Input sample"/>
+
+    <ScrollView
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:scrollbars="vertical">
+    <HorizontalScrollView android:layout_height="wrap_content"
         android:layout_width="match_parent">
         <TextView
             android:id="@+id/InputJson"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Student Profile"
             android:textSize="18sp"
@@ -20,5 +34,5 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </HorizontalScrollView>
-
-</android.support.constraint.ConstraintLayout>
+    </ScrollView>
+</LinearLayout>

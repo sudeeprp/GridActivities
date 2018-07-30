@@ -1,8 +1,10 @@
 package com.thinklearn.tide.activitydriver;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -26,5 +28,14 @@ public class StudentProfile extends AppCompatActivity {
             inputJson.setText(studentProfileJson);
         }
 
+        findViewById(R.id.DoneButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("result", "\"under construction\"");
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
+        });
     }
 }
