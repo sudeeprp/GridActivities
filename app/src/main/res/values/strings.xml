@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">ActivityDriver</string>
+    <string name="title_activity_attendance_management">Attendance</string>
+    <string name="title_activity_teacher_start_screen">TeacherStartScreen</string>
+    <string name="home">Home</string>
+    <string name="attendance">Attendance</string>
+    <string name="students">Students</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="version">TIDE LearnerGrid Version 1.0</string>
+    <string name="title_activity_student">Students</string>
+    <string name="title_activity_student_list_content">student_list_content</string>
+    <string name="student_name">Student Name</string>
+    <string name="unknown_teacher">Select Teacher</string>
+    <string name="title_student_list">Students</string>
+    <string name="title_student_detail">Student Detail</string>
+    <string name="id">ID</string>
+    <string name="first_name">First Name</string>
+    <string name="surname">Surname</string>
+    <string name="classLabel">Class</string>
+    <string name="year">Year</string>
+    <string name="gender">Gender</string>
+
+    <string name="unknown_id">Unknown ID</string>
+    <string name="unknown_first_name">Unknown First Name</string>
+    <string name="unknown_surname">Unknown Surname</string>
+    <string name="unknow_classLabel">Unknown Class</string>
+    <string name="unknown_year">Unknown Year</string>
+    <string name="unknown_gender">Unknown Gender</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="title_activity_teacher_login">TeacherLogin</string>
+    <string name="login">Login</string>
+    <string name="teacher_image">Teacher Image</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="default_time">10:10 AM</string>
 </resources>

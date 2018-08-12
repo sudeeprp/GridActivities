@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.thinklearn.tide.activitydriver">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,6 +15,15 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="landscape"></activity>
+        <activity
+            android:name=".TeacherIdentification"
+            android:screenOrientation="landscape" />
+        <activity android:name=".StudentIdentification" />
+        <activity android:name=".StudentProfile" />
+        <activity android:name=".Attendance" />
+        <activity
+            android:name=".Launch"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,11 +32,32 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TeacherIdentification"
+            android:name=".TeacherWelcomeActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".StudentIdentification" />
-        <activity android:name=".StudentProfile" />
-        <activity android:name=".Attendance"></activity>
+        <activity
+            android:name=".StudentListActivity"
+            android:label="@string/title_student_list"
+            android:parentActivityName=".TeacherWelcomeActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.thinklearn.tide.activitydriver.TeacherWelcomeActivity" />
+        </activity>
+        <activity
+            android:name=".StudentDetailActivity"
+            android:label="@string/title_student_detail"
+            android:parentActivityName=".StudentListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.thinklearn.tide.activitydriver.StudentListActivity" />
+        </activity>
+        <activity
+            android:name=".TeacherLoginActivity"
+            android:label="@string/title_activity_teacher_login"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Curriculum"></activity>
     </application>
 
 </manifest>
