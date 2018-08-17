@@ -11,6 +11,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.dto.Teacher
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ClassroomLoaded
@@ -18,7 +19,6 @@ import com.thinklearn.tide.interactor.ClassroomLoaded
 data class Classroom(val class_name: String, val school_name: String)
 
 class Launch : AppCompatActivity() {
-    var classroomInteractor = ClassroomInteractor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,14 +28,13 @@ class Launch : AppCompatActivity() {
         getSupportActionBar()?.hide();
         setContentView(R.layout.activity_launch)
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
         val schoolsListView = findViewById<ListView>(R.id.SchoolsList)
         val thisContext = this
 
         //TODO: Check max number of schools (<50) before querying!
+        FirebaseDatabase.getInstance().getReference("ICDev").child("classrooms").keepSynced(true)
         FirebaseDatabase.getInstance().getReference("ICDev").child("classrooms").
-                addListenerForSingleValueEvent(object: ValueEventListener {
+                addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(classrooms_snapshot: DataSnapshot) {
                         val schools = arrayOfNulls<String>(classrooms_snapshot.childrenCount.toInt())
                         val school_ids = arrayOfNulls<String>(classrooms_snapshot.childrenCount.toInt())
@@ -50,9 +49,10 @@ class Launch : AppCompatActivity() {
                         schoolsListView.adapter = adapter
                         schoolsListView.setOnItemClickListener { parent, view, position, id ->
                             println("** #" + position.toString() + " ID = " + school_ids[position] + " is clicked");
-                            classroomInteractor.load("ICDev", school_ids[position]!!, object: ClassroomLoaded {
+                            FirebaseDatabase.getInstance().getReference("ICDev").child("classrooms").keepSynced(false)
+                            ClassroomInteractor.load("ICDev", school_ids[position]!!, object: ClassroomLoaded {
                                 override fun onLoadComplete() {
-                                    startTeacherLogin(classroomInteractor.get_teachers())
+                                    startTeacherLogin()
                                 }
                             }) }
                     }
@@ -62,9 +62,10 @@ class Launch : AppCompatActivity() {
                     }
                 })
     }
-    fun startTeacherLogin(teachers: ArrayList<Teacher>) {
-        var teacherLoginIntent = Intent(this, TeacherLoginActivity::class.java)
-        teacherLoginIntent.putParcelableArrayListExtra("TEACHER_LIST", teachers)
+    fun startTeacherLogin() {
+        val teacherLoginIntent = Intent(this, TeacherLoginActivity::class.java)
+        teacherLoginIntent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.get_teachers())
+        teacherLoginIntent.putParcelableArrayListExtra("STUDENT_LIST", ClassroomInteractor.get_students())
         startActivityForResult(teacherLoginIntent, 0)
     }
 }

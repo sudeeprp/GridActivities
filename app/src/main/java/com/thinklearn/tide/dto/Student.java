@@ -4,10 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Date;
+import java.util.HashMap;
 
 public class Student implements Parcelable {
 
-    private long id;
+    private String id;
 
     private String firstName;
 
@@ -21,16 +22,17 @@ public class Student implements Parcelable {
 
     private String thumbnail;
 
-    private String academicYear;
+    private HashMap<String, String> currentChapter;
 
     public Student() {
+        currentChapter = new HashMap<String, String>();
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -82,16 +84,13 @@ public class Student implements Parcelable {
         this.thumbnail = thumbnail;
     }
 
-    public String getAcademicYear() {
-        return academicYear;
-    }
-
-    public void setAcademicYear(String academicYear) {
-        this.academicYear = academicYear;
+    public String getCurrentChapter(String subject) { return this.currentChapter.get(subject); }
+    public void setCurrentChapter(String subject, String chapter) {
+        this.currentChapter.put(subject, chapter);
     }
 
     protected Student(Parcel in) {
-        id = in.readLong();
+        id = in.readString();
         firstName = in.readString();
         surname = in.readString();
         long tmpBirthDate = in.readLong();
@@ -99,7 +98,7 @@ public class Student implements Parcelable {
         gender = in.readString();
         grade = in.readString();
         thumbnail = in.readString();
-        academicYear = in.readString();
+        currentChapter = (HashMap)in.readSerializable();
     }
 
     @Override
@@ -109,14 +108,14 @@ public class Student implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
+        dest.writeString(id);
         dest.writeString(firstName);
         dest.writeString(surname);
         dest.writeLong(birthDate != null ? birthDate.getTime() : -1L);
         dest.writeString(gender);
         dest.writeString(grade);
         dest.writeString(thumbnail);
-        dest.writeString(academicYear);
+        dest.writeSerializable(currentChapter);
     }
 
     @SuppressWarnings("unused")

@@ -36,7 +36,7 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
 
         for (int i=1;i<10;i++){
             Student studentInput = new Student();
-            studentInput.setId(i);
+            studentInput.setId(Integer.toString(i));
             studentInput.setFirstName(i + "Elvin D'Souza");
             studentInput.setSurname(i + "RajKumar");
             studentInput.setGender(i + "Male");
@@ -64,7 +64,7 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
                     intent.putParcelableArrayListExtra("studentInputList", (ArrayList<? extends Parcelable>) studentInputList);
                     startActivityForResult(intent, 2);
                 } else if(v == ivDashboard) {
-                    Intent curriculumIntent = new Intent(TeacherWelcomeActivity.this, Curriculum.class);
+                    Intent curriculumIntent = new Intent(TeacherWelcomeActivity.this, CurriculumSelector.class);
                     curriculumIntent.putExtra("selection", output);
                     startActivityForResult(curriculumIntent, 3);
                 }
