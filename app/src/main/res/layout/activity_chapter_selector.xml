@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CurriculumChapters">
+    tools:context=".ChapterSelector">
 
     <WebView
-        android:id="@+id/curriculum_page"
+        android:id="@+id/chapters_page"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

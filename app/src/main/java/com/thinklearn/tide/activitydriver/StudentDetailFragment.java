@@ -76,7 +76,7 @@ public class StudentDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.tvFirstName)).setText(mItem.getFirstName());
             ((TextView) rootView.findViewById(R.id.tvSurname)).setText(mItem.getSurname());
             ((TextView) rootView.findViewById(R.id.tvClass)).setText(mItem.getGrade());
-            ((TextView) rootView.findViewById(R.id.tvYear)).setText(mItem.getAcademicYear());
+            ((TextView) rootView.findViewById(R.id.tvYear)).setText(""); //TODO: Figure out academic year
             ((TextView) rootView.findViewById(R.id.tvGender)).setText(mItem.getGender());
             imageView = rootView.findViewById(R.id.ivStudentCapturedImage);
              rootView.findViewById(R.id.btchangePhoto).setOnClickListener(new View.OnClickListener() {

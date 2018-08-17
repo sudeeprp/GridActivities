@@ -1,5 +1,6 @@
 package com.thinklearn.tide.interactor
 
+import android.media.MediaScannerConnection
 import android.os.Environment
 import android.util.Log
 import java.io.File
@@ -30,6 +31,10 @@ class ContentInteractor {
     constructor() {
         create_default_if_not_exist()
         read_config()
+    }
+
+    fun chapters_path(grade: String, subject: String): String {
+        return base_path + "/" + grade + "_" + subject + "/" + "chapters.html"
     }
 
     fun create_default_if_not_exist() {
