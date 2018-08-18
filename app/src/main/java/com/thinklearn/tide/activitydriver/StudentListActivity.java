@@ -46,9 +46,15 @@ public class StudentListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_list);
 
+        String selectedGrade = getIntent().getStringExtra("selectedGrade");
+        String selectedGender = getIntent().getStringExtra("selectedGender");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+
+        ((TextView) findViewById(R.id.selectedClass)).setText(": " +selectedGrade);
+        ((TextView) findViewById(R.id.selectedGender)).setText(": " +selectedGender);
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();

@@ -15,15 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:name=".TeacherIdentification"
-            android:screenOrientation="landscape" />
-        <activity android:name=".StudentIdentification" />
-        <activity android:name=".StudentProfile" />
-        <activity android:name=".Attendance" />
-        <activity
             android:name=".Launch"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -61,6 +52,13 @@
         <activity android:name=".CurriculumChapters" />
         <activity android:name=".CurriculumSelector" />
         <activity android:name=".ChapterSelector"></activity>
+        <activity android:name=".AttendenceManagementActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".GradeSelectionActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".GenderSelectionActivity"
+            android:screenOrientation="landscape" />
+        <activity android:name=".StudentGridActivity" android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>
