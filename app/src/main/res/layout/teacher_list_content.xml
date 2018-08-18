@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center_vertical"
-    android:padding="20dp">
+    >
 
 
     <ImageView
@@ -15,7 +15,8 @@
         android:layout_marginTop="10dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/teacher_image"
-        android:src="@drawable/student" />
+        android:src="@drawable/student"
+       />
 
     <TextView
         android:id="@+id/tvTeacherName"

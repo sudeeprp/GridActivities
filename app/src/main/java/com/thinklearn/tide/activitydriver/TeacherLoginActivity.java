@@ -2,6 +2,7 @@ package com.thinklearn.tide.activitydriver;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +39,7 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
 
         recyclerView = findViewById(R.id.rvHorizantalTeacherList);
         selectedTeacherName = findViewById(R.id.tvSSelectedteacherName);
+        findViewById(R.id.login).setEnabled(false);
         selectedTeacherName.setFactory(this);
         selectedTeacherName.setCurrentText(getText(R.string.unknown_teacher));
 
@@ -64,6 +66,7 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
     public void onTeacherSelected(View v, int position) {
          Teacher teacherWelcomeInput = teacherWelcomeInputList.get(position);
         selectedTeacherName.setText(teacherWelcomeInput.getTeacherName());
+        findViewById(R.id.login).setEnabled(true);
     }
 
     @Override

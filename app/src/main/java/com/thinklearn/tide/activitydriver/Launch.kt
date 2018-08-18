@@ -52,6 +52,7 @@ class Launch : AppCompatActivity() {
                             FirebaseDatabase.getInstance().getReference("ICDev").child("classrooms").keepSynced(false)
                             ClassroomInteractor.load("ICDev", school_ids[position]!!, object: ClassroomLoaded {
                                 override fun onLoadComplete() {
+                                    ClassroomInteractor.removeLoadedEvent()
                                     startTeacherLogin()
                                 }
                             }) }
@@ -64,8 +65,8 @@ class Launch : AppCompatActivity() {
     }
     fun startTeacherLogin() {
         val teacherLoginIntent = Intent(this, TeacherLoginActivity::class.java)
-        teacherLoginIntent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.get_teachers())
-        teacherLoginIntent.putParcelableArrayListExtra("STUDENT_LIST", ClassroomInteractor.get_students())
+        teacherLoginIntent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.teachers)
+        teacherLoginIntent.putParcelableArrayListExtra("STUDENT_LIST", ClassroomInteractor.students)
         startActivityForResult(teacherLoginIntent, 0)
     }
 }

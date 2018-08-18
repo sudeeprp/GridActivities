@@ -13,110 +13,105 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 
-fun translate_DB_to_teachers(teachers_data: DataSnapshot, teachers_thumbnails: DataSnapshot): ArrayList<Teacher> {
-    var teachers = ArrayList<Teacher>()
-    teachers_data.children.forEach {
-        val teacher = Teacher()
-        teacher.id = it.key.toString()
-        teacher.teacherName = it.child("name").value.toString()
-        teacher.thumbnail = teachers_thumbnails.child(teacher.id).child("thumbnail").value.toString()
-        teachers.add(teacher)
-    }
-    return teachers
-}
-
-fun translate_DB_to_students(students_data: DataSnapshot, students_thumbnails: DataSnapshot): ArrayList<Student> {
-    var students = ArrayList<Student>()
-    students_data.children.forEach {
-        val student = Student()
-        student.id = it.key.toString()
-        val older = it.child("name").value.toString()
-        student.firstName = it.child("first_name").value.toString()
-        student.surname = it.child("surname").value.toString()
-        student.birthDate = SimpleDateFormat("dd/MM/yyyy").
-                parse(it.child("birth_date").child("dd").value.toString() + "/" +
-                        it.child("birth_date").child("mm").value.toString() + "/" +
-                        it.child("birth_date").child("yyyy").value.toString())
-        student.gender = it.child("gender").value.toString()
-        student.grade = it.child("grade").value.toString()
-        student.thumbnail = students_thumbnails.child(student.id).child("thumbnail").value.toString()
-        it.child("current_chapter").children.forEach {
-            student.setCurrentChapter(it.key.toString(), it.value.toString())
-        }
-        students.add(student)
-    }
-    return students
-}
-
-fun translate_DB_to_subject_current(subject_current_chapter: DataSnapshot): HashMap<String, String> {
-    val subject_chapter = HashMap<String, String>()
-    subject_current_chapter.children.forEach {
-        subject_chapter.put(it.key.toString(), it.value.toString())
-    }
-    return subject_chapter
-}
-
 interface ClassroomLoaded {
     fun onLoadComplete()
 }
-class ClassroomSnapshot(val loadCompleteTrigger: ClassroomLoaded) {
-    var classroom_desc: DataSnapshot? = null
-    set(value) {
-        field = value
-        check_and_trigger_complete()
-    }
-    var classroom_assets: DataSnapshot? = null
-    set(value) {
-        field = value
-        check_and_trigger_complete()
-    }
-    var class_thumbnails: DataSnapshot? = null
-    set(value) {
-        field = value
-        check_and_trigger_complete()
-    }
-    fun check_and_trigger_complete() {
-        if(classroom_desc?.exists() != null && classroom_assets?.exists() != null &&
-            class_thumbnails?.exists() != null) {
-            loadCompleteTrigger.onLoadComplete()
-        }
-    }
-}
 object ClassroomInteractor {
-    lateinit var classroomSnapshot: ClassroomSnapshot //TODO: Can remove
     lateinit var loadedLearningProject: String
     lateinit var loadedClassroomID: String
-    lateinit var teachers: ArrayList<Teacher>
-    lateinit var students: ArrayList<Student>
-    lateinit var subject_current_chapter: HashMap<String, String>
+    var teachers = ArrayList<Teacher>()
+    var students = ArrayList<Student>()
+    var subject_current_chapter = HashMap<String, String>()
+    var loadedEvent: ClassroomLoaded? = null
 
-    fun load(learningProject: String, classroom_id: String, loadedEvent: ClassroomLoaded) {
-        classroomSnapshot = ClassroomSnapshot(object: ClassroomLoaded {
-            override fun onLoadComplete() {
-                teachers = translate_DB_to_teachers(classroomSnapshot.classroom_assets!!.child("teachers"),
-                        classroomSnapshot.class_thumbnails!!.child("teachers"))
-                students = translate_DB_to_students(classroomSnapshot.classroom_assets!!.child("students"),
-                        classroomSnapshot.class_thumbnails!!.child("students"))
-                subject_current_chapter = translate_DB_to_subject_current(classroomSnapshot.classroom_assets!!.
-                        child("class_subject_current"))
-                loadedEvent.onLoadComplete()
+    fun get_teacher_index(id: String): Int {
+        for(i in teachers.indices) {
+            if(teachers[i].id == id) {
+                return i
             }
-        })
+        }
+        //Teacher not found. Add at end and return the last index
+        val teacher = Teacher()
+        teacher.id = id
+        teachers.add(teacher)
+        return teachers.count() - 1
+    }
+    fun get_student_index(id: String): Int {
+        for(i in students.indices) {
+            if(students[i].id == id) {
+                return i
+            }
+        }
+        //Student not found. Add at end and return the last index
+        val student = Student()
+        student.id = id
+        students.add(student)
+        return students.count() - 1
+    }
+    fun fill_assets_into_teachers(teachers_snapshot: DataSnapshot?) {
+        teachers_snapshot?.children?.forEach {
+            val i = get_teacher_index(it.key)
+            teachers[i].teacherName = it.child("name").value.toString()
+        }
+    }
+    fun fill_thumbnails_into_teachers(teachers_thumbnails: DataSnapshot?) {
+        teachers_thumbnails?.children?.forEach {
+            val i = get_teacher_index(it.key)
+            teachers[i].thumbnail = it.child("thumbnail").value.toString()
+        }
+    }
+    fun fill_assets_into_students(students_snapshot: DataSnapshot?) {
+        students_snapshot?.children?.forEach {
+            val i = get_student_index(it.key)
+            students[i].firstName = it.child("first_name").value.toString()
+            students[i].surname = it.child("surname").value.toString()
+            students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").
+                    parse(it.child("birth_date").child("dd").value.toString() + "/" +
+                            it.child("birth_date").child("mm").value.toString() + "/" +
+                            it.child("birth_date").child("yyyy").value.toString())
+            students[i].gender = it.child("gender").value.toString()
+            students[i].grade = it.child("grade").value.toString()
+            it.child("current_chapter").children.forEach {
+                students[i].setCurrentChapter(it.key.toString(), it.value.toString())
+            }
+        }
+    }
+    fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
+        students_thumbnails?.children?.forEach {
+            val i = get_student_index(it.key)
+            students[i].thumbnail = it.child("thumbnail").value.toString()
+        }
+    }
+    fun fill_assets_into_current_chapters(subject_chapter: DataSnapshot?) {
+        subject_chapter?.children?.forEach {
+            subject_current_chapter.put(it.key, it.value.toString())
+        }
+    }
+    fun removeLoadedEvent() {
+        loadedEvent = null
+    }
+    fun load(learningProject: String, classroom_id: String, loaded_event: ClassroomLoaded) {
         loadedLearningProject = learningProject
         loadedClassroomID = classroom_id
+        loadedEvent = loaded_event
         FirebaseDatabase.getInstance().getReference(learningProject).child("classroom_assets").
-                child(classroom_id).addListenerForSingleValueEvent(object: ValueEventListener {
+                child(classroom_id).addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(p0: DataSnapshot?) {
-                        classroomSnapshot.classroom_assets = p0!!
+                        fill_assets_into_teachers(p0?.child("teachers"))
+                        fill_assets_into_students(p0?.child("students"))
+                        fill_assets_into_current_chapters(p0?.child("class_subject_current"))
                     }
                     override fun onCancelled(p0: DatabaseError?) {
                         println("classroom_assets fetch: onCancelled ${p0?.toException()}")
                     }
                 })
         FirebaseDatabase.getInstance().getReference(learningProject).child("thumbnails").child("classrooms").
-                child(classroom_id).addListenerForSingleValueEvent(object: ValueEventListener {
+                child(classroom_id).addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(p0: DataSnapshot?) {
-                        classroomSnapshot.class_thumbnails = p0!!
+                        fill_thumbnails_into_teachers(p0?.child("teachers"))
+                        fill_thumbnails_into_students(p0?.child("students"))
+                        //TODO: This will not work if thumbnails come first
+                        loadedEvent?.onLoadComplete()
                     }
                     override fun onCancelled(p0: DatabaseError?) {
                         println("thumbnails fetch: onCancelled ${p0?.toException()}")
@@ -125,7 +120,7 @@ object ClassroomInteractor {
         FirebaseDatabase.getInstance().getReference(learningProject).child("classrooms")
                 .child(classroom_id).addListenerForSingleValueEvent(object: ValueEventListener {
                     override fun onDataChange(p0: DataSnapshot?) {
-                        classroomSnapshot.classroom_desc = p0!!
+                        //TODO: add memeber function to fill classroom descriptor and call it here
                     }
                     override fun onCancelled(p0: DatabaseError?) {
                         println("classrooms fetch: onCancelled ${p0?.toException()}")
@@ -133,11 +128,21 @@ object ClassroomInteractor {
                 })
     }
 
-    fun get_teachers(): ArrayList<Teacher> {
-        return teachers
+    fun get_teacher(id: String): Teacher? {
+        for(teacher in teachers) {
+            if(teacher.id == id) {
+                return teacher
+            }
+        }
+        return null
     }
-    fun get_students(): ArrayList<Student> {
-        return students
+    fun get_student(id: String): Student? {
+        for(student in students) {
+            if(student.id == id) {
+                return student
+            }
+        }
+        return null
     }
     fun get_current_chapter(grade_subject: String): String? {
         return subject_current_chapter.get(grade_subject)

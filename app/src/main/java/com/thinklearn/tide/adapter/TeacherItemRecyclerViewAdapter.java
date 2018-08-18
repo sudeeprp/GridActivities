@@ -1,10 +1,13 @@
 package com.thinklearn.tide.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -47,7 +50,9 @@ public class TeacherItemRecyclerViewAdapter extends RecyclerView.Adapter<Teacher
         if(teacherWelcomeInputList.get(position).getThumbnail() != null) {
             byte[] decodedString = Base64.decode(teacherWelcomeInputList.get(position).getThumbnail(), Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            holder.imageView.setImageBitmap(decodedByte);
+            RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
+            roundedBitmapDrawable.setCircular(true);
+            holder.imageView.setImageDrawable(roundedBitmapDrawable);
         } else {
             holder.imageView.setImageResource(R.drawable.student);
         }
