@@ -3,9 +3,14 @@ package com.thinklearn.tide.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 public class AttendanceInput implements Parcelable {
 
@@ -15,11 +20,13 @@ public class AttendanceInput implements Parcelable {
 
     private List<Date> holidayList;
 
-    private Date attendanceDate;
-
-    private List<Long> absentList;
-
     private List<Student> studentList;
+
+    private Map<String, List<String>> absentees;
+
+    public AttendanceInput() {
+
+    }
 
     protected AttendanceInput(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readLong();
@@ -31,19 +38,16 @@ public class AttendanceInput implements Parcelable {
         } else {
             holidayList = null;
         }
-        long tmpAttendanceDate = in.readLong();
-        attendanceDate = tmpAttendanceDate != -1 ? new Date(tmpAttendanceDate) : null;
-        if (in.readByte() == 0x01) {
-            absentList = new ArrayList<Long>();
-            in.readList(absentList, Long.class.getClassLoader());
-        } else {
-            absentList = null;
-        }
         if (in.readByte() == 0x01) {
             studentList = new ArrayList<Student>();
             in.readList(studentList, Student.class.getClassLoader());
         } else {
             studentList = null;
+        }
+        if (in.readByte() == 0x01) {
+            absentees = readAbsentees(in);
+        } else {
+            absentees = null;
         }
     }
 
@@ -67,20 +71,46 @@ public class AttendanceInput implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeList(holidayList);
         }
-        dest.writeLong(attendanceDate != null ? attendanceDate.getTime() : -1L);
-        if (absentList == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(absentList);
-        }
         if (studentList == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
             dest.writeList(studentList);
         }
+        if (absentees == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            writeAbsenteesToParcel(dest, flags);
+        }
     }
+
+    // For writing to a Parcel
+    public void writeAbsenteesToParcel(
+            Parcel parcel, int flags) {
+        parcel.writeInt(absentees.size());
+        for(Map.Entry<String, List<String>> e : absentees.entrySet()){
+            parcel.writeString(e.getKey());
+            parcel.writeStringList(e.getValue());
+        }
+    }
+
+    // For reading from a Parcel
+    public Map<String, List<String>> readAbsentees(
+            Parcel parcel)
+    {
+        int size = parcel.readInt();
+        Map<String, List<String>> map = new HashMap<String, List<String>>(size);
+        for(int i = 0; i < size; i++){
+            String dateStr = parcel.readString();
+            List<String> students = new ArrayList<>();
+            parcel.readStringList(students);
+            map.put(dateStr, students);
+        }
+        return map;
+    }
+
+
 
     @SuppressWarnings("unused")
     public static final Parcelable.Creator<AttendanceInput> CREATOR = new Parcelable.Creator<AttendanceInput>() {
@@ -94,7 +124,6 @@ public class AttendanceInput implements Parcelable {
             return new AttendanceInput[size];
         }
     };
-
 
     public Long getId() {
         return id;
@@ -120,27 +149,19 @@ public class AttendanceInput implements Parcelable {
         this.holidayList = holidayList;
     }
 
-    public Date getAttendanceDate() {
-        return attendanceDate;
-    }
-
-    public void setAttendanceDate(Date attendanceDate) {
-        this.attendanceDate = attendanceDate;
-    }
-
-    public List<Long> getAbsentList() {
-        return absentList;
-    }
-
-    public void setAbsentList(List<Long> absentList) {
-        this.absentList = absentList;
-    }
-
     public List<Student> getStudentList() {
         return studentList;
     }
 
     public void setStudentList(List<Student> studentList) {
         this.studentList = studentList;
+    }
+
+    public Map<String, List<String>> getAbsentees() {
+        return absentees;
+    }
+
+    public void setAbsentees(Map<String, List<String>> absentees) {
+        this.absentees = absentees;
     }
 }

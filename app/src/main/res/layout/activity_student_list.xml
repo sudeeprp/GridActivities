@@ -17,7 +17,40 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/classLabel"
+                android:textSize="25px"
+                android:textColor="#fff"
+                android:layout_marginStart="100dp"
+                />
+            <TextView
+                android:id="@+id/selectedClass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/unknow_classLabel"
+                android:textColor="#fff"
+                android:textSize="25px"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gender"
+                android:textSize="25px"
+                android:textColor="#fff"
+                android:layout_marginStart="20dp"
+                />
+            <TextView
+                android:id="@+id/selectedGender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/unknown_gender"
+                android:textColor="#fff"
+                android:textSize="25px"/>
+        </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
 

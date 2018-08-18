@@ -84,7 +84,7 @@ public class Student implements Parcelable {
         this.thumbnail = thumbnail;
     }
 
-    public String getCurrentChapter(String subject) { return this.currentChapter.get(subject); }
+    public String getCurrentChapter(String subject) { return this.currentChapter.get(subject.toLowerCase()); }
     public void setCurrentChapter(String subject, String chapter) {
         this.currentChapter.put(subject, chapter);
     }

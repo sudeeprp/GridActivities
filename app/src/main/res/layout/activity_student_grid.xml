@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StudentGridActivity"
+    android:orientation="vertical">
+
+<android.support.v7.widget.Toolbar
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorPrimary">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/students"
+        android:textSize="25sp"
+        android:textColor="#fff"
+        android:layout_marginStart="20dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/classLabel"
+        android:textSize="25px"
+        android:textColor="#fff"
+        android:layout_marginStart="100dp"
+        />
+    <TextView
+        android:id="@+id/selectedClass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/unknow_classLabel"
+        android:textColor="#fff"
+        android:textSize="25px"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gender"
+        android:textSize="25px"
+        android:textColor="#fff"
+        android:layout_marginStart="20dp"
+        />
+    <TextView
+        android:id="@+id/selectedGender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/unknown_gender"
+        android:textColor="#fff"
+        android:textSize="25px"/>
+</android.support.v7.widget.Toolbar>
+
+
+
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gvStudentGrid"
+    android:numColumns="6"
+    android:gravity="center"
+    android:columnWidth="100dp"
+    android:stretchMode="columnWidth"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+</GridView>
+</LinearLayout>
