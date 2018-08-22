@@ -32,17 +32,13 @@ public class AttendanceInput implements Parcelable {
         id = in.readByte() == 0x00 ? null : in.readLong();
         long tmpWeekStartDate = in.readLong();
         weekStartDate = tmpWeekStartDate != -1 ? new Date(tmpWeekStartDate) : null;
+        holidayList = new ArrayList<Date>();
         if (in.readByte() == 0x01) {
-            holidayList = new ArrayList<Date>();
             in.readList(holidayList, Date.class.getClassLoader());
-        } else {
-            holidayList = null;
         }
+        studentList = new ArrayList<Student>();
         if (in.readByte() == 0x01) {
-            studentList = new ArrayList<Student>();
             in.readList(studentList, Student.class.getClassLoader());
-        } else {
-            studentList = null;
         }
         if (in.readByte() == 0x01) {
             absentees = readAbsentees(in);

@@ -25,9 +25,14 @@ public class StudentGridAdapter extends BaseAdapter {
 
     private List<Student> studentList;
 
-    public StudentGridAdapter(Context mContext, List<Student> studentList) {
+    private Student selectedStudent;
+
+    private StudentSelectedListener studentSelecttedListener;
+
+    public StudentGridAdapter(Context mContext, List<Student> studentList,StudentSelectedListener studentSelectedListener) {
         this.mContext = mContext;
         this.studentList = studentList;
+        this.studentSelecttedListener = studentSelectedListener;
     }
 
     @Override
@@ -46,77 +51,58 @@ public class StudentGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View gridView;
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (convertView == null) {
-
-            gridView = new View(mContext);
-
-            gridView = inflater.inflate(R.layout.student_grid_item,null);
-
-            TextView studentName = gridView.findViewById(R.id.tvStudentName);
-
-            studentName.setText(studentList.get(position).getFirstName()+" "+studentList.get(position).getSurname());
-
-            // set image based on selected text
-            ImageView studentImage =  gridView
-                    .findViewById(R.id.ivStudentImage);
-
-            if(studentList.get(position).getThumbnail() != null) {
-                byte[] decodedString = Base64.decode(studentList.get(position).getThumbnail(), Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
-                roundedBitmapDrawable.setCircular(true);
-                studentImage.setImageDrawable(roundedBitmapDrawable);
-            } else {
-                Bitmap decodedByte = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.student);
-                RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
-                roundedBitmapDrawable.setCircular(true);
-                studentImage.setImageDrawable(roundedBitmapDrawable);
-            }
+            gridView = inflater.inflate(R.layout.student_grid_item, null);
         } else {
             gridView = convertView;
         }
+        Student currentStudent = studentList.get(position);
+        if (selectedStudent != null && selectedStudent.getId().equals(currentStudent.getId())) {
+            gridView.setBackgroundColor(mContext.getResources().getColor(R.color.colorLimeGreen));
+        } else {
+            gridView.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+        }
+        TextView studentName = gridView.findViewById(R.id.tvStudentName);
+        studentName.setText(currentStudent.getFirstName()+" "+currentStudent.getSurname());
 
+        // set image based on selected text
+        ImageView studentImage =  gridView
+                .findViewById(R.id.ivStudentImage);
 
+        if(studentList.get(position).getThumbnail() != null) {
+            byte[] decodedString = Base64.decode(currentStudent.getThumbnail(), Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
+            roundedBitmapDrawable.setCircular(true);
+            studentImage.setImageDrawable(roundedBitmapDrawable);
+        } else {
+            Bitmap decodedByte = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.student);
+            RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
+            roundedBitmapDrawable.setCircular(true);
+            studentImage.setImageDrawable(roundedBitmapDrawable);
+        }
+        gridView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                selectedStudent = studentList.get(position);
+                studentSelecttedListener.onStudentSelected(v,position);
+                notifyDataSetChanged();
+            }
+        });
         return gridView;
     }
 
-   /* public Integer[] mThumbIds = {
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid, R.drawable.attendance_grid,
-            R.drawable.attendance_grid
-    };*/
+    public interface StudentSelectedListener {
+        void onStudentSelected(View v,int position);
+    }
+
+    public Student getSelectedStudent() {
+        return selectedStudent;
+    }
 }

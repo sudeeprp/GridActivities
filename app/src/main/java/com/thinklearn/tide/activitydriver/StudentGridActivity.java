@@ -3,9 +3,8 @@ package com.thinklearn.tide.activitydriver;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -13,9 +12,15 @@ import com.thinklearn.tide.adapter.StudentGridAdapter;
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class StudentGridActivity extends AppCompatActivity {
+import static com.thinklearn.tide.activitydriver.R.id.loginButton;
+
+public class StudentGridActivity extends AppCompatActivity implements StudentGridAdapter.StudentSelectedListener{
+
+
+    List<Student> studentInputList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,19 +32,22 @@ public class StudentGridActivity extends AppCompatActivity {
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
         String selectedGender = getIntent().getStringExtra("selectedGender");
 
+        findViewById(R.id.loginButton).setEnabled(false);
         ((TextView) findViewById(R.id.selectedClass)).setText(": " +selectedGrade);
         ((TextView) findViewById(R.id.selectedGender)).setText(": " +selectedGender);
 
-        final List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
         GridView gridView = findViewById(R.id.gvStudentGrid);
 
-        StudentGridAdapter studentGridAdapter = new StudentGridAdapter(StudentGridActivity.this,studentInputList);
+        final StudentGridAdapter studentGridAdapter = new StudentGridAdapter(StudentGridActivity.this,studentInputList,StudentGridActivity.this);
         gridView.setAdapter(studentGridAdapter);
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        findViewById(R.id.loginButton).setOnClickListener(new View.OnClickListener() {
+
             @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                //TODO: Do this only on login button (the other flow is anyway in StudentListActivity, not here
-                ClassroomContext.selectedStudent = studentInputList.get(position);
+            public void onClick(View v) {
+                //TODO:<<Fix this
+                ClassroomContext.selectedStudent = studentGridAdapter.getSelectedStudent();
                 ClassroomContext.selectedTeacher = null;
                 Intent curriculumIntent =
                         new Intent(StudentGridActivity.this, CurriculumSelector.class);
@@ -47,5 +55,12 @@ public class StudentGridActivity extends AppCompatActivity {
                 startActivityForResult(curriculumIntent, 3);
             }
         });
+    }
+
+    @Override
+    public void onStudentSelected(View v, int position) {
+        Student selectedStudent = studentInputList.get(position);
+        ((TextView)findViewById(R.id.selectedStudent)).setText(selectedStudent.getFirstName()+" "+selectedStudent.getSurname());
+        findViewById(R.id.loginButton).setEnabled(true);
     }
 }

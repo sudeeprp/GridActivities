@@ -3,11 +3,13 @@ package com.thinklearn.tide.activitydriver;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -16,6 +18,7 @@ import com.thinklearn.tide.dto.AttendanceInput;
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,6 +70,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         //add student title row
         TextView studentNameHeader = makeTableRowWithText(getString(R.string.student_name), fixedColumnWidths[0], fixedHeaderHeight);
         studentNameHeader.setPadding(10,10,10,10);
+        studentNameHeader.setGravity(Gravity.START);
         row.addView(studentNameHeader);
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -91,22 +95,31 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         for(int i = 0; i < students.size(); i++) {
             Student student = students.get(i);
             TextView fixedView = makeTableRowWithText(student.getFirstName()+" "+student.getSurname(), fixedColumnWidths[0], fixedRowHeight);
-            fixedView.setBackgroundColor(Color.WHITE);
-            fixedView.setPadding(10,10,10,10);
+            fixedView.setGravity(Gravity.START);
+            fixedView.setPadding(10,0,10,0);
             clickableRow = new TableRow(this);
             clickableRow.setLayoutParams(wrapWrapTableRowParams);
             clickableRow.setGravity(Gravity.CENTER);
-            clickableRow.setBackgroundColor(Color.WHITE);
             clickableRow.addView(fixedView);
             weekStartDate = attendance.getWeekStartDate();
             calendar = Calendar.getInstance();
             for(int j=0;j < 7;j++) {
                 String weekStartDateStr = formatter.format(weekStartDate);
-                if (todayStr.equals(weekStartDateStr)) {
+                if(attendance.getHolidayList().contains(weekStartDate)) {
+                    TextView textView = makeTableRowWithText("", fixedColumnWidths[j+1], fixedRowHeight);
+                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    textView.setTextColor(getResources().getColor(R.color.colorAccent));
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                    textView.setText(R.string.holiday);
+                    clickableRow.addView(textView);
+                }
+                else if (todayStr.equals(weekStartDateStr)) {
                     Button clickableArea = makeTableRowWithButton(" ", fixedColumnWidths[j + 1], fixedRowHeight, wrapWrapTableRowParams);
-                    clickableArea.setOnClickListener(this);
+                    if(!attendance.getHolidayList().contains(weekStartDate)) {
+                    	clickableArea.setOnClickListener(this);
+                    }
                     clickableArea.setTag(students.get(i).getId());
-                    clickableArea.setPadding(8, 8, 8, 8);
+                    
                     clickableRow.addView(clickableArea);
                 } else {
                     TextView textView = makeTableRowWithText("", fixedColumnWidths[j+1], fixedRowHeight);
@@ -133,21 +146,20 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         button.setText(text);
         button.setHeight(fixedRowHeight);
         button.setWidth(width);
+        button.setBackgroundColor(getResources().getColor(R.color.colorLimeGreen));
         return button;
     }
-
-    //util method
-    private TextView recyclableTextView;
 
     public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int width=(widthInPercentOfScreenWidth * screenWidth / 100);
-        recyclableTextView = new TextView(this);
+        TextView recyclableTextView = new TextView(this);
         recyclableTextView.setText(text);
         recyclableTextView.setTextColor(Color.BLACK);
         recyclableTextView.setTextSize(15);
         recyclableTextView.setWidth(width);
         recyclableTextView.setHeight(fixedHeightInPixels);
+        recyclableTextView.setGravity(Gravity.CENTER);
         return recyclableTextView;
     }
 

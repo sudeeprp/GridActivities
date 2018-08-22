@@ -36,13 +36,17 @@
     <TableLayout
         android:id="@+id/table_header"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle"/>
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
             <TableLayout
                 android:id="@+id/fixed_column"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:divider="?android:attr/dividerHorizontal"
+                android:showDividers="middle"/>
     </ScrollView>
 </LinearLayout>
