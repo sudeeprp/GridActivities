@@ -38,4 +38,7 @@
     <string name="select_grade">Select Grade</string>
     <string name="select_gender">Select Gender</string>
     <string name="current_grade">Current Grade</string>
+    <string name="start_as_teacher">Start as Teacher</string>
+    <string name="start_as_student">Start as Student</string>
+    <string name="select_school_mode">Select a school and teacher/student mode</string>
 </resources>
