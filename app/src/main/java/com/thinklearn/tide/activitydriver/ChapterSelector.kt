@@ -2,13 +2,13 @@ package com.thinklearn.tide.activitydriver
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.JsonWriter
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.thinklearn.tide.dto.Student
+import com.thinklearn.tide.interactor.ClassroomContext
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
 import org.json.JSONArray
@@ -34,7 +34,20 @@ class ChapterSelector : AppCompatActivity() {
         chaptersPage.addJavascriptInterface(ChapterSelectorInterface(grade, subject), "Android")
         chaptersPage.webViewClient = WebViewClient()
 
-        chaptersPage.loadUrl("file://" + ContentInteractor().chapters_path(grade, subject))
+        chaptersPage.loadUrl("file://" + ContentInteractor().chapters_page(grade, subject))
+
+        if(ClassroomContext.selectedTeacher == null && ClassroomContext.selectedStudent != null) {
+            chaptersPage.loadUrl("file://" +
+                    ContentInteractor().current_chapter_page(ClassroomContext.selectedStudent!!, subject))
+        }
+    }
+    override fun onBackPressed() {
+        val webView = findViewById<WebView>(R.id.chapters_page)
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            super.onBackPressed()
+        }
     }
 }
 

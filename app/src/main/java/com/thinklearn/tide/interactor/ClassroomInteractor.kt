@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.thinklearn.tide.dto.AttendanceInput
 import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.dto.Teacher
 import java.text.DateFormat
@@ -11,6 +12,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import com.google.firebase.database.GenericTypeIndicator
+import kotlin.collections.HashSet
 
 
 interface ClassroomLoaded {
@@ -20,10 +23,17 @@ object ClassroomInteractor {
     lateinit var loadedLearningProject: String
     lateinit var loadedClassroomID: String
     var teachers = ArrayList<Teacher>()
+    @JvmField
     var students = ArrayList<Student>()
     var subject_current_chapter = HashMap<String, String>()
     var loadedEvent: ClassroomLoaded? = null
+    var absentees: MutableMap<String, MutableList<String>> = hashMapOf()
 
+    fun reset_lists() {
+        teachers.clear()
+        students.clear()
+        subject_current_chapter.clear()
+    }
     fun get_teacher_index(id: String): Int {
         for(i in teachers.indices) {
             if(teachers[i].id == id) {
@@ -87,6 +97,25 @@ object ClassroomInteractor {
             subject_current_chapter.put(it.key, it.value.toString())
         }
     }
+    fun fill_assets_into_absentees(attendance_snapshot: DataSnapshot?) {
+        val t = object : GenericTypeIndicator<ArrayList<String>>() {}
+        attendance_snapshot?.children?.forEach {
+            val date = it.key
+            val absentee_ids = it.child("absent").getValue(t)
+            if(absentee_ids != null) {
+                absentees[date] = absentee_ids
+            }
+        }
+    }
+    @JvmStatic
+    fun set_day_attendance(date: String, absentees: ArrayList<String>) {
+        if(absentees.size == 0) {
+            FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
+                    child(loadedClassroomID).child("attendance").child(date).child("full_class").setValue(":)")
+        }
+        FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
+                child(loadedClassroomID).child("attendance").child(date).child("absent").setValue(absentees)
+    }
     fun removeLoadedEvent() {
         loadedEvent = null
     }
@@ -94,12 +123,14 @@ object ClassroomInteractor {
         loadedLearningProject = learningProject
         loadedClassroomID = classroom_id
         loadedEvent = loaded_event
+        reset_lists()
         FirebaseDatabase.getInstance().getReference(learningProject).child("classroom_assets").
                 child(classroom_id).addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(p0: DataSnapshot?) {
                         fill_assets_into_teachers(p0?.child("teachers"))
                         fill_assets_into_students(p0?.child("students"))
                         fill_assets_into_current_chapters(p0?.child("class_subject_current"))
+                        fill_assets_into_absentees(p0?.child("attendance"))
                     }
                     override fun onCancelled(p0: DatabaseError?) {
                         println("classroom_assets fetch: onCancelled ${p0?.toException()}")
@@ -156,10 +187,30 @@ object ClassroomInteractor {
     fun get_students_in_chapter(grade: String, subject: String, chapter: String): ArrayList<Student> {
         var students_in_chapter = ArrayList<Student>()
         students.forEach {
-            if(it.grade == grade && it.getCurrentChapter(subject) == chapter) {
-                students_in_chapter.add(it)
+            if(it.grade == grade) {
+                //TODO: Check if it's cleaner to put this in fill-to-asset logic
+                var currentChapter = it.getCurrentChapter(subject)
+                if(currentChapter == null) {
+                    currentChapter = ContentInteractor().first_chapter(it.grade, subject)
+                }
+                if(currentChapter == chapter) {
+                    students_in_chapter.add(it)
+                }
             }
         }
         return students_in_chapter
+    }
+    fun student_activity_complete(student: Student, subject: String, activityName: String) {
+        //TODO: <<student.addActivityCompletion(subject, activityName)
+    }
+    @JvmStatic
+    fun get_current_week_attendance(): AttendanceInput {
+        var week_attendance = AttendanceInput()
+        week_attendance.studentList = students
+        week_attendance.weekStartDate = SimpleDateFormat("yyyy-MM-dd").parse("2018-08-19")
+        //TODO: Filter only days of this week into week_absentees
+        val week_absentees = absentees
+        week_attendance.absentees = week_absentees
+        return week_attendance
     }
 }

@@ -14,15 +14,34 @@ import android.widget.TextView;
 
 import com.thinklearn.tide.dto.AttendanceInput;
 import com.thinklearn.tide.dto.Student;
+import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
+class AttendanceRecord {
+    HashSet<String> absentees = new HashSet<String>();
+    Date date;
+    AttendanceRecord(List<Student> students, Date recordDate) {
+        date = recordDate;
+        for(Student student: students) {
+            absentees.add(student.getId());
+        }
+    }
+    void set_present(String id) {
+        absentees.remove(id);
+    }
+    void set_absent(String id) {
+        absentees.add(id);
+    }
+}
 
 public class AttendenceManagementActivity extends AppCompatActivity implements View.OnClickListener {
-
+    AttendanceRecord record;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +55,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         int fixedRowHeight = 50;
         int fixedHeaderHeight = 60;
 
-
+        findViewById(R.id.SaveButton).setOnClickListener(this);
 
         TableRow row = new TableRow(this);
         TableRow clickableRow=null;
@@ -66,6 +85,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         header.addView(row);
 
         List<Student> students = attendance.getStudentList();
+        record = new AttendanceRecord(students, today);
         //header (fixed horizontally)
         TableLayout fixedColumn = (TableLayout) findViewById(R.id.fixed_column);
         for(int i = 0; i < students.size(); i++) {
@@ -85,7 +105,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                 if (todayStr.equals(weekStartDateStr)) {
                     Button clickableArea = makeTableRowWithButton(" ", fixedColumnWidths[j + 1], fixedRowHeight, wrapWrapTableRowParams);
                     clickableArea.setOnClickListener(this);
-                    clickableArea.setTag(i);
+                    clickableArea.setTag(students.get(i).getId());
                     clickableArea.setPadding(8, 8, 8, 8);
                     clickableRow.addView(clickableArea);
                 } else {
@@ -133,11 +153,19 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
 
     @Override
     public void onClick(View v) {
-     Button button = (Button) v;
-     if(button.getText().equals(" ")) {
-         button.setText("✓");
-     }else{
-         button.setText(" ");
-     }
+        if(v == findViewById(R.id.SaveButton)) {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            ClassroomInteractor.set_day_attendance
+                    (formatter.format(record.date), new ArrayList<String>(record.absentees));
+        } else {
+            Button button = (Button) v;
+            if (button.getText().equals(" ")) {
+                button.setText("✓");
+                record.set_present((String)(button.getTag()));
+            } else {
+                button.setText(" ");
+                record.set_absent((String)(button.getTag()));
+            }
+        }
     }
 }
