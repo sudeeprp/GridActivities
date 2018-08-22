@@ -43,7 +43,8 @@ class CurriculumChapters : AppCompatActivity() {
     }
 
     fun loadPage() {
-        val contentStartPage = ContentInteractor().content_start_page
+        //TODO: rename this activity to have the activities after the pencil (reporting done, etc)
+        val contentStartPage = "TODO"
         val webView = findViewById<WebView>(R.id.curriculum_page)
         //val contentStartPage = Environment.getExternalStorageDirectory().path + "/LTry/index.html"
         webView.loadUrl("file://" + contentStartPage)

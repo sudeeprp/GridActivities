@@ -11,17 +11,27 @@
         android:id="@+id/SchoolsList"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:choiceMode="singleChoice"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/GoButton"/>
+        app:layout_constraintRight_toLeftOf="@id/GoTeacher"/>
 
     <Button
-        android:id="@+id/GoButton"
+        android:id="@+id/GoTeacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go"
+        android:text="@string/start_as_teacher"
+        app:layout_constraintBottom_toTopOf="@id/GoStudent"
         app:layout_constraintLeft_toRightOf="@+id/SchoolsList"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
+    <Button
+        android:id="@+id/GoStudent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_as_student"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/SchoolsList"
+        app:layout_constraintRight_toRightOf="parent"/>
+
 </android.support.constraint.ConstraintLayout>

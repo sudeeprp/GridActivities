@@ -18,6 +18,7 @@ import android.widget.ViewSwitcher;
 
 import com.thinklearn.tide.adapter.TeacherItemRecyclerViewAdapter;
 import com.thinklearn.tide.dto.Teacher;
+import com.thinklearn.tide.interactor.ClassroomContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,8 +56,10 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ClassroomContext.selectedTeacher = teacherWelcomeInputList.get(teacherItemRecyclerViewAdapter.getSelectedPosition());
+                ClassroomContext.selectedStudent = null;
                 Intent intent  = new Intent(TeacherLoginActivity.this,TeacherWelcomeActivity.class);
-                intent.putExtra("TEACHER_IDENTIFICATION", teacherWelcomeInputList.get(teacherItemRecyclerViewAdapter.getSelectedPosition()));
+                intent.putExtra("TEACHER_IDENTIFICATION", ClassroomContext.selectedTeacher);
                 startActivity(intent);
             }
         });
@@ -64,8 +67,8 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
 
     @Override
     public void onTeacherSelected(View v, int position) {
-         Teacher teacherWelcomeInput = teacherWelcomeInputList.get(position);
-        selectedTeacherName.setText(teacherWelcomeInput.getTeacherName());
+        Teacher selectedTeacher = teacherWelcomeInputList.get(position);
+        selectedTeacherName.setText(selectedTeacher.getTeacherName());
         findViewById(R.id.login).setEnabled(true);
     }
 
