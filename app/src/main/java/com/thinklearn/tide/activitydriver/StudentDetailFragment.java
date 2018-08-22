@@ -13,6 +13,7 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ public class StudentDetailFragment extends Fragment {
     private ImageView imageView;
     private RecyclerView.Adapter adapter;
     private Bitmap newBitmap,oldBitmap;
+    private Button btSave,btCancel;
 
 
     public StudentDetailFragment() {
@@ -78,6 +80,10 @@ public class StudentDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.tvClass)).setText(mItem.getGrade());
             ((TextView) rootView.findViewById(R.id.tvYear)).setText(""); //TODO: Figure out academic year
             ((TextView) rootView.findViewById(R.id.tvGender)).setText(mItem.getGender());
+            btSave=rootView.findViewById(R.id.save);
+            btSave.setEnabled(false);
+            btCancel=rootView.findViewById(R.id.cancel);
+            btCancel.setEnabled(false);
             imageView = rootView.findViewById(R.id.ivStudentCapturedImage);
              rootView.findViewById(R.id.btchangePhoto).setOnClickListener(new View.OnClickListener() {
                  public void onClick(View v) {
@@ -93,6 +99,7 @@ public class StudentDetailFragment extends Fragment {
                      if(newBitmap!=null) {
                          setNewThumbnail(newBitmap);
                      }
+                     btCancel.setEnabled(false);
                  }
              });
 
@@ -130,6 +137,8 @@ public class StudentDetailFragment extends Fragment {
     private void onCaptureImageResult(Intent data) {
         newBitmap = (Bitmap) data.getExtras().get("data");
         imageView.setImageBitmap(newBitmap);
+        btSave.setEnabled(true);
+        btCancel.setEnabled(true);
     }
 
     private void setNewThumbnail(Bitmap bitmap) {
