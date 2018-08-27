@@ -24,6 +24,8 @@ public class AttendanceInput implements Parcelable {
 
     private Map<String, List<String>> absentees;
 
+    private List<String> presentStudents;
+
     public AttendanceInput() {
 
     }
@@ -32,18 +34,28 @@ public class AttendanceInput implements Parcelable {
         id = in.readByte() == 0x00 ? null : in.readLong();
         long tmpWeekStartDate = in.readLong();
         weekStartDate = tmpWeekStartDate != -1 ? new Date(tmpWeekStartDate) : null;
-        holidayList = new ArrayList<Date>();
         if (in.readByte() == 0x01) {
+            holidayList = new ArrayList<Date>();
             in.readList(holidayList, Date.class.getClassLoader());
+        } else {
+            holidayList = null;
         }
-        studentList = new ArrayList<Student>();
         if (in.readByte() == 0x01) {
+            studentList = new ArrayList<Student>();
             in.readList(studentList, Student.class.getClassLoader());
+        } else {
+            studentList = null;
         }
         if (in.readByte() == 0x01) {
             absentees = readAbsentees(in);
         } else {
             absentees = null;
+        }
+        if (in.readByte() == 0x01) {
+            presentStudents = new ArrayList<String>();
+            in.readList(presentStudents, String.class.getClassLoader());
+        } else {
+            presentStudents = null;
         }
     }
 
@@ -78,6 +90,12 @@ public class AttendanceInput implements Parcelable {
         } else {
             dest.writeByte((byte) (0x01));
             writeAbsenteesToParcel(dest, flags);
+        }
+        if (presentStudents == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(presentStudents);
         }
     }
 
@@ -159,5 +177,13 @@ public class AttendanceInput implements Parcelable {
 
     public void setAbsentees(Map<String, List<String>> absentees) {
         this.absentees = absentees;
+    }
+
+    public List<String> getPresentStudents() {
+        return presentStudents;
+    }
+
+    public void setPresentStudents(List<String> presentStudents) {
+        this.presentStudents = presentStudents;
     }
 }

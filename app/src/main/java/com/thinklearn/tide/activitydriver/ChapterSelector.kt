@@ -1,5 +1,6 @@
 package com.thinklearn.tide.activitydriver
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
@@ -31,7 +32,7 @@ class ChapterSelector : AppCompatActivity() {
         val chaptersPage = findViewById<WebView>(R.id.chapters_page)
         chaptersPage.settings.javaScriptEnabled = true
         chaptersPage.settings.allowFileAccessFromFileURLs = true
-        chaptersPage.addJavascriptInterface(ChapterSelectorInterface(grade, subject), "Android")
+        chaptersPage.addJavascriptInterface(ChapterSelectorInterface(this, grade, subject), "Android")
         chaptersPage.webViewClient = WebViewClient()
 
         chaptersPage.loadUrl("file://" + ContentInteractor().chapters_page(grade, subject))
@@ -51,7 +52,9 @@ class ChapterSelector : AppCompatActivity() {
     }
 }
 
-class ChapterSelectorInterface(val grade: String, val subject: String) {
+class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: String, val subject: String) {
+    var chapter_shown: String = ""
+
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
         println(chapterIdent)
@@ -72,7 +75,7 @@ class ChapterSelectorInterface(val grade: String, val subject: String) {
         println("**giving back students")
         val students_json = JSONArray()
         for(student in students_in_chapter) {
-            var student_json = JSONObject()
+            val student_json = JSONObject()
             student_json.put("name", student.firstName + " " + student.surname)
             student_json.put("thumbnail", student.thumbnail)
             students_json.put(student_json)
@@ -94,6 +97,19 @@ class ChapterSelectorInterface(val grade: String, val subject: String) {
     @JavascriptInterface
     fun getStudentThumbnail(id: String): String {
         return ClassroomInteractor.get_student(id)?.thumbnail + ""
+    }
+    @JavascriptInterface
+    fun chapterEntered(chapterName: String) {
+        chapter_shown = chapterName
+    }
+    @JavascriptInterface
+    fun startActivity(activity_identifier: String) {
+        val activityIntent = Intent(chapterContext, CurriculumActivity::class.java)
+        activityIntent.putExtra("SELECTED_GRADE", grade)
+        activityIntent.putExtra("SELECTED_SUBJECT", subject)
+        activityIntent.putExtra("SELECTED_CHAPTER", chapter_shown)
+        activityIntent.putExtra("SELECTED_ACTIVITY", activity_identifier)
+        chapterContext.startActivityForResult(activityIntent, 3)
     }
     fun grade_subject(): String {
         return grade + "_" + subject.toLowerCase()
