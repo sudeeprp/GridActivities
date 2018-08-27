@@ -83,4 +83,8 @@ a        """.trimIndent()
         }
         return chapters_directory(student.grade, subject) + "/" + chapterName + "/index.html"
     }
+
+    fun activity_page(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
+        return chapters_directory(grade, subject) + "/" + chapterName + "/" + activity_identifier + "/index.html"
+    }
 }

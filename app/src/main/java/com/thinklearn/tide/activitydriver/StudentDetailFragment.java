@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.thinklearn.tide.dto.Student;
+import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.io.ByteArrayOutputStream;
 
@@ -98,6 +99,11 @@ public class StudentDetailFragment extends Fragment {
                  public void onClick(View v) {
                      if(newBitmap!=null) {
                          setNewThumbnail(newBitmap);
+                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                         newBitmap.compress(Bitmap.CompressFormat.JPEG,100,baos);
+                         byte[] b = baos.toByteArray();
+                         ClassroomInteractor.set_student_thumbnail
+                                 (mItem.getId(), Base64.encodeToString(b, Base64.DEFAULT));
                      }
                      btCancel.setEnabled(false);
                  }

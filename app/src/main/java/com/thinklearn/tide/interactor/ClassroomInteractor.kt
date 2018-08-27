@@ -14,6 +14,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import com.google.firebase.database.GenericTypeIndicator
 import kotlin.collections.HashSet
+//import jdk.nashorn.internal.objects.NativeDate.getTime
 
 
 interface ClassroomLoaded {
@@ -92,7 +93,14 @@ object ClassroomInteractor {
             students[i].thumbnail = it.child("thumbnail").value.toString()
         }
     }
+    @JvmStatic
+    fun set_student_thumbnail(studentId: String, thumbnail: String) {
+        FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("thumbnails").
+                child("classrooms").child(loadedClassroomID).child("students").child(studentId).
+                child("thumbnail").setValue(thumbnail)
+    }
     fun fill_assets_into_current_chapters(subject_chapter: DataSnapshot?) {
+        //TODO: In all fill_assets_ functions, remove the old entries before filling new ones.
         subject_chapter?.children?.forEach {
             subject_current_chapter.put(it.key, it.value.toString())
         }
@@ -108,13 +116,23 @@ object ClassroomInteractor {
         }
     }
     @JvmStatic
-    fun set_day_attendance(date: String, absentees: ArrayList<String>) {
+    fun set_day_absents(date: String, absentees: ArrayList<String>) {
         if(absentees.size == 0) {
             FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
                     child(loadedClassroomID).child("attendance").child(date).child("full_class").setValue(":)")
         }
         FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
                 child(loadedClassroomID).child("attendance").child(date).child("absent").setValue(absentees)
+    }
+    @JvmStatic
+    fun set_day_presents(date: String, presentees: List<String>) {
+        val absentees = ArrayList<String>()
+        for(student in students) {
+            if(!(student.id in presentees)) {
+                absentees.add(student.id)
+            }
+        }
+        set_day_absents(date, absentees)
     }
     fun removeLoadedEvent() {
         loadedEvent = null
@@ -205,12 +223,33 @@ object ClassroomInteractor {
     }
     @JvmStatic
     fun get_current_week_attendance(): AttendanceInput {
-        var week_attendance = AttendanceInput()
+        val week_attendance = AttendanceInput()
         week_attendance.studentList = students
-        week_attendance.weekStartDate = SimpleDateFormat("yyyy-MM-dd").parse("2018-08-19")
-        //TODO: Filter only days of this week into week_absentees
-        val week_absentees = absentees
-        week_attendance.absentees = week_absentees
+
+        val date_format = SimpleDateFormat("yyyy-MM-dd")
+        val calendar = Calendar.getInstance()
+        calendar.firstDayOfWeek = Calendar.SUNDAY
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        //TODO: Add after testing <<week_attendance.holidayList.add(calendar.time)
+        week_attendance.weekStartDate = calendar.time
+        week_attendance.absentees = hashMapOf()
+        for (i in 1..6) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+            val date: Date = calendar.time
+            val hyphenated_date: String = date_format.format(date)
+            if(hyphenated_date in absentees) {
+                week_attendance.absentees[hyphenated_date] = absentees[hyphenated_date]
+            }
+        }
+        val today: String = date_format.format(Calendar.getInstance().time)
+        if(today in absentees) {
+            week_attendance.presentStudents = ArrayList<String>()
+            for(student in students) {
+                if(!(student.id in absentees[today]!!)) {
+                    week_attendance.presentStudents.add(student.id)
+                }
+            }
+        }
         return week_attendance
     }
 }
