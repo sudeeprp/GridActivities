@@ -28,6 +28,7 @@
             android:screenOrientation="landscape" />
         <activity
             android:name=".StudentListActivity"
+            android:screenOrientation="landscape"
             android:label="@string/title_student_list"
             android:parentActivityName=".TeacherWelcomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -37,6 +38,7 @@
         </activity>
         <activity
             android:name=".StudentDetailActivity"
+            android:screenOrientation="landscape"
             android:label="@string/title_student_detail"
             android:parentActivityName=".StudentListActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -49,9 +51,15 @@
             android:label="@string/title_activity_teacher_login"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".CurriculumChapters" />
-        <activity android:name=".CurriculumSelector" />
-        <activity android:name=".ChapterSelector"></activity>
+        <activity
+            android:name=".CurriculumActivity"
+            android:screenOrientation="landscape"/>
+        <activity
+            android:name=".CurriculumSelector"
+            android:screenOrientation="landscape"/>
+        <activity
+            android:name=".ChapterSelector"
+            android:screenOrientation="landscape"/>
         <activity android:name=".AttendenceManagementActivity"
             android:screenOrientation="landscape" />
         <activity android:name=".GradeSelectionActivity"

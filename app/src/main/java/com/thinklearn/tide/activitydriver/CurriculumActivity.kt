@@ -1,12 +1,7 @@
 package com.thinklearn.tide.activitydriver
 
-import android.content.pm.PackageManager
-import android.media.MediaScannerConnection
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
@@ -14,7 +9,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.thinklearn.tide.interactor.ContentInteractor
 
-class CurriculumChapters : AppCompatActivity() {
+class CurriculumActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,27 +25,18 @@ class CurriculumChapters : AppCompatActivity() {
         webView.addJavascriptInterface(ActivityInterface(this), "Android")
         webView.webViewClient = WebViewClient()
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            println("Directory access permission not granted")
-            ActivityCompat.requestPermissions(this,
-                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    4)
-        } else {
-            println("Permissions ok, launching page")
-            loadPage()
-        }
+        val grade = intent.getStringExtra("SELECTED_GRADE")
+        val subject = intent.getStringExtra("SELECTED_SUBJECT")
+        val chapter = intent.getStringExtra("SELECTED_CHAPTER")
+        val activity_identifier = intent.getStringExtra("SELECTED_ACTIVITY")
+
+        loadPage(grade, subject, chapter, activity_identifier)
     }
 
-    fun loadPage() {
-        //TODO: rename this activity to have the activities after the pencil (reporting done, etc)
-        val contentStartPage = "TODO"
+    fun loadPage(grade: String, subject: String, chapter: String, activity_identifier: String) {
         val webView = findViewById<WebView>(R.id.curriculum_page)
-        //val contentStartPage = Environment.getExternalStorageDirectory().path + "/LTry/index.html"
+        val contentStartPage = ContentInteractor().activity_page(grade, subject, chapter, activity_identifier)
         webView.loadUrl("file://" + contentStartPage)
-
-        val base_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
-        MediaScannerConnection.scanFile(this, arrayOf(base_path), null, null);
     }
     override fun onBackPressed() {
         val webView = findViewById<WebView>(R.id.curriculum_page)
@@ -60,17 +46,9 @@ class CurriculumChapters : AppCompatActivity() {
             super.onBackPressed()
         }
     }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults.isNotEmpty())
-        {
-            loadPage()
-        }
-    }
 }
 
-class ActivityInterface(val curriculum_context: CurriculumChapters) {
+class ActivityInterface(val curriculum_context: CurriculumActivity) {
     @JavascriptInterface
     fun activityResult(datapoint: String) {
         println(datapoint)

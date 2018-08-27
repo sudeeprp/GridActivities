@@ -62,7 +62,8 @@ public class GenderSelectionActivity extends AppCompatActivity implements View.O
         }
         intent.putExtra("selectedGrade",getIntent().getStringExtra("selectedGrade"));
         intent.putExtra("selectedGender",selectedGender);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        //TODO: Check this... adding the no-history here will remove StudentList/StudentGridActivity from history
+        //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
         intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) genderFilter(students, selectedGender));
         startActivity(intent);
