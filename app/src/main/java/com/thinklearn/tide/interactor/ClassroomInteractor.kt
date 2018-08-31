@@ -1,20 +1,13 @@
 package com.thinklearn.tide.interactor
 
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.thinklearn.tide.dto.AttendanceInput
 import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.dto.Teacher
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import com.google.firebase.database.GenericTypeIndicator
-import kotlin.collections.HashSet
-//import jdk.nashorn.internal.objects.NativeDate.getTime
 
 
 interface ClassroomLoaded {
@@ -30,6 +23,21 @@ object ClassroomInteractor {
     var loadedEvent: ClassroomLoaded? = null
     var absentees: MutableMap<String, MutableList<String>> = hashMapOf()
 
+    fun db_student_reference(studentId: String): DatabaseReference {
+        return FirebaseDatabase.getInstance().getReference(loadedLearningProject).
+                child("classroom_assets").child(loadedClassroomID).child("students").child(studentId)
+    }
+    fun db_student_activity_reference(studentRef: DatabaseReference, subject: String, chapter: String,
+                                      activity_identifier: String): DatabaseReference {
+        return studentRef.child("finished_activities").child(subject).
+                child(chapter).child(activity_id_to_firebase_id(activity_identifier))
+    }
+    fun activity_id_to_firebase_id(activity_id: String?): String? {
+        return activity_id?.replace('.', '^')
+    }
+    fun firebase_id_to_activity_id(firebase_id: String?): String? {
+        return firebase_id?.replace('^', '.')
+    }
     fun reset_lists() {
         teachers.clear()
         students.clear()
@@ -82,9 +90,18 @@ object ClassroomInteractor {
                             it.child("birth_date").child("yyyy").value.toString())
             students[i].gender = it.child("gender").value.toString()
             students[i].grade = it.child("grade").value.toString()
-            it.child("current_chapter").children.forEach {
-                students[i].setCurrentChapter(it.key.toString(), it.value.toString())
-            }
+            //TODO: Remove this current-chapter in student
+            //it.child("current_chapter").children.forEach {
+            //    students[i].setCurrentChapter(it.key.toString(), it.value.toString())
+            //}
+            //Fill first chapter into any subjects that haven't started yet
+            //val subjects = ContentInteractor().get_subjects(students[i].grade)
+            //for(subject in subjects) {
+            //    if(students[i].getCurrentChapter(subject) == null) {
+            //        val first_chapter = ContentInteractor().first_chapter(students[i].grade, subject)
+            //        students[i].setCurrentChapter(subject, first_chapter)
+            //    }
+            //}
         }
     }
     fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
@@ -193,33 +210,98 @@ object ClassroomInteractor {
         }
         return null
     }
-    fun get_current_chapter(grade_subject: String): String? {
-        return subject_current_chapter.get(grade_subject)
+    fun grade_subject(grade: String, subject: String): String {
+        return grade + "_" + subject.toLowerCase()
     }
-    fun set_active_chapter(grade_subject: String, chapter: String) {
+    fun get_active_chapter(grade: String, subject: String): String? {
+        return subject_current_chapter.get(grade_subject(grade, subject))
+    }
+    fun set_active_chapter(grade: String, subject: String, chapter: String) {
+        val gradesub = grade_subject(grade, subject)
         FirebaseDatabase.getInstance().getReference(loadedLearningProject).
                 child("classroom_assets").child(loadedClassroomID).
-                child("class_subject_current").child(grade_subject).setValue(chapter)
-        subject_current_chapter[grade_subject] = chapter
+                child("class_subject_current").child(gradesub).setValue(chapter)
+        subject_current_chapter[gradesub] = chapter
+        //TODO: Remove this current-chapter in student
+        //for((index, student) in students.filter {it.grade == grade}.withIndex()) {
+        //    val updated_subject_chapter = recompute_student_chapter(student, subject)
+        //    students[index].setCurrentChapter(subject, updated_subject_chapter)
+        //    val studentRef = db_student_reference(student.id)
+        //    studentRef.child("current_chapter").child(subject).setValue(updated_subject_chapter)
+        //}
     }
     fun get_students_in_chapter(grade: String, subject: String, chapter: String): ArrayList<Student> {
-        var students_in_chapter = ArrayList<Student>()
+        val students_in_chapter = ArrayList<Student>()
         students.forEach {
-            if(it.grade == grade) {
-                //TODO: Check if it's cleaner to put this in fill-to-asset logic
-                var currentChapter = it.getCurrentChapter(subject)
-                if(currentChapter == null) {
-                    currentChapter = ContentInteractor().first_chapter(it.grade, subject)
-                }
-                if(currentChapter == chapter) {
-                    students_in_chapter.add(it)
-                }
+            //TODO: Remove this current-chapter in student
+            //if(it.grade == grade && it.getCurrentChapter(subject) == chapter) {
+            if(it.grade == grade && get_active_chapter(grade, subject) == chapter) {
+                students_in_chapter.add(it)
             }
         }
         return students_in_chapter
     }
-    fun student_activity_complete(student: Student, subject: String, activityName: String) {
-        //TODO: <<student.addActivityCompletion(subject, activityName)
+    fun chapter_of_student(student: Student, subject: String, chapters: Chapters): String {
+        //TODO: Search thru chapters up to class-current and find the one where the student has pending activities
+        var currentChapter = get_active_chapter(student.grade, subject)
+        if(currentChapter == null) {
+            currentChapter = ContentInteractor().first_chapter(student.grade, subject)
+        }
+        return currentChapter!!
+    }
+    fun students_and_chapters(grade: String, subject: String): HashMap<String, ArrayList<Student>> {
+        val student_chapters_map = HashMap<String, ArrayList<Student>>()
+        val chapters = ContentInteractor().chapters_and_activities(grade, subject)
+        for(chapter in chapters.chapter_list) {
+            student_chapters_map[chapter.name] = ArrayList<Student>()
+        }
+        for(student in students.filter { it.grade == grade }) {
+            val current_chapter = chapter_of_student(student, subject, chapters)
+            student_chapters_map[current_chapter]?.add(student)
+        }
+        return student_chapters_map
+    }
+    fun current_chapter_page(student: Student, subject: String): String {
+        //TODO: Remove this current-chapter in student
+        //var chapterName = student.getCurrentChapter(subject)
+        var chapterName = get_active_chapter(student.grade, subject)
+        if(chapterName == null) {
+            chapterName = ContentInteractor().first_chapter(student.grade, subject)
+        }
+        return ContentInteractor().chapters_directory(student.grade, subject) + "/" + chapterName + "/index.html"
+    }
+    //fun recompute_student_chapter(student: Student?, subject: String): String {
+    //    var recomputed_chapter_name = ""
+    //    if(student != null) {
+    //        val chapters = ContentInteractor().chapters_and_activities(student.grade, subject)
+    //        val current_class_chapter = get_active_chapter(student.grade, subject)
+    //        for(chapter in chapters.chapter_list) {
+    //            if(chapter.name == current_class_chapter) {
+    //                recomputed_chapter_name = chapter.name
+    //                break
+    //            }
+    //        }
+    //    } else {
+    //        Log.e("Recompute chapter", "Student not found")
+    //    }
+    //    return recomputed_chapter_name
+    //}
+    fun set_student_activity_status(studentId: String, activity_subject: String, activity_chapter: String,
+                               activity_identifier: String, activity_datapoint: String) {
+        val studentRef = db_student_reference(studentId)
+        val studentActivityRef =
+                db_student_activity_reference(studentRef, activity_subject, activity_chapter, activity_identifier)
+
+        studentActivityRef.child("data_point").setValue(activity_datapoint)
+        val currentTime = Calendar.getInstance().getTime()
+        val currentTimestamp = SimpleDateFormat("yyyy-MM-dd").format(currentTime) + "T" +
+                SimpleDateFormat("HH:mm:ssz").format(currentTime)
+        studentActivityRef.child("time_stamp").setValue(currentTimestamp)
+
+        //TODO: Remove this current-chapter in student
+        //Log.d("Recompute chapter", "For student id" + studentId)
+        //val updated_subject_chapter = recompute_student_chapter(get_student(studentId), activity_subject)
+        //studentRef.child("current_chapter").child(activity_subject).setValue(updated_subject_chapter)
     }
     @JvmStatic
     fun get_current_week_attendance(): AttendanceInput {
@@ -230,7 +312,7 @@ object ClassroomInteractor {
         val calendar = Calendar.getInstance()
         calendar.firstDayOfWeek = Calendar.SUNDAY
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
-        //TODO: Add after testing <<week_attendance.holidayList.add(calendar.time)
+        week_attendance.holidayList = listOf(calendar.time)
         week_attendance.weekStartDate = calendar.time
         week_attendance.absentees = hashMapOf()
         for (i in 1..6) {
