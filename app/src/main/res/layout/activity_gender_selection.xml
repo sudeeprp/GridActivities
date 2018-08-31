@@ -1,9 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/llGender"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="10dp"
-    android:orientation="horizontal"
-    android:gravity="center">
-</LinearLayout>
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/boy_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/boy"
+        android:text="@string/boy"
+        android:gravity="bottom|center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/girl_button"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/girl_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/girl"
+        android:text="@string/girl"
+        android:gravity="bottom|center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/boy_button"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>
