@@ -52,7 +52,7 @@ class CurriculumSelector : AppCompatActivity() {
             startActivityForResult(chapterSelectorIntent, 3)
         }
         math_button.setOnClickListener {
-            chapterSelectorIntent.putExtra("SELECTED_SUBJECT", "Mathematics")
+            chapterSelectorIntent.putExtra("SELECTED_SUBJECT", "math")
             startActivityForResult(chapterSelectorIntent, 3)
         }
     }

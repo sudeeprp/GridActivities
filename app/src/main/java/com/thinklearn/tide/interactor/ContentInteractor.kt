@@ -4,6 +4,7 @@ import android.os.Environment
 import android.util.Log
 import com.thinklearn.tide.dto.Student
 import org.json.JSONArray
+import org.json.JSONException
 import java.io.File
 import java.io.IOException
 
@@ -15,6 +16,34 @@ val default_curriculum = """
 </html>
 """.trimIndent()
 
+class Chapters {
+    constructor(chapters_file: File) {
+        if(chapters_file.exists()) {
+            val chapters_json = chapters_file.readText()
+            val chapters_array = JSONArray(chapters_json)
+            try {
+                for(i in 0 until chapters_array.length()) {
+                    val chapterName = chapters_array.getJSONObject(i).getString("chapter_name")
+                    val chapterActivities = ArrayList<ActivityInChapter>()
+                    val activities_json = chapters_array.getJSONObject(i).getJSONObject("activities")
+                    val activityIdentifiers = activities_json.names()
+                    for(activity_index in 0 until activityIdentifiers.length()) {
+                        val activityIdentifier = activityIdentifiers[activity_index].toString()
+                        val activity_json = activities_json.getJSONObject(activityIdentifier)
+                        val mandatory = activity_json.getBoolean("mandatory")
+                        chapterActivities.add(ActivityInChapter(activityIdentifier, mandatory))
+                    }
+                    chapter_list.add(Chapter(chapterName, chapterActivities))
+                }
+            } catch(j: JSONException) {
+                Log.e("chapters file", chapters_file.toString() + ": " + j.message)
+            }
+        }
+    }
+    class ActivityInChapter(val activity_identifier: String, val mandatory: Boolean)
+    class Chapter(val name: String, val activities: ArrayList<ActivityInChapter>)
+    var chapter_list = ArrayList<Chapter>()
+}
 
 class ContentInteractor {
     companion object {
@@ -58,8 +87,16 @@ a        """.trimIndent()
     fun read_config() {
         //TODO: Read from json in config file
     }
+    fun get_subjects(grade: String): ArrayList<String> {
+        //TODO: Get subjects from the curriculum directories
+        return arrayListOf("french", "math")
+    }
     fun chapters_directory(grade: String, subject: String): String {
         return content_path + "/" + grade + "_" + subject + "/"
+    }
+    fun chapters_and_activities(grade: String, subject: String): Chapters {
+        val subject_chapters_file = File(chapters_directory(grade, subject) + "/chapter_activities.json")
+        return Chapters(subject_chapters_file)
     }
     fun first_chapter(grade: String, subject: String): String? {
         var firstChapter: String? = null
@@ -75,15 +112,6 @@ a        """.trimIndent()
         }
         return firstChapter
     }
-
-    fun current_chapter_page(student: Student, subject: String): String {
-        var chapterName = student.getCurrentChapter(subject)
-        if(chapterName == null) {
-            chapterName = first_chapter(student.grade, subject)
-        }
-        return chapters_directory(student.grade, subject) + "/" + chapterName + "/index.html"
-    }
-
     fun activity_page(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
         return chapters_directory(grade, subject) + "/" + chapterName + "/" + activity_identifier + "/index.html"
     }
