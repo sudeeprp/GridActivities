@@ -3,6 +3,7 @@ package com.thinklearn.tide.activitydriver
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
@@ -16,6 +17,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class ChapterSelector : AppCompatActivity() {
+    lateinit var grade: String
+    lateinit var subject: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,8 +29,8 @@ class ChapterSelector : AppCompatActivity() {
         setContentView(R.layout.activity_chapter_selector)
 
         val curriculumIntent = getIntent()
-        val grade = curriculumIntent.getStringExtra("SELECTED_GRADE")
-        val subject = curriculumIntent.getStringExtra("SELECTED_SUBJECT")
+        grade = curriculumIntent.getStringExtra("SELECTED_GRADE")
+        subject = curriculumIntent.getStringExtra("SELECTED_SUBJECT")
 
         val chaptersPage = findViewById<WebView>(R.id.chapters_page)
         chaptersPage.settings.javaScriptEnabled = true
@@ -39,7 +42,7 @@ class ChapterSelector : AppCompatActivity() {
 
         if(ClassroomContext.selectedTeacher == null && ClassroomContext.selectedStudent != null) {
             chaptersPage.loadUrl("file://" +
-                    ContentInteractor().current_chapter_page(ClassroomContext.selectedStudent!!, subject))
+                    ClassroomInteractor.current_chapter_page(ClassroomContext.selectedStudent!!, subject))
         }
     }
     override fun onBackPressed() {
@@ -50,6 +53,27 @@ class ChapterSelector : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(data == null) {
+            Log.e("ChapterSelector", "ActivityResult with null intent")
+            return
+        }
+        if(ClassroomContext.selectedStudent != null) {
+            val activity_subject = data.getStringExtra("SELECTED_SUBJECT")
+            val activity_chapter = data.getStringExtra("SELECTED_CHAPTER")
+            val activity_identifier = data.getStringExtra("SELECTED_ACTIVITY")
+            val activity_datapoint = data.getStringExtra("DATAPOINT")
+            ClassroomInteractor.set_student_activity_status(ClassroomContext.selectedStudent!!.id, activity_subject,
+                    activity_chapter, activity_identifier, activity_datapoint)
+        }
+    }
+    //fun refresh_screen() {
+    //    val webView = findViewById<WebView>(R.id.chapters_page)
+    //    webView.post() {
+    //        webView.evaluateJavascript("refresh_screen();") { println("refresh_screen() done!") }
+    //    }
+    //}
 }
 
 class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: String, val subject: String) {
@@ -57,9 +81,9 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
 
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
-        println(chapterIdent)
+        //TODO: Get status based on completion from ClassroomInteractor. Pack all students together and send, like getStudentsInSubject
         var status = "pending"
-        val current_chapter = ClassroomInteractor.get_current_chapter(grade_subject())
+        val current_chapter = ClassroomInteractor.get_active_chapter(grade, subject)
         if(current_chapter == chapterIdent) {
             status = "current"
         }
@@ -67,37 +91,45 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
     }
     @JavascriptInterface
     fun setChapterActive(chapterIdent: String) {
-        ClassroomInteractor.set_active_chapter(grade_subject(), chapterIdent)
+        ClassroomInteractor.set_active_chapter(grade, subject, chapterIdent)
+        //TODO: finally after specific events (student-id-based) are implemented, we can trigger refresh here
+        //chapterContext.refresh_screen()
     }
     @JavascriptInterface
-    fun getStudentsInChapter(chapterIdent: String): String {
-        val students_in_chapter = ClassroomInteractor.get_students_in_chapter(grade, subject, chapterIdent)
-        println("**giving back students")
-        val students_json = JSONArray()
-        for(student in students_in_chapter) {
-            val student_json = JSONObject()
-            student_json.put("name", student.firstName + " " + student.surname)
-            student_json.put("thumbnail", student.thumbnail)
-            students_json.put(student_json)
+    fun getStudentsInSubject(): String {
+        val studentsInChapters = ClassroomInteractor.students_and_chapters(grade, subject)
+        val studentsInChaptersJSON = JSONArray()
+        for(chapter in studentsInChapters) {
+            val chapterJSON = JSONObject()
+            chapterJSON.put("chapter_name", chapter.key)
+            val studentsJSON = JSONArray()
+            for(student in chapter.value) {
+                val studentJSON = JSONObject()
+                studentJSON.put("name", student.firstName + " " + student.surname)
+                studentJSON.put("thumbnail", student.thumbnail)
+                studentsJSON.put(studentJSON)
+            }
+            chapterJSON.put("students", studentsJSON)
+            studentsInChaptersJSON.put(chapterJSON)
         }
-        return students_json.toString()
+        return studentsInChaptersJSON.toString(2)
     }
-    @JavascriptInterface
-    fun getStudentIDsInChapter(chapterIdent: String): String {
-        val students_in_chapter = ClassroomInteractor.get_students_in_chapter(grade, subject, chapterIdent)
-        println("**giving back student IDs")
-        val studentIDs_in_chapter_json = student_ids_json(students_in_chapter)
-        return studentIDs_in_chapter_json
-    }
-    @JavascriptInterface
-    fun getStudentName(id: String): String {
-        val student = ClassroomInteractor.get_student(id)
-        return student?.firstName + " " + student?.surname
-    }
-    @JavascriptInterface
-    fun getStudentThumbnail(id: String): String {
-        return ClassroomInteractor.get_student(id)?.thumbnail + ""
-    }
+    //@JavascriptInterface
+    //fun getStudentIDsInChapter(chapterIdent: String): String {
+    //    val students_in_chapter = ClassroomInteractor.get_students_in_chapter(grade, subject, chapterIdent)
+    //    println("**giving back student IDs")
+    //    val studentIDs_in_chapter_json = student_ids_json(students_in_chapter)
+    //    return studentIDs_in_chapter_json
+    //}
+    //@JavascriptInterface
+    //fun getStudentName(id: String): String {
+    //    val student = ClassroomInteractor.get_student(id)
+    //    return student?.firstName + " " + student?.surname
+    //}
+    //@JavascriptInterface
+    //fun getStudentThumbnail(id: String): String {
+    //    return ClassroomInteractor.get_student(id)?.thumbnail + ""
+    //}
     @JavascriptInterface
     fun chapterEntered(chapterName: String) {
         chapter_shown = chapterName
@@ -111,14 +143,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
         activityIntent.putExtra("SELECTED_ACTIVITY", activity_identifier)
         chapterContext.startActivityForResult(activityIntent, 3)
     }
-    fun grade_subject(): String {
-        return grade + "_" + subject.toLowerCase()
-    }
-    fun student_ids_json(students: ArrayList<Student>): String {
-        val student_ids_array = JSONArray()
-        for(student in students) {
-            student_ids_array.put(student.id)
-        }
-        return student_ids_array.toString()
-    }
+    //fun student_ids_json(students: ArrayList<Student>): String {
+    //    val student_ids_array = JSONArray()
+    //    for(student in students) {
+    //        student_ids_array.put(student.id)
+    //    }
+    //    return student_ids_array.toString()
+    //}
 }
