@@ -61,30 +61,18 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
                 if(v == ivAttendance) {
                     output = new TeacherWelcomeOutput("Attendance");
                     Intent intent = new Intent(TeacherWelcomeActivity.this, AttendenceManagementActivity.class);
-                    //AttendanceInput attendance = new AttendanceInput();
-                    //Date weekStartDate = new Date(118, 7, 12);
-                    //attendance.setWeekStartDate(weekStartDate);
                     AttendanceInput attendance = ClassroomInteractor.get_current_week_attendance();
-                    //Map<String, List<String>> absentees = new HashMap<String, List<String>>();
-                    //List<String> studentIds = new ArrayList<String>();
-                    //studentIds.add("2");
-                    //studentIds.add("7");
-                    //absentees.put("2018-08-13", studentIds);
-                    //attendance.setAbsentees(absentees);
-                    //attendance.setHolidayList(new ArrayList<Date>());
-                    //attendance.setStudentList(studentInputList);
                     intent.putExtra("attendance", attendance);
                     startActivityForResult(intent, 3);
                 } else if(v == ivStudents) {
                     Intent intent = new Intent(TeacherWelcomeActivity.this, GradeSelectionActivity.class);
                     intent.putParcelableArrayListExtra("studentInputList", (ArrayList<? extends Parcelable>) studentInputList);
                     intent.putExtra("purpose", "PROFILE_EDIT");
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivity(intent);
                 } else if(v == ivDashboard) {
                     Intent curriculumIntent = new Intent(TeacherWelcomeActivity.this,
                             CurriculumSelector.class);
-                    //TODO: Remove: curriculumIntent.putExtra("selection", output);
+                    curriculumIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivityForResult(curriculumIntent, 3);
                 }
             }
@@ -92,16 +80,5 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
         ivAttendance.setOnClickListener(listener);
         ivStudents.setOnClickListener(listener);
         ivDashboard.setOnClickListener(listener);
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==RESULT_OK){
-            if(requestCode==1){
-
-            }
-        }
     }
 }

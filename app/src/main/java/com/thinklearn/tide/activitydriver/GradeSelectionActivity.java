@@ -22,30 +22,17 @@ public class GradeSelectionActivity extends AppCompatActivity implements View.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_grade_selection);
-        setTitle(R.string.select_grade);
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.llClass);
-        List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
-        ArrayList<String> gradeList = getUniqueGrades(studentInputList);
-        float scale = getResources().getDisplayMetrics().density;
-        for(int i=0;i<gradeList.size();i++){
-            Button gradeButton = new Button(this);
-            gradeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
-            int padding = (int) (10*scale + 0.5f);
-            gradeButton.setPadding(padding, padding, padding, padding);
-            gradeButton.setText(gradeList.get(i));
-            gradeButton.setTag(gradeList.get(i));
-            gradeButton.setOnClickListener(this);
-            linearLayout.addView(gradeButton);
-        }
-    }
 
-    private ArrayList<String> getUniqueGrades(List<Student> studentInputList) {
-        Set<String> uniqueGrades = new TreeSet<>();
-        for (Student student : studentInputList ) {
-            uniqueGrades.add(student.getGrade());
-        }
-        return new ArrayList<String>(uniqueGrades);
+        setContentView(R.layout.activity_curriculum_selector);
+        setTitle(R.string.select_grade);
+
+        Button grade1button = (Button)findViewById(R.id.grade1button);
+        grade1button.setOnClickListener(this);
+        grade1button.setTag("1");
+
+        Button grade2button = (Button)findViewById(R.id.grade2button);
+        grade2button.setOnClickListener(this);
+        grade2button.setTag("2");
     }
 
     @Override
@@ -53,8 +40,11 @@ public class GradeSelectionActivity extends AppCompatActivity implements View.On
         String selectedGrade = (String) v.getTag();
         Intent intent = new Intent(GradeSelectionActivity.this,GenderSelectionActivity.class);
         intent.putExtra("selectedGrade",selectedGrade);
-        intent.putExtra("purpose", getIntent().getStringExtra("purpose"));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        String purpose = getIntent().getStringExtra("purpose");
+        intent.putExtra("purpose", purpose);
+        if(purpose.equals("STUDENT_ACTIVITY")) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        }
         List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
         intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) gradeFilter(students, selectedGrade));
         startActivity(intent);

@@ -33,8 +33,12 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="default_time">10:10 AM</string>
-    <string name="boy">BOY</string>
+    <string name="boy">Boy</string>
     <string name="girl">Girl</string>
+    <string name="french">Français</string>
+    <string name="grade1">Grade 1</string>
+    <string name="grade2">Grade 2</string>
+    <string name="math">Mathématiques</string>
     <string name="select_grade">Select Grade</string>
     <string name="select_gender">Select Gender</string>
     <string name="current_grade">Current Grade</string>

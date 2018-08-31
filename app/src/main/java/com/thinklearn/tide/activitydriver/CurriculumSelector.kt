@@ -43,13 +43,22 @@ class CurriculumSelector : AppCompatActivity() {
         val french_button = findViewById<Button>(R.id.french_button)
         val math_button = findViewById<Button>(R.id.math_button)
 
-        //TODO: <<context is a teacher or student... this will decide rest of the curriculum behaior (whether to activityResult or not...)
         val chapterSelectorIntent = Intent(this, ChapterSelector::class.java)
         chapterSelectorIntent.putExtra("SELECTED_GRADE", grade)
-
+        if(grade == "1") {
+            french_button.background = resources.getDrawable(R.drawable.g1_french_background, null)
+        } else if(grade == "2") {
+            french_button.background = resources.getDrawable(R.drawable.g2_french_background, null)
+        }
         french_button.setOnClickListener {
             chapterSelectorIntent.putExtra("SELECTED_SUBJECT", "french")
             startActivityForResult(chapterSelectorIntent, 3)
+        }
+
+        if(grade == "1") {
+            math_button.background = resources.getDrawable(R.drawable.g1_math_background, null)
+        } else if(grade == "2") {
+            math_button.background = resources.getDrawable(R.drawable.g2_math_background, null)
         }
         math_button.setOnClickListener {
             chapterSelectorIntent.putExtra("SELECTED_SUBJECT", "math")
