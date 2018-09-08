@@ -1,8 +1,10 @@
 package com.thinklearn.tide.activitydriver;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -26,28 +28,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-//TODO: Remove
-import java.util.HashSet;
-class AttendanceRecord {
-    HashSet<String> absentees = new HashSet<String>();
-    Date date;
-    AttendanceRecord(List<Student> students, Date recordDate) {
-        date = recordDate;
-        for(Student student: students) {
-            absentees.add(student.getId());
-        }
-    }
-    void set_present(String id) {
-        absentees.remove(id);
-    }
-    void set_absent(String id) {
-        absentees.add(id);
-    }
-}
 
 public class AttendenceManagementActivity extends AppCompatActivity implements View.OnClickListener {
 
     private AttendanceInput attendance = new AttendanceInput();
+    private String todayStr = "today";
+    private Boolean isAttendanceCaptured = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +48,13 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         int fixedHeaderHeight = 60;
         final SimpleDateFormat dbFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Date today = new Date();
-        final String todayStr = dbFormatter.format(today);
+        todayStr = dbFormatter.format(today);
 
         findViewById(R.id.SaveButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClassroomInteractor.set_day_presents(todayStr, attendance.getPresentStudents());
+                saveAttendance();
+                finish();
             }
         });
 
@@ -84,10 +71,11 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         studentNameHeader.setGravity(Gravity.START);
         row.addView(studentNameHeader);
 
+        SimpleDateFormat shortFormatter = new SimpleDateFormat("dd MMM");
         Date weekStartDate = attendance.getWeekStartDate();
         Calendar calendar = Calendar.getInstance();
         for (int i = 0; i < 7; i++) {
-            TextView dateTextView = makeTableRowWithText(dbFormatter.format(weekStartDate), fixedColumnWidths[i + 1], fixedHeaderHeight);
+            TextView dateTextView = makeTableRowWithText(shortFormatter.format(weekStartDate), fixedColumnWidths[i + 1], fixedHeaderHeight);
             dateTextView.setPadding(6, 6, 6, 6);
             row.addView(dateTextView);
             calendar.setTime(weekStartDate);
@@ -128,9 +116,6 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                         clickableArea.setText("✓");
                         clickableArea.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     }
-                    //TODO: Remove<<clickableArea.setTag(students.get(i).getId());
-                    
-                    //TODO: Remove<<clickableRow.addView(clickableArea);
                 } else {
                     TextView textView = makeTableRowWithText("", fixedColumnWidths[j + 1], fixedRowHeight);
                     clickableRow.addView(textView);
@@ -146,6 +131,11 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
             }
             fixedColumn.addView(clickableRow);
         }
+    }
+
+    private void saveAttendance() {
+        ClassroomInteractor.set_day_presents(todayStr, attendance.getPresentStudents());
+        finish();
     }
 
     private Button makeTableRowWithButton(String text, int fixedColumnWidth, int fixedRowHeight, TableRow.LayoutParams wrapWrapTableRowParams) {
@@ -177,6 +167,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     public void onClick(View v) {
         Button button = (Button) v;
         int position = (int) button.getTag();
+        isAttendanceCaptured=true;
         if (button.getText().equals(" ")) {
             button.setText("✓");
             if (attendance.getPresentStudents() == null)
@@ -187,6 +178,32 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
             if (attendance.getPresentStudents() == null)
                 attendance.setPresentStudents(new ArrayList<String>());
             attendance.getPresentStudents().remove(attendance.getStudentList().get(position).getId());
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isAttendanceCaptured) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.unsaved_attendance_warning);
+            builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    saveAttendance();
+                    finish();
+                }
+            });
+            builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    finish();
+                }
+            });
+            builder.create().show();
+        }else{
+            this.finish();
         }
     }
 }
