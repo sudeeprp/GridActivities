@@ -23,6 +23,7 @@ import com.thinklearn.tide.interactor.ClassroomInteractor;
 import java.io.ByteArrayOutputStream;
 
 import static android.app.Activity.RESULT_OK;
+import static java.lang.Math.min;
 
 /**
  * A fragment representing a single Student detail screen.
@@ -41,8 +42,7 @@ public class StudentDetailFragment extends Fragment {
     private Student mItem;
     private ImageView imageView;
     private RecyclerView.Adapter adapter;
-    private Bitmap newBitmap,oldBitmap;
-    private Button btSave,btCancel;
+    private Bitmap newBitmap;
 
 
     public StudentDetailFragment() {
@@ -81,10 +81,6 @@ public class StudentDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.tvClass)).setText(mItem.getGrade());
             ((TextView) rootView.findViewById(R.id.tvYear)).setText(""); //TODO: Figure out academic year
             ((TextView) rootView.findViewById(R.id.tvGender)).setText(mItem.getGender());
-            btSave=rootView.findViewById(R.id.save);
-            btSave.setEnabled(false);
-            btCancel=rootView.findViewById(R.id.cancel);
-            btCancel.setEnabled(false);
             imageView = rootView.findViewById(R.id.ivStudentCapturedImage);
              rootView.findViewById(R.id.btchangePhoto).setOnClickListener(new View.OnClickListener() {
                  public void onClick(View v) {
@@ -93,39 +89,9 @@ public class StudentDetailFragment extends Fragment {
                  }
              });
 
-
-             rootView.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                     if(newBitmap!=null) {
-                         setNewThumbnail(newBitmap);
-                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                         newBitmap.compress(Bitmap.CompressFormat.JPEG,100,baos);
-                         byte[] b = baos.toByteArray();
-                         ClassroomInteractor.set_student_thumbnail
-                                 (mItem.getId(), Base64.encodeToString(b, Base64.DEFAULT));
-                     }
-                     btCancel.setEnabled(false);
-                 }
-             });
-
-             rootView.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                     if(oldBitmap!=null) {
-                         setNewThumbnail(oldBitmap);
-                         imageView.setImageBitmap(oldBitmap);
-                     }else{
-                         imageView.setImageResource(R.drawable.student);
-                     }
-                     newBitmap=null;
-                 }
-             });
-
             if(mItem.getThumbnail() != null) {
                 byte[] decodedString = Base64.decode(mItem.getThumbnail(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                oldBitmap= decodedByte;
                 imageView.setImageBitmap(decodedByte);
             }
         }
@@ -143,15 +109,24 @@ public class StudentDetailFragment extends Fragment {
     private void onCaptureImageResult(Intent data) {
         newBitmap = (Bitmap) data.getExtras().get("data");
         imageView.setImageBitmap(newBitmap);
-        btSave.setEnabled(true);
-        btCancel.setEnabled(true);
+        setNewThumbnail(newBitmap);
+    }
+
+    private Bitmap getThumbnail(Bitmap bitmap) {
+        int thumb_height = 100;
+        double aspect_ratio = (double)bitmap.getWidth() / (double)bitmap.getHeight();
+        int thumb_width = (int)(aspect_ratio * thumb_height);
+        return Bitmap.createScaledBitmap(bitmap, thumb_width, thumb_height, true);
     }
 
     private void setNewThumbnail(Bitmap bitmap) {
+        Bitmap thumbnail = getThumbnail(bitmap);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, stream);
         byte[] byteArray = stream.toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+        ClassroomInteractor.set_student_thumbnail(mItem.getId(), encoded);
         mItem.setThumbnail(encoded);
         adapter.notifyDataSetChanged();
     }
