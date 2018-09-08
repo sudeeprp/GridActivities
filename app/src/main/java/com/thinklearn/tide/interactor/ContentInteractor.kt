@@ -5,6 +5,7 @@ import android.util.Log
 import com.thinklearn.tide.dto.Student
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
@@ -48,12 +49,6 @@ class Chapters {
 class ContentInteractor {
     companion object {
         val base_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
-        val default_config =
-                """
-              {"content_dir_name": """ + base_path +
-                        """
-              }
-a        """.trimIndent()
         var content_path = base_path
         var content_start_page = content_path + "index.html"
     }
@@ -78,7 +73,9 @@ a        """.trimIndent()
             }
             val configFile = File(base_path + "content_location.json")
             if (!configFile.exists()) {
-                configFile.writeText(default_config)
+                val contentLocJSON = JSONObject()
+                contentLocJSON.put("content_dir_name", base_path)
+                configFile.writeText(contentLocJSON.toString())
             }
         } catch (e: IOException) {
             Log.e("Write", "Create defaults failed: " + e.message)
@@ -112,7 +109,10 @@ a        """.trimIndent()
         }
         return firstChapter
     }
+    fun activity_directory(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
+        return chapters_directory(grade, subject) + "/" + chapterName + "/" + activity_identifier
+    }
     fun activity_page(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
-        return chapters_directory(grade, subject) + "/" + chapterName + "/" + activity_identifier + "/index.html"
+        return  activity_directory(grade, subject, chapterName, activity_identifier) + "/index.html"
     }
 }
