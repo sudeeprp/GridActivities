@@ -141,6 +141,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
         activityIntent.putExtra("SELECTED_SUBJECT", subject)
         activityIntent.putExtra("SELECTED_CHAPTER", chapter_shown)
         activityIntent.putExtra("SELECTED_ACTIVITY", activity_identifier)
+        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         chapterContext.startActivityForResult(activityIntent, 3)
     }
     //fun student_ids_json(students: ArrayList<Student>): String {

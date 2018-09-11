@@ -1,9 +1,12 @@
 package com.thinklearn.tide.activitydriver
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
@@ -13,6 +16,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
+import java.io.File
 
 val border_html_piece: HashMap<String, String> = hashMapOf(
 "1_french_x" to """url('data:image/png;base64,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')""",
@@ -77,7 +81,12 @@ class CurriculumActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         getSupportActionBar()?.hide();
         setContentView(R.layout.activity_curriculum)
-
+        window.decorView.apply {
+            // Hide both the navigation bar and the status bar.
+            systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+        }
         val webView = findViewById<WebView>(R.id.curriculum_page)
         webView.settings.javaScriptEnabled = true
         webView.settings.allowFileAccessFromFileURLs = true
@@ -108,14 +117,31 @@ class CurriculumActivity : AppCompatActivity() {
         border_html += border_html_piece[border_key + "_y"] + ";\n"
         return border_html
     }
-    fun loadPage(grade: String, subject: String, chapter: String, activity_identifier: String) {
+    fun loadPDF(contentStartPage: String) {
+        try {
+            val pdfIntent: Intent = Intent(Intent.ACTION_VIEW)
+            pdfIntent.setDataAndType(Uri.fromFile(File(contentStartPage)), "application/pdf")
+            pdfIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(pdfIntent)
+        }
+        catch(e: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.no_pdf_viewer, Toast.LENGTH_LONG).show()
+        }
+    }
+    fun loadIframe(contentStartPage: String) {
         val webView = findViewById<WebView>(R.id.curriculum_page)
         val baseUrl = ContentInteractor().activity_directory(grade, subject, chapter, activity_identifier)
-        val contentStartPage = ContentInteractor().activity_page(grade, subject, chapter, activity_identifier)
         val pageData = html_before_border_images + get_border_html(grade, subject) + html_border_to_iframe_src +
                 "file://" + contentStartPage + html_after_iframe_src
         webView.loadDataWithBaseURL("file://" + baseUrl, pageData, null, null, null)
-        //webView.loadUrl("file://" + contentStartPage)
+    }
+    fun loadPage(grade: String, subject: String, chapter: String, activity_identifier: String) {
+        val contentStartPage = ContentInteractor().activity_page(grade, subject, chapter, activity_identifier)
+        if(contentStartPage.toLowerCase().endsWith("pdf")) {
+            loadPDF(contentStartPage)
+        } else {
+            loadIframe(contentStartPage)
+        }
     }
     override fun onBackPressed() {
         val webView = findViewById<WebView>(R.id.curriculum_page)
