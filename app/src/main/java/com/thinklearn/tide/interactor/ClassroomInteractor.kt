@@ -134,15 +134,23 @@ object ClassroomInteractor {
     }
     @JvmStatic
     fun set_day_absents(date: String, absentees: ArrayList<String>) {
+        val attendance_date_ref = FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
+                child(loadedClassroomID).child("attendance").child(date)
         if(absentees.size == 0) {
-            FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
-                    child(loadedClassroomID).child("attendance").child(date).child("full_class").setValue(":)")
+            attendance_date_ref.child("full_class").setValue(":)")
+        } else {
+            attendance_date_ref.child("full_class").removeValue()
         }
         FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
                 child(loadedClassroomID).child("attendance").child(date).child("absent").setValue(absentees)
     }
     @JvmStatic
     fun set_day_presents(date: String, presentees: List<String>) {
+        //If we get an attendance-set-request before students, ignore
+        //presentees is coming from java, where it can be null.
+        if(students.size == 0 || presentees == null) {
+            return
+        }
         val absentees = ArrayList<String>()
         for(student in students) {
             if(!(student.id in presentees)) {

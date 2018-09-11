@@ -8,6 +8,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 
 val default_curriculum = """
 <!DOCTYPE html>
@@ -113,6 +114,11 @@ class ContentInteractor {
         return chapters_directory(grade, subject) + "/" + chapterName + "/" + activity_identifier
     }
     fun activity_page(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
-        return  activity_directory(grade, subject, chapterName, activity_identifier) + "/index.html"
+        val page_dir = activity_directory(grade, subject, chapterName, activity_identifier)
+        var page_filename = page_dir + "/index.html"
+        if(File(page_dir).exists() && !File(page_filename).exists()) {
+            File(page_dir).walk().forEach { page_filename = it.absolutePath }
+        }
+        return page_filename
     }
 }
