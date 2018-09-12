@@ -16,6 +16,7 @@ interface ClassroomLoaded {
 object ClassroomInteractor {
     lateinit var loadedLearningProject: String
     lateinit var loadedClassroomID: String
+    @JvmField
     var teachers = ArrayList<Teacher>()
     @JvmField
     var students = ArrayList<Student>()
