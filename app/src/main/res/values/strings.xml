@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">ActivityDriver</string>
+    <string name="app_name">TIDE Learning Grid</string>
     <string name="title_activity_attendance_management">Attendance</string>
     <string name="title_activity_teacher_start_screen">TeacherStartScreen</string>
     <string name="home">Home</string>
     <string name="attendance">Attendance</string>
     <string name="students">Students</string>
     <string name="dashboard">Dashboard</string>
-    <string name="version">TIDE LearnerGrid Version 1.1 f</string>
+    <string name="version">TIDE Learning Grid Version 1.1 f</string>
     <string name="title_activity_student">Students</string>
     <string name="title_activity_student_list_content">student_list_content</string>
     <string name="student_name">Student Name</string>
@@ -48,4 +48,5 @@
     <string name="select_school_mode">Select a school and teacher/student mode</string>
     <string name="unsaved_attendance_warning">Would you like to save captured attendance?</string>
     <string name="no_pdf_viewer">No PDF viewer found</string>
+    <string name="permission_required">Permission is needed to continue</string>
 </resources>
