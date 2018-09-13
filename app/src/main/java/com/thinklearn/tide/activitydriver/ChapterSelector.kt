@@ -68,12 +68,6 @@ class ChapterSelector : AppCompatActivity() {
                     activity_chapter, activity_identifier, activity_datapoint)
         }
     }
-    //fun refresh_screen() {
-    //    val webView = findViewById<WebView>(R.id.chapters_page)
-    //    webView.post() {
-    //        webView.evaluateJavascript("refresh_screen();") { println("refresh_screen() done!") }
-    //    }
-    //}
 }
 
 class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: String, val subject: String) {
@@ -114,22 +108,6 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
         }
         return studentsInChaptersJSON.toString(2)
     }
-    //@JavascriptInterface
-    //fun getStudentIDsInChapter(chapterIdent: String): String {
-    //    val students_in_chapter = ClassroomInteractor.get_students_in_chapter(grade, subject, chapterIdent)
-    //    println("**giving back student IDs")
-    //    val studentIDs_in_chapter_json = student_ids_json(students_in_chapter)
-    //    return studentIDs_in_chapter_json
-    //}
-    //@JavascriptInterface
-    //fun getStudentName(id: String): String {
-    //    val student = ClassroomInteractor.get_student(id)
-    //    return student?.firstName + " " + student?.surname
-    //}
-    //@JavascriptInterface
-    //fun getStudentThumbnail(id: String): String {
-    //    return ClassroomInteractor.get_student(id)?.thumbnail + ""
-    //}
     @JavascriptInterface
     fun chapterEntered(chapterName: String) {
         chapter_shown = chapterName
@@ -144,11 +122,12 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         chapterContext.startActivityForResult(activityIntent, 3)
     }
-    //fun student_ids_json(students: ArrayList<Student>): String {
-    //    val student_ids_array = JSONArray()
-    //    for(student in students) {
-    //        student_ids_array.put(student.id)
-    //    }
-    //    return student_ids_array.toString()
-    //}
+    @JavascriptInterface
+    fun subActivity(activity_identifier: String) {
+        val chaptersPage = chapterContext.findViewById<WebView>(R.id.chapters_page)
+        val subActivityUrl = ContentInteractor().activity_page(grade, subject, chapter_shown, activity_identifier)
+        chaptersPage.post(Runnable {
+            chaptersPage.loadUrl("file://" + subActivityUrl)
+        })
+    }
 }
