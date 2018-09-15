@@ -114,8 +114,8 @@ class Launch : AppCompatActivity() {
                             selected_class_id = school_ids[position]!!
                         }
                     }
-                    override fun onCancelled(p0: DatabaseError?) {
-                        println("ICDev fetch: onCancelled ${p0?.toException()}")
+                    override fun onCancelled(p0: DatabaseError) {
+                        println("ICDev fetch: onCancelled ${p0.toException()}")
                     }
                 })
     }

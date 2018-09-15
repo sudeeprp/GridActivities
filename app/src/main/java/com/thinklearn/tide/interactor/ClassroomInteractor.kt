@@ -56,11 +56,11 @@ object ClassroomInteractor {
         return studentRef.child("finished_activities").child(subject).
                 child(chapter).child(activity_id_to_firebase_id(activity_identifier))
     }
-    fun activity_id_to_firebase_id(activity_id: String?): String? {
-        return activity_id?.replace('.', '^')
+    fun activity_id_to_firebase_id(activity_id: String): String {
+        return activity_id.replace('.', '^')
     }
-    fun firebase_id_to_activity_id(firebase_id: String?): String? {
-        return firebase_id?.replace('^', '.')
+    fun firebase_id_to_activity_id(firebase_id: String): String {
+        return firebase_id.replace('^', '.')
     }
     fun reset_lists() {
         teachers.clear()
@@ -93,19 +93,19 @@ object ClassroomInteractor {
     }
     fun fill_assets_into_teachers(teachers_snapshot: DataSnapshot?) {
         teachers_snapshot?.children?.forEach {
-            val i = get_teacher_index(it.key)
+            val i = get_teacher_index(it.key!!)
             teachers[i].teacherName = it.child("name").value.toString()
         }
     }
     fun fill_thumbnails_into_teachers(teachers_thumbnails: DataSnapshot?) {
         teachers_thumbnails?.children?.forEach {
-            val i = get_teacher_index(it.key)
+            val i = get_teacher_index(it.key!!)
             teachers[i].thumbnail = it.child("thumbnail").value.toString()
         }
     }
     fun fill_assets_into_students(students_snapshot: DataSnapshot?) {
         students_snapshot?.children?.forEach {
-            val i = get_student_index(it.key)
+            val i = get_student_index(it.key!!)
             students[i].firstName = it.child("first_name").value.toString()
             students[i].surname = it.child("surname").value.toString()
             students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").
@@ -118,7 +118,7 @@ object ClassroomInteractor {
     }
     fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
         students_thumbnails?.children?.forEach {
-            val i = get_student_index(it.key)
+            val i = get_student_index(it.key!!)
             students[i].thumbnail = it.child("thumbnail").value.toString()
         }
     }
@@ -131,14 +131,14 @@ object ClassroomInteractor {
     fun fill_assets_into_current_chapters(subject_chapter: DataSnapshot?) {
         subject_current_chapter.clear()
         subject_chapter?.children?.forEach {
-            subject_current_chapter.put(it.key, it.value.toString())
+            subject_current_chapter.put(it.key!!, it.value.toString())
         }
     }
     fun fill_assets_into_absentees(attendance_snapshot: DataSnapshot?) {
         absentees.clear()
         val t = object : GenericTypeIndicator<ArrayList<String>>() {}
         attendance_snapshot?.children?.forEach {
-            val date = it.key
+            val date = it.key.toString()
             val absentee_ids = it.child("absent").getValue(t)
             if(absentee_ids != null) {
                 absentees[date] = absentee_ids
@@ -209,36 +209,36 @@ object ClassroomInteractor {
         reset_lists()
         FirebaseDatabase.getInstance().getReference(learningProject).child("classroom_assets").
                 child(classroom_id).addValueEventListener(object: ValueEventListener {
-                    override fun onDataChange(p0: DataSnapshot?) {
-                        fill_assets_into_teachers(p0?.child("teachers"))
-                        fill_assets_into_students(p0?.child("students"))
-                        fill_assets_into_current_chapters(p0?.child("class_subject_current"))
-                        fill_assets_into_absentees(p0?.child("attendance"))
+                    override fun onDataChange(p0: DataSnapshot) {
+                        fill_assets_into_teachers(p0.child("teachers"))
+                        fill_assets_into_students(p0.child("students"))
+                        fill_assets_into_current_chapters(p0.child("class_subject_current"))
+                        fill_assets_into_absentees(p0.child("attendance"))
                     }
-                    override fun onCancelled(p0: DatabaseError?) {
-                        println("classroom_assets fetch: onCancelled ${p0?.toException()}")
+                    override fun onCancelled(p0: DatabaseError) {
+                        println("classroom_assets fetch: onCancelled ${p0.toException()}")
                     }
                 })
         FirebaseDatabase.getInstance().getReference(learningProject).child("thumbnails").child("classrooms").
                 child(classroom_id).addValueEventListener(object: ValueEventListener {
-                    override fun onDataChange(p0: DataSnapshot?) {
-                        fill_thumbnails_into_teachers(p0?.child("teachers"))
-                        fill_thumbnails_into_students(p0?.child("students"))
+                    override fun onDataChange(p0: DataSnapshot) {
+                        fill_thumbnails_into_teachers(p0.child("teachers"))
+                        fill_thumbnails_into_students(p0.child("students"))
                         //TODO: This will not work if thumbnails come first
                         loadedEvent?.onLoadComplete()
                     }
-                    override fun onCancelled(p0: DatabaseError?) {
-                        println("thumbnails fetch: onCancelled ${p0?.toException()}")
+                    override fun onCancelled(p0: DatabaseError) {
+                        println("thumbnails fetch: onCancelled ${p0.toException()}")
                     }
                 })
         FirebaseDatabase.getInstance().getReference(learningProject).child("classrooms")
                 .child(classroom_id).addListenerForSingleValueEvent(object: ValueEventListener {
-                    override fun onDataChange(p0: DataSnapshot?) {
-                        class_name = p0?.child("class_name")?.value.toString() ?:""
-                        school_name = p0?.child("school_name")?.value.toString() ?:""
+                    override fun onDataChange(p0: DataSnapshot) {
+                        class_name = p0.child("class_name").value.toString()
+                        school_name = p0.child("school_name").value.toString()
                     }
-                    override fun onCancelled(p0: DatabaseError?) {
-                        println("classrooms fetch: onCancelled ${p0?.toException()}")
+                    override fun onCancelled(p0: DatabaseError) {
+                        println("classrooms fetch: onCancelled ${p0.toException()}")
                     }
                 })
     }
