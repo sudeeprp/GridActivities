@@ -48,49 +48,32 @@ class Chapters {
 }
 
 class ContentInteractor {
-    companion object {
-        val base_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
-        var content_path = base_path
-        var content_start_page = content_path + "index.html"
+    object content{
+        var content_path = ""
     }
 
     constructor() {
-        create_default_if_not_exist()
-        read_config()
+        if(content.content_path == "") {
+            val trial_path = "/storage/sdcard1/LearningGrid/"
+            val content_desc_file = File(trial_path + "content_descriptor.json")
+            if(content_desc_file.exists() && content_desc_file.canRead()) {
+                content.content_path = trial_path
+            } else {
+                content.content_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
+            }
+        }
     }
 
     fun chapters_page(grade: String, subject: String): String {
         return chapters_directory(grade, subject) + "chapters.html"
     }
 
-    fun create_default_if_not_exist() {
-        try {
-            val baseDirFile = File(base_path)
-            if (!baseDirFile.exists()) {
-                baseDirFile.mkdirs()
-            }
-            if (!File(content_start_page).exists()) {
-                File(content_start_page).writeText(default_curriculum)
-            }
-            val configFile = File(base_path + "content_location.json")
-            if (!configFile.exists()) {
-                val contentLocJSON = JSONObject()
-                contentLocJSON.put("content_dir_name", base_path)
-                configFile.writeText(contentLocJSON.toString())
-            }
-        } catch (e: IOException) {
-            Log.e("Write", "Create defaults failed: " + e.message)
-        }
-    }
-    fun read_config() {
-        //TODO: Read from json in config file
-    }
     fun get_subjects(grade: String): ArrayList<String> {
         //TODO: Get subjects from the curriculum directories
         return arrayListOf("french", "math")
     }
     fun chapters_directory(grade: String, subject: String): String {
-        return content_path + "/" + grade + "_" + subject + "/"
+        return content.content_path + "/" + grade + "_" + subject + "/"
     }
     fun chapters_and_activities(grade: String, subject: String): Chapters {
         val subject_chapters_file = File(chapters_directory(grade, subject) + "/chapter_activities.json")

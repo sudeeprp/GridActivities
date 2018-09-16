@@ -19,6 +19,7 @@ import android.widget.ViewSwitcher;
 import com.thinklearn.tide.adapter.TeacherItemRecyclerViewAdapter;
 import com.thinklearn.tide.dto.Teacher;
 import com.thinklearn.tide.interactor.ClassroomContext;
+import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,11 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         findViewById(R.id.login).setEnabled(false);
         selectedTeacherName.setFactory(this);
         selectedTeacherName.setCurrentText(getText(R.string.unknown_teacher));
+
+        TextView className = findViewById(R.id.class_name);
+        className.setText(ClassroomInteractor.class_name);
+        TextView schoolName = findViewById(R.id.school_name);
+        schoolName.setText(ClassroomInteractor.school_name);
 
         Intent teacherLoginIntent = getIntent();
         teacherWelcomeInputList = teacherLoginIntent.getParcelableArrayListExtra("TEACHER_LIST");

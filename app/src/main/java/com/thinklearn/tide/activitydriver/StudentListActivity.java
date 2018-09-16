@@ -49,7 +49,7 @@ public class StudentListActivity extends AppCompatActivity {
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
         String selectedGender = getIntent().getStringExtra("selectedGender");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.studentGradeSelectionBar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
