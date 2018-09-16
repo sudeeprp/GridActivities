@@ -62,7 +62,7 @@
             android:screenOrientation="landscape"/>
         <activity android:name=".AttendenceManagementActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".GradeSelectionActivity"
+        <activity android:name=".StudentGradeSelectionActivity"
             android:screenOrientation="landscape" />
         <activity android:name=".GenderSelectionActivity"
             android:screenOrientation="landscape" />

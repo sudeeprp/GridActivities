@@ -16,23 +16,15 @@ import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.dto.Teacher;
 import com.thinklearn.tide.dto.TeacherWelcomeOutput;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
-import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 public class TeacherWelcomeActivity extends AppCompatActivity {
 
     private List<Student> studentInputList = new ArrayList<>();
     private ArrayList<String> gradeList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +57,7 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
                     intent.putExtra("attendance", attendance);
                     startActivityForResult(intent, 3);
                 } else if(v == ivStudents) {
-                    Intent intent = new Intent(TeacherWelcomeActivity.this, GradeSelectionActivity.class);
+                    Intent intent = new Intent(TeacherWelcomeActivity.this, StudentGradeSelectionActivity.class);
                     intent.putParcelableArrayListExtra("studentInputList", (ArrayList<? extends Parcelable>) studentInputList);
                     intent.putExtra("purpose", "PROFILE_EDIT");
                     startActivity(intent);

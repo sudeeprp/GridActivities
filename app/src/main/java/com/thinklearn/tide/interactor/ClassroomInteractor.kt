@@ -1,5 +1,6 @@
 package com.thinklearn.tide.interactor
 
+import android.os.Environment
 import com.google.firebase.database.*
 import com.google.gson.Gson
 import com.thinklearn.tide.dto.AttendanceInput
@@ -11,6 +12,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
+import java.io.File
 
 
 interface ClassroomLoaded {
@@ -33,8 +35,42 @@ object ClassroomInteractor {
     var loadedEvent: ClassroomLoaded? = null
     var absentees: MutableMap<String, MutableList<String>> = hashMapOf()
 
+    fun baseDir(): String {
+        val base_dir = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
+        val baseDirFile = File(base_dir)
+        if (!baseDirFile.exists()) {
+            baseDirFile.mkdirs()
+        }
+        return base_dir
+    }
+    fun writeConfig(filename: String, key: String, value: String) {
+        val configFile = File(baseDir() + filename)
+        var configJsonStr = "{}"
+        if(configFile.exists()) {
+            configJsonStr = configFile.readText()
+        }
+        val configJSON = JSONObject(configJsonStr)
+        configJSON.put(key, value)
+        configFile.writeText(configJSON.toString(2))
+    }
+    fun getConfig(filename: String, key: String, default: String): String {
+        val configFile = File(baseDir() + filename)
+        var configValue = ""
+        if(configFile.exists()) {
+            val configJsonStr = configFile.readText()
+            val configJSON = JSONObject(configJsonStr)
+            if(configJSON.has(key)) {
+                configValue = configJSON.get(key).toString()
+            }
+        }
+        if(configValue == "") {
+            writeConfig(filename, key, default)
+            configValue = default
+        }
+        return configValue
+    }
     fun learningProject(): String {
-        return "ICDev"
+        return getConfig("learning_project.json", "project_name", "ICDev")
     }
     fun db_classrooms_reference(): DatabaseReference {
         return FirebaseDatabase.getInstance().getReference(learningProject()).child("classrooms")

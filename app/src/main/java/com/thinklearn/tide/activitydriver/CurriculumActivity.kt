@@ -13,8 +13,9 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.MediaController
 import android.widget.Toast
-import com.thinklearn.tide.interactor.ClassroomInteractor
+import android.widget.VideoView
 import com.thinklearn.tide.interactor.ContentInteractor
 import java.io.File
 
@@ -80,42 +81,40 @@ class CurriculumActivity : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN)
         getSupportActionBar()?.hide();
-        setContentView(R.layout.activity_curriculum)
         window.decorView.apply {
             // Hide both the navigation bar and the status bar.
             systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                     View.SYSTEM_UI_FLAG_IMMERSIVE
         }
-        val webView = findViewById<WebView>(R.id.curriculum_page)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.allowFileAccessFromFileURLs = true
-        //needed to enable autoplay
-        webView.settings.mediaPlaybackRequiresUserGesture = false
-        //not sure what the following is for... trying to avoid black pages
-        webView.settings.mixedContentMode = MIXED_CONTENT_ALWAYS_ALLOW
-        webView.settings.allowUniversalAccessFromFileURLs = true
-        webView.settings.javaScriptCanOpenWindowsAutomatically = true
-
-        webView.addJavascriptInterface(ActivityInterface(this), "Android")
-        webView.webViewClient = WebViewClient()
-
         grade = intent.getStringExtra("SELECTED_GRADE")
         subject = intent.getStringExtra("SELECTED_SUBJECT")
         chapter = intent.getStringExtra("SELECTED_CHAPTER")
         activity_identifier = intent.getStringExtra("SELECTED_ACTIVITY")
 
-        loadPage(grade, subject, chapter, activity_identifier)
+        loadCurriculumActivity(grade, subject, chapter, activity_identifier)
     }
-
-    fun get_border_html(grade: String, subject: String): String {
-        var border_html = "";
-        val border_key = grade + "_" + subject
-        border_html += border_html_piece[border_key + "_x"] + ",\n"
-        border_html += border_html_piece[border_key + "_y"] + ",\n"
-        border_html += border_html_piece[border_key + "_x"] + ",\n"
-        border_html += border_html_piece[border_key + "_y"] + ";\n"
-        return border_html
+    fun loadCurriculumActivity(grade: String, subject: String, chapter: String, activity_identifier: String) {
+        val contentStartPage = ContentInteractor().activity_page(grade, subject, chapter, activity_identifier)
+        if(contentStartPage.toLowerCase().endsWith("pdf")) {
+            loadPDF(contentStartPage)
+        } else if(contentStartPage.toLowerCase().endsWith("mp4")) {
+            loadVideo(contentStartPage)
+        } else {
+            loadIframe(contentStartPage)
+        }
+    }
+    fun loadVideo(contentStartPage: String) {
+        setContentView(R.layout.activity_curriculum_video)
+        val videoView = findViewById<VideoView>(R.id.videoView)
+        val mediaController = MediaController(this)
+        mediaController.setAnchorView(videoView)
+        val uri = Uri.parse(contentStartPage)
+        videoView.setMediaController(mediaController)
+        videoView.setVideoURI(uri)
+        videoView.requestFocus()
+        videoView.start()
+        videoView.setOnCompletionListener { endActivity("") }
     }
     fun loadPDF(contentStartPage: String) {
         try {
@@ -128,21 +127,35 @@ class CurriculumActivity : AppCompatActivity() {
             Toast.makeText(this, R.string.no_pdf_viewer, Toast.LENGTH_LONG).show()
         }
     }
+    fun get_border_html(grade: String, subject: String): String {
+        var border_html = "";
+        val border_key = grade + "_" + subject
+        border_html += border_html_piece[border_key + "_x"] + ",\n"
+        border_html += border_html_piece[border_key + "_y"] + ",\n"
+        border_html += border_html_piece[border_key + "_x"] + ",\n"
+        border_html += border_html_piece[border_key + "_y"] + ";\n"
+        return border_html
+    }
     fun loadIframe(contentStartPage: String) {
+        setContentView(R.layout.activity_curriculum_html)
         val webView = findViewById<WebView>(R.id.curriculum_page)
+        webView.settings.javaScriptEnabled = true
+        webView.settings.allowFileAccessFromFileURLs = true
+        //needed to enable autoplay
+        webView.settings.mediaPlaybackRequiresUserGesture = false
+        //not sure what the following is for... trying to avoid black pages
+        webView.settings.mixedContentMode = MIXED_CONTENT_ALWAYS_ALLOW
+        webView.settings.allowUniversalAccessFromFileURLs = true
+        webView.settings.javaScriptCanOpenWindowsAutomatically = true
+
+        webView.addJavascriptInterface(ActivityInterface(this), "Android")
+        webView.webViewClient = WebViewClient()
         val baseUrl = ContentInteractor().activity_directory(grade, subject, chapter, activity_identifier)
         val pageData = html_before_border_images + get_border_html(grade, subject) + html_border_to_iframe_src +
                 "file://" + contentStartPage + html_after_iframe_src
         webView.loadDataWithBaseURL("file://" + baseUrl, pageData, null, null, null)
     }
-    fun loadPage(grade: String, subject: String, chapter: String, activity_identifier: String) {
-        val contentStartPage = ContentInteractor().activity_page(grade, subject, chapter, activity_identifier)
-        if(contentStartPage.toLowerCase().endsWith("pdf")) {
-            loadPDF(contentStartPage)
-        } else {
-            loadIframe(contentStartPage)
-        }
-    }
+
     override fun onBackPressed() {
         val webView = findViewById<WebView>(R.id.curriculum_page)
         if (webView.canGoBack()) {

@@ -28,7 +28,6 @@ data class Classroom(val class_name: String, val school_name: String)
 
 class Launch : AppCompatActivity() {
     lateinit var selected_class_id: String
-    //lateinit var selected_tab_mode: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,11 +53,19 @@ class Launch : AppCompatActivity() {
         }
     }
     fun launchStartScreen() {
+        lookForContent()
         selected_class_id = ClassroomInteractor.configureClass()
         if (selected_class_id == "") {
             showConfigScreen()
         } else {
             loadAndStart(ClassroomInteractor.tab_mode)
+        }
+    }
+    fun lookForContent() {
+        val files = ContextCompat.getExternalFilesDirs(this, null);
+        println("** Files reported:")
+        for(file in files) {
+            println(file)
         }
     }
     fun loadAndStart(start_mode: String) {
@@ -115,7 +122,7 @@ class Launch : AppCompatActivity() {
                         }
                     }
                     override fun onCancelled(p0: DatabaseError) {
-                        println("ICDev fetch: onCancelled ${p0.toException()}")
+                        Toast.makeText(this@Launch, "Classrooms fetch cancelled: ${p0.toException()}", Toast.LENGTH_LONG).show()
                     }
                 })
     }
@@ -126,7 +133,7 @@ class Launch : AppCompatActivity() {
         startActivity(teacherLoginIntent)
     }
     fun startStudentLogin() {
-        val studentLoginIntent = Intent(this, GradeSelectionActivity::class.java)
+        val studentLoginIntent = Intent(this, StudentGradeSelectionActivity::class.java)
         studentLoginIntent.putParcelableArrayListExtra("studentInputList", ClassroomInteractor.students)
         studentLoginIntent.putExtra("purpose", "STUDENT_ACTIVITY")
         studentLoginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
