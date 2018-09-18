@@ -121,6 +121,7 @@ class CurriculumActivity : AppCompatActivity() {
             val pdfIntent: Intent = Intent(Intent.ACTION_VIEW)
             pdfIntent.setDataAndType(Uri.fromFile(File(contentStartPage)), "application/pdf")
             pdfIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            finish()
             startActivity(pdfIntent)
         }
         catch(e: ActivityNotFoundException) {
@@ -158,7 +159,7 @@ class CurriculumActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val webView = findViewById<WebView>(R.id.curriculum_page)
-        if (webView.canGoBack()) {
+        if(webView != null && webView.canGoBack()) {
             webView.goBack()
         } else {
             endActivity("")

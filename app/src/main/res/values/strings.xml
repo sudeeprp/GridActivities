@@ -6,7 +6,7 @@
     <string name="attendance">Attendance</string>
     <string name="students">Students</string>
     <string name="dashboard">Dashboard</string>
-    <string name="version">TIDE Learning Grid Version 1.1 h</string>
+    <string name="version">TIDE Learning Grid Version 1.1 J</string>
     <string name="title_activity_student">Students</string>
     <string name="title_activity_student_list_content">student_list_content</string>
     <string name="student_name">Student Name</string>
@@ -51,4 +51,5 @@
     <string name="permission_required">Permission is needed to continue</string>
     <string name="upload_classroom">Upload Classroom</string>
     <string name="need_school_selection">Select a school to start</string>
+    <string name="initial_load">Loading</string>
 </resources>

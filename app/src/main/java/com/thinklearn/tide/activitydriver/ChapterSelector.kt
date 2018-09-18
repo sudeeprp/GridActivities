@@ -38,9 +38,10 @@ class ChapterSelector : AppCompatActivity() {
         chaptersPage.addJavascriptInterface(ChapterSelectorInterface(this, grade, subject), "Android")
         chaptersPage.webViewClient = WebViewClient()
 
-        chaptersPage.loadUrl("file://" + ContentInteractor().chapters_page(grade, subject))
-
-        if(ClassroomContext.selectedTeacher == null && ClassroomContext.selectedStudent != null) {
+        if(ClassroomContext.selectedTeacher != null) {
+            chaptersPage.loadUrl("file://" + ContentInteractor().chapters_page(grade, subject))
+        }
+        if(ClassroomContext.selectedStudent != null) {
             chaptersPage.loadUrl("file://" +
                     ClassroomInteractor.current_chapter_page(ClassroomContext.selectedStudent!!, subject))
         }
@@ -119,7 +120,6 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
         activityIntent.putExtra("SELECTED_SUBJECT", subject)
         activityIntent.putExtra("SELECTED_CHAPTER", chapter_shown)
         activityIntent.putExtra("SELECTED_ACTIVITY", activity_identifier)
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         chapterContext.startActivityForResult(activityIntent, 3)
     }
     @JavascriptInterface
@@ -128,6 +128,14 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
         val subActivityUrl = ContentInteractor().activity_page(grade, subject, chapter_shown, activity_identifier)
         chaptersPage.post(Runnable {
             chaptersPage.loadUrl("file://" + subActivityUrl)
+        })
+    }
+    @JavascriptInterface
+    fun chapterSelector() {
+        val chaptersPage = chapterContext.findViewById<WebView>(R.id.chapters_page)
+        val chaptersUrl = ContentInteractor().chapters_page(grade, subject)
+        chaptersPage.post(Runnable {
+            chaptersPage.loadUrl("file://" + chaptersUrl)
         })
     }
 }

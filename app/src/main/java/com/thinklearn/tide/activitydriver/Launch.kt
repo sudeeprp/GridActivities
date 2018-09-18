@@ -19,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ClassroomLoaded
+import com.thinklearn.tide.interactor.ConfigKeys
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.FileInputStream
@@ -27,7 +28,7 @@ import java.io.FileInputStream
 data class Classroom(val class_name: String, val school_name: String)
 
 class Launch : AppCompatActivity() {
-    lateinit var selected_class_id: String
+    var selected_class_id: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,30 +54,23 @@ class Launch : AppCompatActivity() {
         }
     }
     fun launchStartScreen() {
-        lookForContent()
-        selected_class_id = ClassroomInteractor.configureClass()
-        if (selected_class_id == "") {
-            showConfigScreen()
+        selected_class_id = ClassroomInteractor.selectedClass()
+        val selected_mode = ClassroomInteractor.selectedMode()
+        if (selected_class_id != "" && selected_mode != "") {
+            loadAndStart(selected_mode)
         } else {
-            loadAndStart(ClassroomInteractor.tab_mode)
-        }
-    }
-    fun lookForContent() {
-        val files = ContextCompat.getExternalFilesDirs(this, null);
-        println("** Files reported:")
-        for(file in files) {
-            println(file)
+            showConfigScreen()
         }
     }
     fun loadAndStart(start_mode: String) {
         if(selected_class_id != "") {
-            ClassroomInteractor.load("ICDev", selected_class_id, object : ClassroomLoaded {
+            setContentView(R.layout.activity_initial_load)
+            ClassroomInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : ClassroomLoaded {
                 override fun onLoadComplete() {
-                    ClassroomInteractor.tab_mode = start_mode
                     ClassroomInteractor.removeLoadedEvent()
-                    if (ClassroomInteractor.tab_mode == "teacher") {
+                    if (start_mode == ConfigKeys.teacher_mode_value) {
                         startTeacherLogin()
-                    } else if (ClassroomInteractor.tab_mode == "student") {
+                    } else if (start_mode == ConfigKeys.student_mode_value) {
                         startStudentLogin()
                     }
                 }
@@ -102,7 +96,7 @@ class Launch : AppCompatActivity() {
         }
 
         //TODO: Check max number of schools (<50) before querying!
-        FirebaseDatabase.getInstance().getReference("ICDev").child("classrooms").
+        FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("classrooms").
                 addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(classrooms_snapshot: DataSnapshot) {
                         val schools = arrayOfNulls<String>(classrooms_snapshot.childrenCount.toInt())
@@ -130,13 +124,14 @@ class Launch : AppCompatActivity() {
         val teacherLoginIntent = Intent(this, TeacherLoginActivity::class.java)
         teacherLoginIntent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.teachers)
         teacherLoginIntent.putExtra("purpose", "PROFILE_EDIT")
+        finish()
         startActivity(teacherLoginIntent)
     }
     fun startStudentLogin() {
         val studentLoginIntent = Intent(this, StudentGradeSelectionActivity::class.java)
         studentLoginIntent.putParcelableArrayListExtra("studentInputList", ClassroomInteractor.students)
         studentLoginIntent.putExtra("purpose", "STUDENT_ACTIVITY")
-        studentLoginIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        finish()
         startActivity(studentLoginIntent)
     }
     fun uploadClassroom() {

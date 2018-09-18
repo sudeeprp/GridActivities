@@ -4,7 +4,7 @@
 %1\adb uninstall com.halfbrick.fruitninja
 %1\adb uninstall com.aldiko.android
 %1\adb uninstall com.dataviz.docstogo
-%1\adb install c:\WorkArea\contentgen\play.area\googlepdfviewer.apk
+%1\adb install googlepdfviewer.apk
 rem TODO: Still need to uninstall black tile ad monster
 
 %1\adb install -r app-release.apk
