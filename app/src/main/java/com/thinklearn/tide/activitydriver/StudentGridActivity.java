@@ -46,7 +46,6 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
 
             @Override
             public void onClick(View v) {
-                //TODO:<<Fix this
                 ClassroomContext.selectedStudent = studentGridAdapter.getSelectedStudent();
                 ClassroomContext.selectedTeacher = null;
                 Intent curriculumIntent =
