@@ -18,11 +18,23 @@ import java.io.File
 interface ClassroomLoaded {
     fun onLoadComplete()
 }
-object ClassroomInteractor {
-    lateinit var loadedLearningProject: String
-    lateinit var loadedClassroomID: String
+object ConfigKeys {
+    val learning_project_file = "learning_project.json"
+    val project_name_key = "db_project_name"
+
+    val selected_class_file = "selected_class.json"
+    val selected_class_key = "selected_class_id"
+
+    val selected_mode_file = "selected_mode.json"
+    val selected_mode_key = "selected_mode"
     @JvmField
-    var tab_mode: String = ""
+    val teacher_mode_value = "teacher"
+    @JvmField
+    val student_mode_value = "student"
+}
+object ClassroomInteractor {
+    var loadedLearningProject: String = ""
+    var loadedClassroomID: String = ""
     @JvmField
     var class_name: String = ""
     @JvmField
@@ -70,7 +82,21 @@ object ClassroomInteractor {
         return configValue
     }
     fun learningProject(): String {
-        return getConfig("learning_project.json", "project_name", "ICDev")
+        if(loadedLearningProject == "") {
+            return getConfig(ConfigKeys.learning_project_file, ConfigKeys.project_name_key, "ICDev")
+        } else {
+            return loadedLearningProject
+       }
+    }
+    fun selectedClass(): String {
+        return getConfig(ConfigKeys.selected_class_file, ConfigKeys.selected_class_key, "")
+    }
+    fun selectedMode(): String {
+        return getConfig(ConfigKeys.selected_mode_file, ConfigKeys.selected_mode_key, "")
+    }
+    @JvmStatic
+    fun setTabMode(mode: String) {
+        writeConfig(ConfigKeys.selected_mode_file, ConfigKeys.selected_mode_key, mode)
     }
     fun db_classrooms_reference(): DatabaseReference {
         return FirebaseDatabase.getInstance().getReference(learningProject()).child("classrooms")
@@ -85,7 +111,7 @@ object ClassroomInteractor {
         return db_classroom_assets_reference().child(classroomId).child("students")
     }
     fun db_onestudent_reference(studentId: String): DatabaseReference {
-        return db_students_reference(loadedClassroomID).child("students").child(studentId)
+        return db_students_reference(loadedClassroomID).child(studentId)
     }
     fun db_student_activity_reference(studentRef: DatabaseReference, subject: String, chapter: String,
                                       activity_identifier: String): DatabaseReference {
@@ -144,10 +170,14 @@ object ClassroomInteractor {
             val i = get_student_index(it.key!!)
             students[i].firstName = it.child("first_name").value.toString()
             students[i].surname = it.child("surname").value.toString()
-            students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").
-                    parse(it.child("birth_date").child("dd").value.toString() + "/" +
-                            it.child("birth_date").child("mm").value.toString() + "/" +
-                            it.child("birth_date").child("yyyy").value.toString())
+
+            val dob_day = it.child("birth_date").child("dd").value
+            val dob_month = it.child("birth_date").child("mm").value
+            val dob_year = it.child("birth_date").child("yyyy").value
+            if(dob_day != null && dob_month != null && dob_year != null) {
+                students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").
+                        parse(dob_day.toString() + "/" + dob_month.toString() + "/" + dob_year.toString())
+            }
             students[i].gender = it.child("gender").value.toString()
             students[i].grade = it.child("grade").value.toString()
         }
@@ -211,10 +241,6 @@ object ClassroomInteractor {
     fun removeLoadedEvent() {
         loadedEvent = null
     }
-    fun configureClass(): String {
-        //TODO: Implement
-        return ""
-    }
     fun uploadClassroom(classroomAndAssetsJSON: JSONObject) {
         uploadClassroomPart(classroomAndAssetsJSON)
         uploadAssetPart(classroomAndAssetsJSON)
@@ -239,6 +265,8 @@ object ClassroomInteractor {
         db_classroom_assets_reference().updateChildren(asset)
     }
     fun load(learningProject: String, classroom_id: String, loaded_event: ClassroomLoaded) {
+        writeConfig(ConfigKeys.learning_project_file, ConfigKeys.project_name_key, learningProject)
+        writeConfig(ConfigKeys.selected_class_file, ConfigKeys.selected_class_key, classroom_id)
         loadedLearningProject = learningProject
         loadedClassroomID = classroom_id
         loadedEvent = loaded_event

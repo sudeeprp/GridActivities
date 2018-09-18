@@ -20,6 +20,7 @@ import com.thinklearn.tide.adapter.TeacherItemRecyclerViewAdapter;
 import com.thinklearn.tide.dto.Teacher;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ConfigKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,8 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_teacher_login);
+
+        ClassroomInteractor.setTabMode(ConfigKeys.teacher_mode_value);
 
         recyclerView = findViewById(R.id.rvHorizantalTeacherList);
         selectedTeacherName = findViewById(R.id.tvSSelectedteacherName);
@@ -66,6 +69,16 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
                 ClassroomContext.selectedStudent = null;
                 Intent intent  = new Intent(TeacherLoginActivity.this,TeacherWelcomeActivity.class);
                 intent.putExtra("TEACHER_IDENTIFICATION", ClassroomContext.selectedTeacher);
+                startActivity(intent);
+            }
+        });
+        findViewById(R.id.switchtostudent).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TeacherLoginActivity.this, StudentGradeSelectionActivity.class);
+                intent.putParcelableArrayListExtra("studentInputList", ClassroomInteractor.students);
+                intent.putExtra("purpose", "STUDENT_ACTIVITY");
+                finish();
                 startActivity(intent);
             }
         });

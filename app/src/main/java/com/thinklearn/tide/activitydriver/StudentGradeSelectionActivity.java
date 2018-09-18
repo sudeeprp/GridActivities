@@ -5,11 +5,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ConfigKeys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,27 +23,33 @@ public class StudentGradeSelectionActivity extends AppCompatActivity implements 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_studentlogin_grade);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.studentGradeSelectionBar) ;
         setSupportActionBar(myToolbar);
 
-        Button switchtoteacher = (Button)findViewById(R.id.switchtoteacher);
+        ImageButton switchtoteacher = (ImageButton)findViewById(R.id.switchtoteacher);
 
         String purpose = getIntent().getStringExtra("purpose");
         if (purpose.equals("STUDENT_ACTIVITY")) {
+            setTitle(R.string.version);
+            ClassroomInteractor.setTabMode(ConfigKeys.student_mode_value);
             switchtoteacher.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(StudentGradeSelectionActivity.this,TeacherLoginActivity.class);
                     intent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.teachers);
+                    finish();
                     startActivity(intent);
                 }
             });
         }else {
+            setTitle(R.string.select_grade);
+            myToolbar.setVisibility(View.GONE);
             switchtoteacher.setVisibility(View.GONE);
         }
-        setTitle(R.string.select_grade);
 
 
         Button grade1button = (Button)findViewById(R.id.grade1button);
