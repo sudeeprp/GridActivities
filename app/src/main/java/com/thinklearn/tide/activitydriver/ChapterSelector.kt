@@ -1,8 +1,11 @@
 package com.thinklearn.tide.activitydriver
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
@@ -15,6 +18,7 @@ import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 
 class ChapterSelector : AppCompatActivity() {
     lateinit var grade: String
@@ -101,7 +105,15 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
             for(student in chapter.value) {
                 val studentJSON = JSONObject()
                 studentJSON.put("name", student.firstName + " " + student.surname)
-                studentJSON.put("thumbnail", student.thumbnail)
+                var thumbnail = student.thumbnail
+                if(thumbnail == null) {
+                    val bitmap = BitmapFactory.decodeResource(chapterContext.resources, R.drawable.student)
+                    val baos = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos) //bm is the bitmap object
+                    val thumbByteArray = baos.toByteArray()
+                    thumbnail = Base64.encodeToString(thumbByteArray, Base64.DEFAULT)
+                }
+                studentJSON.put("thumbnail", thumbnail)
                 studentsJSON.put(studentJSON)
             }
             chapterJSON.put("students", studentsJSON)
