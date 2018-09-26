@@ -70,7 +70,7 @@ val html_border_to_iframe_src = """
 <div class="bigborder" style="height:100%;width=100%;">
 <iframe src="""".trimIndent()
 
-val html_after_iframe_src = """" frameborder="0" style="overflow:hidden;height:90%;width:90%;position:absolute;top:20px;left:20px;right:20px;bottom:20px"></iframe>
+val html_after_iframe_src = """" frameborder="0" style="overflow:hidden;height:95%;width:97%;position:absolute;top:16px;left:16px;"></iframe>
 </div>
 </body>
 </html> """.trimIndent()

@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.interactor.ClassroomContext
 import com.thinklearn.tide.interactor.ClassroomInteractor
@@ -20,9 +21,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 
+
 class ChapterSelector : AppCompatActivity() {
     lateinit var grade: String
     lateinit var subject: String
+    var selectorInterface = ChapterSelectorInterface(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +42,9 @@ class ChapterSelector : AppCompatActivity() {
         val chaptersPage = findViewById<WebView>(R.id.chapters_page)
         chaptersPage.settings.javaScriptEnabled = true
         chaptersPage.settings.allowFileAccessFromFileURLs = true
-        chaptersPage.addJavascriptInterface(ChapterSelectorInterface(this, grade, subject), "Android")
+        selectorInterface.grade = grade
+        selectorInterface.subject = subject
+        chaptersPage.addJavascriptInterface(selectorInterface, "Android")
         chaptersPage.webViewClient = WebViewClient()
 
         if(ClassroomContext.selectedTeacher != null) {
@@ -52,7 +57,7 @@ class ChapterSelector : AppCompatActivity() {
     }
     override fun onBackPressed() {
         val webView = findViewById<WebView>(R.id.chapters_page)
-        if (webView.canGoBack()) {
+        if (selectorInterface.need_to_stay && webView.canGoBack()) {
             webView.goBack()
         } else {
             super.onBackPressed()
@@ -75,12 +80,25 @@ class ChapterSelector : AppCompatActivity() {
     }
 }
 
-class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: String, val subject: String) {
+class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
     var chapter_shown: String = ""
+    var grade: String = ""
+    var subject: String = ""
+    var need_to_stay = false
 
     @JavascriptInterface
+    fun getCurrentGrade(): String {
+        val resId = chapterContext.resources.getIdentifier("grade" + grade, "string", chapterContext.packageName)
+        return chapterContext.getString(resId)
+    }
+    @JavascriptInterface
+    fun getCurrentSubject(): String {
+        val resId = chapterContext.resources.getIdentifier(subject, "string", chapterContext.packageName)
+        return chapterContext.getString(resId)
+    }
+    @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
-        //TODO: Get status based on completion from ClassroomInteractor. Pack all students together and send, like getStudentsInSubject
+        //TODO: Get status based on completion from ClassroomInteractor.
         var status = "pending"
         val current_chapter = ClassroomInteractor.get_active_chapter(grade, subject)
         if(current_chapter == chapterIdent) {
@@ -91,8 +109,6 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
     @JavascriptInterface
     fun setChapterActive(chapterIdent: String) {
         ClassroomInteractor.set_active_chapter(grade, subject, chapterIdent)
-        //TODO: finally after specific events (student-id-based) are implemented, we can trigger refresh here
-        //chapterContext.refresh_screen()
     }
     @JavascriptInterface
     fun getStudentsInSubject(): String {
@@ -124,6 +140,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
     @JavascriptInterface
     fun chapterEntered(chapterName: String) {
         chapter_shown = chapterName
+        need_to_stay = true
+    }
+    @JavascriptInterface
+    fun selectorEntered() {
+        need_to_stay = false
     }
     @JavascriptInterface
     fun startActivity(activity_identifier: String) {
@@ -136,6 +157,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector, val grade: S
     }
     @JavascriptInterface
     fun subActivity(activity_identifier: String) {
+        need_to_stay = true
         val chaptersPage = chapterContext.findViewById<WebView>(R.id.chapters_page)
         val subActivityUrl = ContentInteractor().activity_page(grade, subject, chapter_shown, activity_identifier)
         chaptersPage.post(Runnable {
