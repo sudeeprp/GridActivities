@@ -18,6 +18,7 @@ import android.widget.ViewSwitcher;
 
 import com.thinklearn.tide.adapter.TeacherItemRecyclerViewAdapter;
 import com.thinklearn.tide.dto.Teacher;
+import com.thinklearn.tide.interactor.AppInfo;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 import com.thinklearn.tide.interactor.ConfigKeys;
@@ -39,6 +40,7 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_teacher_login);
+        ((TextView)findViewById(R.id.tvVersion)).setText(AppInfo.appVersion(this));
 
         ClassroomInteractor.setTabMode(ConfigKeys.teacher_mode_value);
 

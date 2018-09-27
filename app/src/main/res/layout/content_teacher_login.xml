@@ -37,7 +37,7 @@
             />
         <TextSwitcher
             android:id="@+id/tvSSelectedteacherName"
-            android:layout_width="200sp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/rvHorizantalTeacherList"
             android:textSize="25sp"
@@ -89,7 +89,7 @@
         android:textSize="20sp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:text="@string/version"/>
+        android:text="@string/version_prefix"/>
     <TextView
         android:id="@+id/contentVersion"
         android:layout_width="wrap_content"

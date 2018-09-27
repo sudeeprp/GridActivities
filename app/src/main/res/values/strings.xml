@@ -1,14 +1,12 @@
 <resources>
     <string name="app_name">TIDE Learning Grid</string>
     <string name="title_activity_attendance_management">Attendance</string>
-    <string name="title_activity_teacher_start_screen">TeacherStartScreen</string>
     <string name="home">Home</string>
     <string name="attendance">Attendance</string>
     <string name="students">Students</string>
     <string name="dashboard">Dashboard</string>
-    <string name="version">TIDE Learning Grid Version 1.1 k</string>
+    <string name="version_prefix">Learning Grid </string>
     <string name="title_activity_student">Students</string>
-    <string name="title_activity_student_list_content">student_list_content</string>
     <string name="student_name">Student Name</string>
     <string name="unknown_teacher">Select Teacher</string>
     <string name="title_student_list">Students</string>

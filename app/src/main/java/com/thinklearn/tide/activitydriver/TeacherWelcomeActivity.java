@@ -15,6 +15,7 @@ import com.thinklearn.tide.dto.AttendanceInput;
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.dto.Teacher;
 import com.thinklearn.tide.dto.TeacherWelcomeOutput;
+import com.thinklearn.tide.interactor.AppInfo;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
         if(getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_teacher_start_screen);
+        ((TextView)findViewById(R.id.teacher_start_version)).setText(AppInfo.appVersion(this));
         TextView tvTeacherName = findViewById(R.id.tvTeacherName);
 
         if(getIntent().hasExtra("TEACHER_IDENTIFICATION")) {
