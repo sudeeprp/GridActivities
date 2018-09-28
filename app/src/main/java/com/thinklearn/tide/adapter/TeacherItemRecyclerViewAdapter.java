@@ -41,7 +41,11 @@ public class TeacherItemRecyclerViewAdapter extends RecyclerView.Adapter<Teacher
     @Override
     public TeacherviewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View teacherViewholder = LayoutInflater.from(parent.getContext()).inflate(R.layout.teacher_list_content,parent,false);
-        return new TeacherviewHolder(teacherViewholder);
+        TeacherviewHolder holder = new TeacherviewHolder(teacherViewholder);
+        if(teacherWelcomeInputList.size() == 1) {
+            selectItem(holder, 0);
+        }
+        return holder;
     }
 
     @Override
@@ -68,16 +72,16 @@ public class TeacherItemRecyclerViewAdapter extends RecyclerView.Adapter<Teacher
                 int position = holder.getAdapterPosition();
                 if(position == selectedPosition)
                     return;
-                selectedPosition = position;
+                selectItem(holder, position);
                 notifyDataSetChanged();
-                holder.itemView.setTag(teacherWelcomeInputList.get(position));
-                teacherSelectedClickListener.onTeacherSelected(v,position);
             }
         });
-
-
     }
-
+    private void selectItem(TeacherviewHolder holder, int position) {
+        selectedPosition = position;
+        holder.itemView.setTag(teacherWelcomeInputList.get(position));
+        teacherSelectedClickListener.onTeacherSelected(holder.itemView,position);
+    }
     @Override
     public int getItemCount() {
         return teacherWelcomeInputList.size();

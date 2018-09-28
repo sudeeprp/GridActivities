@@ -26,7 +26,7 @@
     <string name="change_photo">Changer la photo</string>
     <string name="title_activity_teacher_login">Accès enseignant</string>
     <string name="login">Accès</string>
-    <string name="teacher_image">Image de l'enseignant</string>
+    <string name="teacher_image">Image de l\'enseignant</string>
     <string name="save">Enregistrer</string>
     <string name="cancel">Annuler</string>
     <string name="default_time">10:10 AM</string>
@@ -45,8 +45,8 @@
     <string name="select_school_mode">Choisir une école et le mode enseignant/élève</string>
     <string name="unsaved_attendance_warning">Voulez-vous enregistrer l\'appel réalisé?</string>
     <string name="no_pdf_viewer">Visualiseur PDF introuvable</string>
-    <string name="permission_required">Permission is needed to continue</string>
-    <string name="upload_classroom">Upload Classroom</string>
+    <string name="permission_required">Besoin de permission pour continuer</string>
+    <string name="upload_classroom">Classe de charge</string>
     <string name="need_school_selection">Choisir une école pour commencer</string>
-    <string name="initial_load">Loading</string>
+    <string name="initial_load">Chargement</string>
 </resources>

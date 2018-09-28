@@ -186,7 +186,6 @@ class CurriculumActivity : AppCompatActivity() {
 class ActivityInterface(val curriculum_context: CurriculumActivity) {
     @JavascriptInterface
     fun activityResult(datapoint: String) {
-        Toast.makeText(curriculum_context, datapoint, Toast.LENGTH_LONG).show()
         curriculum_context.endActivity(datapoint)
     }
 }

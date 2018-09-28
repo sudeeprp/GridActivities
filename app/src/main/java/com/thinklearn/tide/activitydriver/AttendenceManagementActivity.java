@@ -123,8 +123,12 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                     TextView textView = makeTableRowWithText("", fixedColumnWidths[j + 1], fixedRowHeight);
                     clickableRow.addView(textView);
                     List<String> absenteeIds = attendance.getAbsentees().get(weekStartDateStr);
-                    if (weekStartDateStr.compareTo(todayStr) < 0 && (absenteeIds == null || !absenteeIds.contains(student.getId()))) {
-                        textView.setText("✓");
+                    if (weekStartDateStr.compareTo(todayStr) < 0) {
+                        if(absenteeIds == null) {
+                            textView.setText("");
+                        } else if (!absenteeIds.contains(student.getId())) {
+                            textView.setText("✓");
+                        }
                         textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     }
                 }
@@ -147,6 +151,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         Button button = new Button(this);
         button.setLayoutParams(wrapWrapTableRowParams);
         button.setText(text);
+        button.setTextSize(18);
         button.setHeight(fixedRowHeight);
         button.setWidth(width);
         button.setBackgroundColor(getResources().getColor(R.color.colorLimeGreen));
@@ -159,7 +164,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         TextView recyclableTextView = new TextView(this);
         recyclableTextView.setText(text);
         recyclableTextView.setTextColor(Color.BLACK);
-        recyclableTextView.setTextSize(15);
+        recyclableTextView.setTextSize(18);
         recyclableTextView.setWidth(width);
         recyclableTextView.setHeight(fixedHeightInPixels);
         recyclableTextView.setGravity(Gravity.CENTER);
@@ -189,7 +194,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         if (isAttendanceCaptured) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.unsaved_attendance_warning);
-            builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -197,7 +202,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                     finish();
                 }
             });
-            builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();

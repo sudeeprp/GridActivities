@@ -29,12 +29,16 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
         if(getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-        String selectedGrade = getIntent().getStringExtra("selectedGrade");
-        String selectedGender = getIntent().getStringExtra("selectedGender");
+        String displayGrade = getString(
+                getResources().getIdentifier("grade" + getIntent().getStringExtra("selectedGrade"),
+                    "string", getPackageName()));
+        String displayGender = getString(
+                getResources().getIdentifier(getIntent().getStringExtra("selectedGender"),
+                    "string", getPackageName()));
 
         findViewById(R.id.loginButton).setEnabled(false);
-        ((TextView) findViewById(R.id.selectedClass)).setText(": " +selectedGrade);
-        ((TextView) findViewById(R.id.selectedGender)).setText(": " +selectedGender);
+        ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
+        ((TextView) findViewById(R.id.selectedGender)).setText(": " +displayGender);
 
         studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
         GridView gridView = findViewById(R.id.gvStudentGrid);
