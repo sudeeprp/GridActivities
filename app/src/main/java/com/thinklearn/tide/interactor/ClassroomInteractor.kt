@@ -415,4 +415,9 @@ object ClassroomInteractor {
         }
         return week_attendance
     }
+    @JvmStatic
+    fun filterStudents(selectedGrade: String, selectedGender: String): List<Student> {
+        val filteredStudentList: List<Student> = students.filter { it.grade == selectedGrade && it.gender == selectedGender}
+        return filteredStudentList
+    }
 }

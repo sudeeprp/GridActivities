@@ -22,6 +22,7 @@ import android.view.MenuItem;
 
 
 import com.thinklearn.tide.dto.Student;
+import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.util.List;
 
@@ -46,12 +47,12 @@ public class StudentListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_list);
 
-        String displayGrade = getString(
-                getResources().getIdentifier("grade" + getIntent().getStringExtra("selectedGrade"),
+        String selectedGrade = getIntent().getStringExtra("selectedGrade");
+        String displayGrade = getString(getResources().getIdentifier("grade" + selectedGrade,
                         "string", getPackageName()));
+        String selectedGender = getIntent().getStringExtra("selectedGender");
         String displayGender = getString(
-                getResources().getIdentifier(getIntent().getStringExtra("selectedGender"),
-                        "string", getPackageName()));
+                getResources().getIdentifier(selectedGender, "string", getPackageName()));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.studentGradeSelectionBar);
         setSupportActionBar(toolbar);
@@ -76,7 +77,8 @@ public class StudentListActivity extends AppCompatActivity {
 
         View recyclerView = findViewById(R.id.student_list);
         assert recyclerView != null;
-        List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        List<Student> studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender);
+        //List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
         setupRecyclerView((RecyclerView) recyclerView, studentInputList);
     }
 
