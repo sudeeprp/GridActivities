@@ -1,7 +1,6 @@
 package com.thinklearn.tide.activitydriver;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -11,9 +10,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -141,7 +137,9 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     }
 
     private void saveAttendance() {
-        ClassroomInteractor.set_day_presents(todayStr, attendance.getPresentStudents());
+        if(attendance.getPresentStudents() != null) {
+            ClassroomInteractor.set_day_presents(todayStr, attendance.getPresentStudents());
+        }
         finish();
     }
 
