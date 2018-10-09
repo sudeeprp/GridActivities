@@ -120,7 +120,8 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
             val studentsJSON = JSONArray()
             for(student in chapter.value) {
                 val studentJSON = JSONObject()
-                studentJSON.put("name", student.firstName + " " + student.surname)
+                //Names are too long when surname is included. Try with first names first
+                studentJSON.put("name", student.firstName) // + " " + student.surname)
                 var thumbnail = student.thumbnail
                 if(thumbnail == null) {
                     val bitmap = BitmapFactory.decodeResource(chapterContext.resources, R.drawable.student)

@@ -57,6 +57,9 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
 
         Intent teacherLoginIntent = getIntent();
         teacherWelcomeInputList = teacherLoginIntent.getParcelableArrayListExtra("TEACHER_LIST");
+        if(teacherWelcomeInputList.size() == 0) {
+            selectedTeacherName.setCurrentText(getResources().getString(R.string.reselection));
+        }
 
         teacherItemRecyclerViewAdapter = new TeacherItemRecyclerViewAdapter(TeacherLoginActivity.this,teacherWelcomeInputList,TeacherLoginActivity.this);
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(TeacherLoginActivity.this, LinearLayoutManager.HORIZONTAL, false);

@@ -8,11 +8,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.view.Window
-import android.view.WindowManager
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.Toast
+import android.widget.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -23,6 +19,12 @@ import com.thinklearn.tide.interactor.ConfigKeys
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.FileInputStream
+import com.google.firebase.auth.FirebaseAuth
+import com.thinklearn.tide.interactor.EnvironmentalContext
+
+
+val DB_TOKEN_REQUEST = 12
+val UPLOAD_CLASSROOM_REQUEST = 3
 
 
 data class Classroom(val class_name: String, val school_name: String)
@@ -33,24 +35,62 @@ class Launch : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        getSupportActionBar()?.hide();
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            launchStartScreen()
+            storagePermissionPresent()
         } else {
             ActivityCompat.requestPermissions(this,
                     arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     4)
         }
     }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            launchStartScreen()
+            storagePermissionPresent()
+        } else {
+            Toast.makeText(this, R.string.permission_required, Toast.LENGTH_LONG).show()
+            finish()
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == UPLOAD_CLASSROOM_REQUEST) {
+            uploadClassFromFile(resultCode, data)
+        } else if (requestCode == DB_TOKEN_REQUEST) {
+            authenticateCustomToken(resultCode, data)
+        }
+    }
+    fun storagePermissionPresent() {
+        authenticateToken()
+    }
+    fun tokenAuthenticationDone() {
+        launchStartScreen()
+    }
+    fun authenticateToken() {
+        if(BuildConfig.BUILD_TYPE.contentEquals("release") ||
+                BuildConfig.BUILD_TYPE.contentEquals("debug")) {
+            dbConnectionStatus("Test data connected")
+            tokenAuthenticationDone()
+            return
+        }
+        if(FirebaseAuth.getInstance().currentUser != null) {
+            dbConnectionStatus("Pre-authenticated")
+            tokenAuthenticationDone()
+        } else {
+            val authIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                `package` = "com.thinklearn.tide.grida"
+                putExtra(Intent.EXTRA_TEXT, "rfgt$%UJ")
+                type = "text/plain"
+            }
+            if (packageManager.queryIntentActivities(authIntent, PackageManager.MATCH_DEFAULT_ONLY).size > 0) {
+                startActivityForResult(authIntent, DB_TOKEN_REQUEST)
+            } else {
+                Toast.makeText(this, "Token provider missing", Toast.LENGTH_LONG).show()
+                tokenAuthenticationDone()
+            }
         }
     }
     fun launchStartScreen() {
@@ -94,8 +134,7 @@ class Launch : AppCompatActivity() {
         findViewById<Button>(R.id.UploadClassroom).setOnClickListener {
             uploadClassroom()
         }
-
-        //TODO: Check max number of schools (<50) before querying!
+        dataStatus("Connecting to classrooms")
         FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("classrooms").
                 addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(classrooms_snapshot: DataSnapshot) {
@@ -108,6 +147,8 @@ class Launch : AppCompatActivity() {
                             school_ids[i] = it.key
                             i++
                         }
+                        dataStatus(resources.getString(R.string.received_classrooms) + i.toString())
+
                         val adapter = ArrayAdapter(thisContext, android.R.layout.simple_list_item_single_choice, schools)
                         schoolsListView.adapter = adapter
                         schoolsListView.setOnItemClickListener { parent, view, position, id ->
@@ -116,7 +157,7 @@ class Launch : AppCompatActivity() {
                         }
                     }
                     override fun onCancelled(p0: DatabaseError) {
-                        Toast.makeText(this@Launch, "Classrooms fetch cancelled: ${p0.toException()}", Toast.LENGTH_LONG).show()
+                        dbConnectionStatus("Classrooms fetch cancelled: ${p0.toException()}")
                     }
                 })
     }
@@ -138,11 +179,10 @@ class Launch : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "*/*"
-        startActivityForResult(intent, 3)
+        startActivityForResult(intent, UPLOAD_CLASSROOM_REQUEST)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    fun uploadClassFromFile(resultCode: Int, data: Intent?) {
         if(resultCode == Activity.RESULT_OK && data != null) {
             var classroomAndAssetsJSONstr: String = ""
             val uri = data.getData();
@@ -162,8 +202,43 @@ class Launch : AppCompatActivity() {
                 val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
                 ClassroomInteractor.uploadClassroom(cassetJSON)
             } catch(e: JSONException) {
-                Toast.makeText(this, "Error parsing " + uri.toString(), Toast.LENGTH_LONG).show()
+                dbConnectionStatus("Error parsing " + uri.toString())
             }
         }
+    }
+    fun authenticateCustomToken(resultCode: Int, data: Intent?) {
+        if (data != null) {
+            val customToken = data.getStringExtra("CUSTOM_TOKEN")
+            val authenticator = FirebaseAuth.getInstance()
+            var current = authenticator.currentUser
+            println(current.toString())
+            authenticator.signInWithCustomToken(customToken)
+                    .addOnSuccessListener {
+                        current = authenticator.currentUser
+                        println(current.toString())
+                        Toast.makeText(this, "Authentication successful", Toast.LENGTH_LONG).show()
+                        tokenAuthenticationDone()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to authenticate: " + it.localizedMessage, Toast.LENGTH_LONG).show()
+                        tokenAuthenticationDone()
+                    }
+        }
+    }
+    fun dbConnectionStatus(connectionMsg: String) {
+        Toast.makeText(this, connectionMsg, Toast.LENGTH_LONG).show()
+        EnvironmentalContext.dbConnectionStatusMsg = connectionMsg
+        refreshStatusMessages()
+    }
+    fun dataStatus(dataMsg: String) {
+        EnvironmentalContext.dataStatusMsg = dataMsg
+        refreshStatusMessages()
+    }
+    fun refreshStatusMessages() {
+        val connectionStatus = findViewById<TextView>(R.id.ConnectionStatus)
+        val dataStatus = findViewById<TextView>(R.id.DataStatus)
+
+        connectionStatus?.text = EnvironmentalContext.dbConnectionStatusMsg
+        dataStatus?.text = EnvironmentalContext.dataStatusMsg
     }
 }

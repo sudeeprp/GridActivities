@@ -50,4 +50,6 @@
     <string name="upload_classroom">Upload Classroom</string>
     <string name="need_school_selection">Select a school to start</string>
     <string name="initial_load">Loading</string>
+    <string name="reselection">No Teacher found. School re-selection required</string>
+    <string name="received_classrooms">Received classrooms: </string>
 </resources>

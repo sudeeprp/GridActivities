@@ -54,6 +54,7 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
                 ClassroomContext.selectedTeacher = null;
                 Intent curriculumIntent =
                         new Intent(StudentGridActivity.this, CurriculumSelector.class);
+                curriculumIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 curriculumIntent.putExtra("selectedStudent", ClassroomContext.selectedStudent);
                 startActivityForResult(curriculumIntent, 3);
             }

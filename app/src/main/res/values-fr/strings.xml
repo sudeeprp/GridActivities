@@ -49,4 +49,6 @@
     <string name="upload_classroom">Classe de charge</string>
     <string name="need_school_selection">Choisir une école pour commencer</string>
     <string name="initial_load">Chargement</string>
+    <string name="reselection">No Teacher found. School re-selection required</string>
+    <string name="received_classrooms">Received classrooms: </string>
 </resources>
