@@ -2,13 +2,9 @@ package com.thinklearn.tide.interactor
 
 import android.os.Environment
 import android.util.Log
-import com.thinklearn.tide.dto.Student
 import org.json.JSONArray
 import org.json.JSONException
-import org.json.JSONObject
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
 
 val default_curriculum = """
 <!DOCTYPE html>
@@ -25,7 +21,12 @@ class Chapters {
             val chapters_array = JSONArray(chapters_json)
             try {
                 for(i in 0 until chapters_array.length()) {
-                    val chapterName = chapters_array.getJSONObject(i).getString("chapter_name")
+                    var chapterId = ""
+                    if(chapters_array.getJSONObject(i).has("chapter_id")) {
+                        chapterId = chapters_array.getJSONObject(i).getString("chapter_id")
+                    } else {
+                        chapterId = chapters_array.getJSONObject(i).getString("chapter_name")
+                    }
                     val chapterActivities = ArrayList<ActivityInChapter>()
                     val activities_json = chapters_array.getJSONObject(i).getJSONObject("activities")
                     val activityIdentifiers = activities_json.names()
@@ -35,7 +36,7 @@ class Chapters {
                         val mandatory = activity_json.getBoolean("mandatory")
                         chapterActivities.add(ActivityInChapter(activityIdentifier, mandatory))
                     }
-                    chapter_list.add(Chapter(chapterName, chapterActivities))
+                    chapter_list.add(Chapter(chapterId, chapterActivities))
                 }
             } catch(j: JSONException) {
                 Log.e("chapters file", chapters_file.toString() + ": " + j.message)

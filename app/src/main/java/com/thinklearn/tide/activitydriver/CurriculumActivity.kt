@@ -112,7 +112,7 @@ class CurriculumActivity : AppCompatActivity() {
     }
     fun loadVideo(contentStartPage: String) {
         setContentView(R.layout.activity_curriculum_video)
-        val videoView = findViewById<VideoView>(R.id.videoView)
+        val videoView = findViewById<VideoView>(R.id.videoPlay)
         val mediaController = MediaController(this)
         mediaController.setAnchorView(videoView)
         val uri = Uri.parse(contentStartPage)
