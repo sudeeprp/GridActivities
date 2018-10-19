@@ -102,13 +102,19 @@ class CurriculumActivity : AppCompatActivity() {
     }
     fun loadCurriculumActivity(grade: String, subject: String, chapter: String, activity_identifier: String) {
         val contentStartPage = ContentInteractor().activity_page(grade, subject, chapter, activity_identifier)
-        if(contentStartPage.toLowerCase().endsWith("pdf")) {
+        if(contentStartPage == "") {
+            activityNotAvailable(activity_identifier)
+        } else if(contentStartPage.toLowerCase().endsWith("pdf")) {
             loadPDF(contentStartPage)
         } else if(contentStartPage.toLowerCase().endsWith("mp4")) {
             loadVideo(contentStartPage)
         } else {
             loadIframe(contentStartPage)
         }
+    }
+    fun activityNotAvailable(activity_identifier: String) {
+        Toast.makeText(this, resources.getString(R.string.no_tab_activity) + activity_identifier, Toast.LENGTH_LONG).show()
+        finish()
     }
     fun loadVideo(contentStartPage: String) {
         setContentView(R.layout.activity_curriculum_video)

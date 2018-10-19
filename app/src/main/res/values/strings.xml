@@ -52,4 +52,6 @@
     <string name="initial_load">Loading</string>
     <string name="reselection">No Teacher found. School re-selection required</string>
     <string name="received_classrooms">Received classrooms: </string>
+    <string name="pre_auth">Pre-authenticated</string>
+    <string name="no_tab_activity">Activity not yet on Tab: </string>
 </resources>

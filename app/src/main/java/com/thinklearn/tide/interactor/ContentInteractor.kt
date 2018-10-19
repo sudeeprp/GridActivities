@@ -30,11 +30,13 @@ class Chapters {
                     val chapterActivities = ArrayList<ActivityInChapter>()
                     val activities_json = chapters_array.getJSONObject(i).getJSONObject("activities")
                     val activityIdentifiers = activities_json.names()
-                    for(activity_index in 0 until activityIdentifiers.length()) {
-                        val activityIdentifier = activityIdentifiers[activity_index].toString()
-                        val activity_json = activities_json.getJSONObject(activityIdentifier)
-                        val mandatory = activity_json.getBoolean("mandatory")
-                        chapterActivities.add(ActivityInChapter(activityIdentifier, mandatory))
+                    if(activityIdentifiers != null) {
+                        for (activity_index in 0 until activityIdentifiers.length()) {
+                            val activityIdentifier = activityIdentifiers[activity_index].toString()
+                            val activity_json = activities_json.getJSONObject(activityIdentifier)
+                            val mandatory = activity_json.getBoolean("mandatory")
+                            chapterActivities.add(ActivityInChapter(activityIdentifier, mandatory))
+                        }
                     }
                     chapter_list.add(Chapter(chapterId, chapterActivities))
                 }
@@ -99,9 +101,12 @@ class ContentInteractor {
     }
     fun activity_page(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
         val page_dir = activity_directory(grade, subject, chapterName, activity_identifier)
-        var page_filename = page_dir + "/index.html"
-        if(File(page_dir).exists() && !File(page_filename).exists()) {
-            File(page_dir).walk().forEach { page_filename = it.absolutePath }
+        var page_filename = ""
+        if(File(page_dir).exists()) {
+            page_filename = page_dir + "/index.html"
+            if (!File(page_filename).exists()) {
+                File(page_dir).walk().forEach { page_filename = it.absolutePath }
+            }
         }
         return page_filename
     }

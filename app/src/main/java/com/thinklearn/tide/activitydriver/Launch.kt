@@ -76,7 +76,7 @@ class Launch : AppCompatActivity() {
             return
         }
         if(FirebaseAuth.getInstance().currentUser != null) {
-            dbConnectionStatus("Pre-authenticated")
+            dbConnectionStatus(resources.getString(R.string.pre_auth))
             tokenAuthenticationDone()
         } else {
             val authIntent: Intent = Intent().apply {

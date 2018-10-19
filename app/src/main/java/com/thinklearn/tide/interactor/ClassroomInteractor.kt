@@ -249,20 +249,21 @@ object ClassroomInteractor {
         val jsonContent = json.toString()
         return Gson().fromJson<Map<String, Any>>(jsonContent, object : TypeToken<HashMap<String, Any>>() {}.type)
     }
-    private fun uploadClassroomPart(classroomAndAssetsJSON: JSONObject): String {
-        val classroomPart = classroomAndAssetsJSON.getJSONObject("classroom")
-        val classroom = jsonToMap(classroomPart)
-        db_classrooms_reference().updateChildren(classroom)
-
-        //return classroom id. Required that there's only one classroom being described here
-        lateinit var classroomId: String
-        classroom.keys.forEach { classroomId = it }
-        return classroomId
+    private fun uploadClassroomPart(classroomAndAssetsJSON: JSONObject) {
+        val classroom_key = "classroom"
+        if (classroomAndAssetsJSON.has(classroom_key)) {
+            val classroomPart = classroomAndAssetsJSON.getJSONObject(classroom_key)
+            val classroom = jsonToMap(classroomPart)
+            db_classrooms_reference().updateChildren(classroom)
+        }
     }
     private fun uploadAssetPart(classroomAndAssetsJSON: JSONObject) {
-        val assetPart = classroomAndAssetsJSON.getJSONObject("asset")
-        val asset = jsonToMap(assetPart)
-        db_classroom_assets_reference().updateChildren(asset)
+        val asset_key = "asset"
+        if(classroomAndAssetsJSON.has(asset_key)) {
+            val assetPart = classroomAndAssetsJSON.getJSONObject(asset_key)
+            val asset = jsonToMap(assetPart)
+            db_classroom_assets_reference().updateChildren(asset)
+        }
     }
     fun load(learningProject: String, classroom_id: String, loaded_event: ClassroomLoaded) {
         writeConfig(ConfigKeys.learning_project_file, ConfigKeys.project_name_key, learningProject)

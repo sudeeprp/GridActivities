@@ -49,6 +49,8 @@
     <string name="upload_classroom">Classe de charge</string>
     <string name="need_school_selection">Choisir une école pour commencer</string>
     <string name="initial_load">Chargement</string>
-    <string name="reselection">No Teacher found. School re-selection required</string>
-    <string name="received_classrooms">Received classrooms: </string>
+    <string name="reselection">Aucun enseignant trouvé. Sélectionner de nouveau l’école</string>
+    <string name="received_classrooms">Classe(s) reçue(s): </string>
+    <string name="pre_auth">Pré-authentifié</string>
+    <string name="no_tab_activity">Cette activitée n\'est pas encore accessible sur la tablette: </string>
 </resources>
