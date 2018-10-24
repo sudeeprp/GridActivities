@@ -7,5 +7,10 @@
 /build
 /captures
 /app/release
+/app/ICproduction
 /app/google-services.json
+/app/src/debug
+/app/src/release
+/app/src/ICproduction
+/app/src/setup-google-services.bat
 .externalNativeBuild
