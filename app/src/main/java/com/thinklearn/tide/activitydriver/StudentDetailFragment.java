@@ -1,6 +1,7 @@
 package com.thinklearn.tide.activitydriver;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +14,6 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +21,8 @@ import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
+import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
 import static java.lang.Math.min;
@@ -34,10 +36,6 @@ import static java.lang.Math.min;
 public class StudentDetailFragment extends Fragment {
 
     private static final int REQUEST_CAMERA = 0;
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
     public static final String STUDENT = "student";
     private Student mItem;
     private ImageView imageView;
@@ -54,9 +52,6 @@ public class StudentDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(STUDENT)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
             mItem = getArguments().getParcelable(STUDENT);
 
             Activity activity = this.getActivity();
@@ -79,8 +74,13 @@ public class StudentDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.tvFirstName)).setText(mItem.getFirstName());
             ((TextView) rootView.findViewById(R.id.tvSurname)).setText(mItem.getSurname());
             ((TextView) rootView.findViewById(R.id.tvClass)).setText(mItem.getGrade());
-            ((TextView) rootView.findViewById(R.id.tvYear)).setText(""); //TODO: Figure out academic year
-            ((TextView) rootView.findViewById(R.id.tvGender)).setText(mItem.getGender());
+            Context context = getActivity();
+            if(context != null) {
+                ((TextView) rootView.findViewById(R.id.tvDateOfBirth)).setText
+                        (getLocalDateOfBirth(context, mItem.getBirthDate()));
+                ((TextView) rootView.findViewById(R.id.tvGender)).setText
+                        (getLocalGender(context, mItem.getGender()));
+            }
             imageView = rootView.findViewById(R.id.ivStudentCapturedImage);
              rootView.findViewById(R.id.btchangePhoto).setOnClickListener(new View.OnClickListener() {
                  public void onClick(View v) {
@@ -112,6 +112,22 @@ public class StudentDetailFragment extends Fragment {
         setNewThumbnail(newBitmap);
     }
 
+    private String getLocalDateOfBirth(Context context, Date birthDate) {
+        String localBirthDate = "";
+        if(birthDate != null) {
+            DateFormat dateFormat = android.text.format.DateFormat.getMediumDateFormat(context);
+            localBirthDate = dateFormat.format(birthDate);
+        }
+        return localBirthDate;
+    }
+    private String getLocalGender(Context context, String gender) {
+        String localGender = "";
+        int genderResId = getResources().getIdentifier(gender, "string", context.getPackageName());
+        if(genderResId != 0) {
+            localGender = getString(genderResId);
+        }
+        return localGender;
+    }
     private Bitmap getThumbnail(Bitmap bitmap) {
         int thumb_height = 100;
         double aspect_ratio = (double)bitmap.getWidth() / (double)bitmap.getHeight();

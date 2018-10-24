@@ -171,12 +171,13 @@ object ClassroomInteractor {
             students[i].firstName = it.child("first_name").value.toString()
             students[i].surname = it.child("surname").value.toString()
 
-            val dob_day = it.child("birth_date").child("dd").value
-            val dob_month = it.child("birth_date").child("mm").value
+            var dob_day = it.child("birth_date").child("dd").value
+            var dob_month = it.child("birth_date").child("mm").value
             val dob_year = it.child("birth_date").child("yyyy").value
-            if(dob_day != null && dob_month != null && dob_year != null) {
-                students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").
-                        parse(dob_day.toString() + "/" + dob_month.toString() + "/" + dob_year.toString())
+            if(dob_year != null) {
+                if(dob_day == null) dob_day = 1
+                if(dob_month == null) dob_month = 1
+                students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").parse(dob_day.toString() + "/" + dob_month.toString() + "/" + dob_year.toString())
             }
             students[i].gender = it.child("gender").value.toString()
             students[i].grade = it.child("grade").value.toString()
