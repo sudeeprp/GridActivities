@@ -53,4 +53,5 @@
     <string name="received_classrooms">Classe(s) reçue(s): </string>
     <string name="pre_auth">Pré-authentifié</string>
     <string name="no_tab_activity">Cette activitée n\'est pas encore accessible sur la tablette: </string>
+    <string name="not_class_file">Le fichier ne contient pas les données d\'une classe</string>
 </resources>

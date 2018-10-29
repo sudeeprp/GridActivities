@@ -2,21 +2,21 @@ package com.thinklearn.tide.interactor
 
 import android.os.Environment
 import com.google.firebase.database.*
-import com.google.gson.Gson
 import com.thinklearn.tide.dto.AttendanceInput
 import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.dto.Teacher
+import org.json.JSONException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import com.google.gson.reflect.TypeToken
 import org.json.JSONObject
 import java.io.File
 
 
-interface ClassroomLoaded {
-    fun onLoadComplete()
+interface DBOpDone {
+    fun onSuccess()
+    fun onFailure(msg: String?)
 }
 object ConfigKeys {
     val learning_project_file = "learning_project.json"
@@ -34,6 +34,7 @@ object ConfigKeys {
 }
 object ClassroomInteractor {
     var loadedLearningProject: String = ""
+    @JvmField
     var loadedClassroomID: String = ""
     @JvmField
     var class_name: String = ""
@@ -44,7 +45,7 @@ object ClassroomInteractor {
     @JvmField
     var students = ArrayList<Student>()
     var subject_current_chapter = HashMap<String, String>()
-    var loadedEvent: ClassroomLoaded? = null
+    var loadedEvent: DBOpDone? = null
     var absentees: MutableMap<String, MutableList<String>> = hashMapOf()
 
     fun baseDir(): String {
@@ -242,31 +243,60 @@ object ClassroomInteractor {
     fun removeLoadedEvent() {
         loadedEvent = null
     }
-    fun uploadClassroom(classroomAndAssetsJSON: JSONObject) {
-        uploadClassroomPart(classroomAndAssetsJSON)
-        uploadAssetPart(classroomAndAssetsJSON)
+    fun uploadClassroom(classroomAndAssetsJSON: JSONObject, uploaded: DBOpDone) {
+        val class_id_key = "class_id"
+        if(classroomAndAssetsJSON.has(class_id_key)) {
+            val class_id: String = classroomAndAssetsJSON.getString(class_id_key)
+            val uploadMap = mutableMapOf<String, Any>()
+            uploadMap.plusAssign(mapClassDescriptionToDBKeys(class_id, classroomAndAssetsJSON))
+            uploadMap.plusAssign(mapAssetsToDBKeys(class_id, classroomAndAssetsJSON))
+
+            val proj_ref = FirebaseDatabase.getInstance().getReference(learningProject())
+            proj_ref.updateChildren(uploadMap)
+                    .addOnSuccessListener{ uploaded.onSuccess() }
+                    .addOnFailureListener{ uploaded.onFailure(it.message) }
+        } else {
+            throw JSONException("No class found")
+        }
     }
-    fun jsonToMap(json: JSONObject): Map<String, Any> {
-        val jsonContent = json.toString()
-        return Gson().fromJson<Map<String, Any>>(jsonContent, object : TypeToken<HashMap<String, Any>>() {}.type)
+    fun jsonToMap(prefix: String, json: JSONObject): MutableMap<String, Any> {
+        val map = mutableMapOf<String, Any>()
+        json.keys().forEach {
+            map[prefix + it] = json.getString(it)
+        }
+        return map
     }
-    private fun uploadClassroomPart(classroomAndAssetsJSON: JSONObject) {
-        val classroom_key = "classroom"
+    private fun mapClassDescriptionToDBKeys
+            (class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
+        val classroom_key = "classroom_details"
+        var classroomMap = mutableMapOf<String, Any>()
         if (classroomAndAssetsJSON.has(classroom_key)) {
             val classroomPart = classroomAndAssetsJSON.getJSONObject(classroom_key)
-            val classroom = jsonToMap(classroomPart)
-            db_classrooms_reference().updateChildren(classroom)
+            val classroom_prefix =  "/classrooms/" + class_id + "/"
+            classroomMap = jsonToMap(classroom_prefix, classroomPart)
         }
+        return classroomMap
     }
-    private fun uploadAssetPart(classroomAndAssetsJSON: JSONObject) {
-        val asset_key = "asset"
-        if(classroomAndAssetsJSON.has(asset_key)) {
-            val assetPart = classroomAndAssetsJSON.getJSONObject(asset_key)
-            val asset = jsonToMap(assetPart)
-            db_classroom_assets_reference().updateChildren(asset)
+    private fun mapAssetsToDBKeys(class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
+        val teachers_key = "teachers"
+        val assetMap = mutableMapOf<String, Any>()
+
+        val class_asset_prefix = "/classroom_assets/" + class_id
+        if(classroomAndAssetsJSON.has(teachers_key)) {
+            val teachersPart = classroomAndAssetsJSON.getJSONObject(teachers_key)
+            val teachers_prefix = class_asset_prefix + "/teachers/"
+            assetMap.plusAssign(jsonToMap(teachers_prefix, teachersPart))
         }
+
+        val students_key = "students"
+        if(classroomAndAssetsJSON.has(students_key)) {
+            val studentsPart = classroomAndAssetsJSON.getJSONObject(students_key)
+            val students_prefix = class_asset_prefix + "/students/"
+            assetMap.plusAssign(jsonToMap(students_prefix, studentsPart))
+        }
+        return assetMap
     }
-    fun load(learningProject: String, classroom_id: String, loaded_event: ClassroomLoaded) {
+    fun load(learningProject: String, classroom_id: String, loaded_event: DBOpDone) {
         writeConfig(ConfigKeys.learning_project_file, ConfigKeys.project_name_key, learningProject)
         writeConfig(ConfigKeys.selected_class_file, ConfigKeys.selected_class_key, classroom_id)
         loadedLearningProject = learningProject
@@ -291,10 +321,10 @@ object ClassroomInteractor {
                         fill_thumbnails_into_teachers(p0.child("teachers"))
                         fill_thumbnails_into_students(p0.child("students"))
                         //TODO: This will not work if thumbnails come first
-                        loadedEvent?.onLoadComplete()
+                        loadedEvent?.onSuccess()
                     }
                     override fun onCancelled(p0: DatabaseError) {
-                        println("thumbnails fetch: onCancelled ${p0.toException()}")
+                        loadedEvent?.onFailure(p0.message)
                     }
                 })
         FirebaseDatabase.getInstance().getReference(learningProject).child("classrooms")

@@ -9,79 +9,90 @@
     tools:context=".TeacherLoginActivity"
     tools:showIn="@layout/activity_teacher_login"
     android:background="@drawable/login_background">
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/logo"
-            android:layout_weight="1"
-            />
-        <TextClock
-            android:id="@+id/tcTextClock"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_below="@id/logo"
-            android:textStyle="normal"
-            android:layout_weight="1"
-            android:textSize="100sp"
-            android:text="@string/default_time"
-            android:format12Hour="hh:mm a"
-            />
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvHorizantalTeacherList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tcTextClock"
-            android:padding="10dp"
-            android:orientation="horizontal"
-            />
-        <TextSwitcher
-            android:id="@+id/tvSSelectedteacherName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/rvHorizantalTeacherList"
-            android:textSize="25sp"
-            android:layout_marginLeft="10dp"
-            android:textAlignment="textStart"
-            android:text="@string/unknown_teacher"
-            android:inAnimation="@android:anim/slide_in_left"
-            android:outAnimation="@android:anim/slide_out_right" />
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo"
+        android:contentDescription="@string/app_name"
+        />
+    <TextClock
+        android:id="@+id/tcTextClock"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/logo"
+        android:textStyle="normal"
+        android:layout_weight="1"
+        android:textSize="100sp"
+        android:text="@string/default_time"
+        android:format12Hour="hh:mm a"
+        />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvHorizantalTeacherList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tcTextClock"
+        android:padding="10dp"
+        android:orientation="horizontal"
+        />
+    <TextSwitcher
+        android:id="@+id/tvSSelectedteacherName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rvHorizantalTeacherList"
+        android:textSize="18sp"
+        android:layout_marginLeft="10dp"
+        android:textAlignment="textStart"
+        android:text="@string/unknown_teacher"
+        android:inAnimation="@android:anim/slide_in_left"
+        android:outAnimation="@android:anim/slide_out_right" />
 
-        <Button
-            android:id="@+id/login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:layout_below="@id/rvHorizantalTeacherList"
-            android:layout_toRightOf="@id/tvSSelectedteacherName"
-            android:text="@string/login"
-            />
-        <TextView
-            android:id="@+id/class_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:padding="5dp"
-            android:text=""
-            />
-
-        <TextView
-            android:id="@+id/school_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/class_name"
-            android:padding="5dp"
-            android:text=""
-            />
-        <ImageButton
-            android:id="@+id/switchtostudent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@id/school_name"
-            android:src="@drawable/boygirl"/>
+    <Button
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@id/rvHorizantalTeacherList"
+        android:layout_toRightOf="@id/tvSSelectedteacherName"
+        android:text="@string/login"
+        />
+    <TextView
+        android:id="@+id/class_identifier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:padding="5dp"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+    <TextView
+        android:id="@+id/class_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/class_identifier"
+        android:padding="5dp"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+    <TextView
+        android:id="@+id/school_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/class_name"
+        android:padding="5dp"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        />
+    <ImageButton
+        android:id="@+id/switchtostudent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/school_name"
+        android:src="@drawable/boygirl"/>
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"
@@ -95,7 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/tvVersion"
-        android:textSize="20dp"
+        android:textSize="18dp"
         android:text=""/>
 
 

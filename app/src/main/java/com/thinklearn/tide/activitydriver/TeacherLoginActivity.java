@@ -37,8 +37,6 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_teacher_login);
         ((TextView)findViewById(R.id.tvVersion)).setText(AppInfo.appVersion(this));
 
@@ -52,6 +50,8 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
 
         TextView className = findViewById(R.id.class_name);
         className.setText(ClassroomInteractor.class_name);
+        TextView classIdentifier = findViewById(R.id.class_identifier);
+        classIdentifier.setText(ClassroomInteractor.loadedClassroomID);
         TextView schoolName = findViewById(R.id.school_name);
         schoolName.setText(ClassroomInteractor.school_name);
 

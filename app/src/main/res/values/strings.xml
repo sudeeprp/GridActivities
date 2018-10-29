@@ -54,4 +54,5 @@
     <string name="received_classrooms">Received classrooms: </string>
     <string name="pre_auth">Pre-authenticated</string>
     <string name="no_tab_activity">Activity not yet on Tab: </string>
+    <string name="not_class_file">File does not contain the data of a class</string>
 </resources>

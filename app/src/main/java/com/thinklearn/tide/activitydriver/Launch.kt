@@ -13,14 +13,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.thinklearn.tide.interactor.ClassroomInteractor
-import com.thinklearn.tide.interactor.ClassroomLoaded
-import com.thinklearn.tide.interactor.ConfigKeys
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.FileInputStream
 import com.google.firebase.auth.FirebaseAuth
-import com.thinklearn.tide.interactor.EnvironmentalContext
+import com.thinklearn.tide.interactor.*
 
 
 val DB_TOKEN_REQUEST = 12
@@ -66,6 +63,7 @@ class Launch : AppCompatActivity() {
         authenticateToken()
     }
     fun tokenAuthenticationDone() {
+        EnvironmentalContext.listenToOnlining({refreshStatusMessages()})
         launchStartScreen()
     }
     fun authenticateToken() {
@@ -105,14 +103,17 @@ class Launch : AppCompatActivity() {
     fun loadAndStart(start_mode: String) {
         if(selected_class_id != "") {
             setContentView(R.layout.activity_initial_load)
-            ClassroomInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : ClassroomLoaded {
-                override fun onLoadComplete() {
+            ClassroomInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : DBOpDone {
+                override fun onSuccess() {
                     ClassroomInteractor.removeLoadedEvent()
                     if (start_mode == ConfigKeys.teacher_mode_value) {
                         startTeacherLogin()
                     } else if (start_mode == ConfigKeys.student_mode_value) {
                         startStudentLogin()
                     }
+                }
+                override fun onFailure(msg: String?) {
+                    Toast.makeText(this@Launch, "Failed to load teachers and students: " + msg, Toast.LENGTH_LONG).show()
                 }
             })
         } else {
@@ -151,7 +152,7 @@ class Launch : AppCompatActivity() {
 
                         val adapter = ArrayAdapter(thisContext, android.R.layout.simple_list_item_single_choice, schools)
                         schoolsListView.adapter = adapter
-                        schoolsListView.setOnItemClickListener { parent, view, position, id ->
+                        schoolsListView.setOnItemClickListener { _, _, position, _ ->
                             println("** #" + position.toString() + " ID = " + school_ids[position] + " is clicked");
                             selected_class_id = school_ids[position]!!
                         }
@@ -186,7 +187,11 @@ class Launch : AppCompatActivity() {
         if(resultCode == Activity.RESULT_OK && data != null) {
             var classroomAndAssetsJSONstr: String = ""
             val uri = data.getData();
+            if(uri == null)
+                return
             val parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r")
+            if(parcelFileDescriptor == null)
+                return
             val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
             val buffered = inputStream.bufferedReader()
 
@@ -200,9 +205,16 @@ class Launch : AppCompatActivity() {
             }
             try {
                 val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
-                ClassroomInteractor.uploadClassroom(cassetJSON)
+                ClassroomInteractor.uploadClassroom(cassetJSON, object: DBOpDone {
+                    override fun onSuccess() {
+                        Toast.makeText(this@Launch, "Classroom data uploaded successfully", Toast.LENGTH_LONG).show()
+                    }
+                    override fun onFailure(msg: String?) {
+                        Toast.makeText(this@Launch, "Failed to upload classroom data: " + msg, Toast.LENGTH_LONG).show()
+                    }
+                })
             } catch(e: JSONException) {
-                dbConnectionStatus("Error parsing " + uri.toString())
+                dbConnectionStatus(resources.getString(R.string.not_class_file) + uri.toString())
             }
         }
     }
@@ -238,7 +250,8 @@ class Launch : AppCompatActivity() {
         val connectionStatus = findViewById<TextView>(R.id.ConnectionStatus)
         val dataStatus = findViewById<TextView>(R.id.DataStatus)
 
-        connectionStatus?.text = EnvironmentalContext.dbConnectionStatusMsg
+        connectionStatus?.text = EnvironmentalContext.dbConnectionStatusMsg + " " +
+                EnvironmentalContext.dbOnlineStatus
         dataStatus?.text = EnvironmentalContext.dataStatusMsg
     }
 }
