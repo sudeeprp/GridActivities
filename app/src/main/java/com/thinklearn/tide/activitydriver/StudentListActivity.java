@@ -77,8 +77,7 @@ public class StudentListActivity extends AppCompatActivity {
 
         View recyclerView = findViewById(R.id.student_list);
         assert recyclerView != null;
-        List<Student> studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender);
-        //List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        List<Student> studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender, false);
         setupRecyclerView((RecyclerView) recyclerView, studentInputList);
     }
 

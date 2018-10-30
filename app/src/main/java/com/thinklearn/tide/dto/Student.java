@@ -22,11 +22,7 @@ public class Student implements Parcelable {
 
     private String thumbnail;
 
-    private HashMap<String, String> currentChapter;
-
-    public Student() {
-        currentChapter = new HashMap<String, String>();
-    }
+    private String qualifier;
 
     public String getId() {
         return id;
@@ -84,11 +80,11 @@ public class Student implements Parcelable {
         this.thumbnail = thumbnail;
     }
 
-    //TODO: Remove this current-chapter in student
-    //public String getCurrentChapter(String subject) { return this.currentChapter.get(subject.toLowerCase()); }
-    //public void setCurrentChapter(String subject, String chapter) {
-    //    this.currentChapter.put(subject, chapter);
-    //}
+    public String getQualifier() { return qualifier; }
+
+    public void setQualifier(String qualifier) { this.qualifier = qualifier; }
+
+    public Student() { }
 
     protected Student(Parcel in) {
         id = in.readString();
@@ -99,7 +95,7 @@ public class Student implements Parcelable {
         gender = in.readString();
         grade = in.readString();
         thumbnail = in.readString();
-        currentChapter = (HashMap)in.readSerializable();
+        qualifier = in.readString();
     }
 
     @Override
@@ -116,7 +112,7 @@ public class Student implements Parcelable {
         dest.writeString(gender);
         dest.writeString(grade);
         dest.writeString(thumbnail);
-        dest.writeSerializable(currentChapter);
+        dest.writeString(qualifier);
     }
 
     @SuppressWarnings("unused")

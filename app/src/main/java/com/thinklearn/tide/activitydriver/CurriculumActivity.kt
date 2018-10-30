@@ -16,6 +16,8 @@ import android.webkit.WebViewClient
 import android.widget.MediaController
 import android.widget.Toast
 import android.widget.VideoView
+import com.thinklearn.tide.interactor.ClassroomContext
+import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
 import java.io.File
 
@@ -178,14 +180,22 @@ class CurriculumActivity : AppCompatActivity() {
         }
     }
     fun endActivity(datapoint: String) {
-        val studentActivityResult = Intent()
-        studentActivityResult.putExtra("SELECTED_GRADE", grade)
-        studentActivityResult.putExtra("SELECTED_SUBJECT", subject)
-        studentActivityResult.putExtra("SELECTED_CHAPTER", chapter)
-        studentActivityResult.putExtra("SELECTED_ACTIVITY", activity_identifier)
-        studentActivityResult.putExtra("DATAPOINT", datapoint)
-        setResult(Activity.RESULT_OK, studentActivityResult)
-        finish()
+        if (datapoint != "") {
+            val studentActivityResult = Intent()
+            studentActivityResult.putExtra("SELECTED_GRADE", grade)
+            studentActivityResult.putExtra("SELECTED_SUBJECT", subject)
+            studentActivityResult.putExtra("SELECTED_CHAPTER", chapter)
+            studentActivityResult.putExtra("SELECTED_ACTIVITY", activity_identifier)
+            studentActivityResult.putExtra("DATAPOINT", datapoint)
+            setResult(Activity.RESULT_OK, studentActivityResult)
+            finish()
+        }
+        ClassroomInteractor.write_activity_log("{\"activity\": \"Student activity\", " +
+                "\"student_id\": \"${ClassroomContext.selectedStudent!!.id}\", " +
+                "\"subject\": \"$subject\", " +
+                "\"chapter\": \"$chapter\", " +
+                "\"activity_identifier\": \"$activity_identifier\", " +
+                "\"datapoint\": \"$datapoint\"}")
     }
 }
 
