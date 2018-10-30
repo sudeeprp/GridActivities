@@ -128,7 +128,7 @@ class CurriculumActivity : AppCompatActivity() {
         videoView.setVideoURI(uri)
         videoView.requestFocus()
         videoView.start()
-        videoView.setOnCompletionListener { endActivity("") }
+        videoView.setOnCompletionListener { endActivity("Done") }
     }
     fun loadPDF(contentStartPage: String) {
         try {
@@ -180,6 +180,18 @@ class CurriculumActivity : AppCompatActivity() {
         }
     }
     fun endActivity(datapoint: String) {
+        var studentId = ClassroomContext.selectedStudent?.id
+        if(studentId == null) studentId = "-"
+        var teacherId = ClassroomContext.selectedTeacher?.id
+        if(teacherId == null) teacherId = "-"
+        ClassroomInteractor.write_activity_log("{\"activity\": \"Launched\", " +
+                "\"student_id\": \"$studentId\", " +
+                "\"teacher_id\": \"$teacherId\", " +
+                "\"subject\": \"$subject\", " +
+                "\"chapter\": \"$chapter\", " +
+                "\"activity_id\": \"$activity_identifier\", " +
+                "\"datapoint\": \"$datapoint\"}")
+
         if (datapoint != "") {
             val studentActivityResult = Intent()
             studentActivityResult.putExtra("SELECTED_GRADE", grade)
@@ -188,14 +200,8 @@ class CurriculumActivity : AppCompatActivity() {
             studentActivityResult.putExtra("SELECTED_ACTIVITY", activity_identifier)
             studentActivityResult.putExtra("DATAPOINT", datapoint)
             setResult(Activity.RESULT_OK, studentActivityResult)
-            finish()
         }
-        ClassroomInteractor.write_activity_log("{\"activity\": \"Student activity\", " +
-                "\"student_id\": \"${ClassroomContext.selectedStudent!!.id}\", " +
-                "\"subject\": \"$subject\", " +
-                "\"chapter\": \"$chapter\", " +
-                "\"activity_identifier\": \"$activity_identifier\", " +
-                "\"datapoint\": \"$datapoint\"}")
+        finish()
     }
 }
 
