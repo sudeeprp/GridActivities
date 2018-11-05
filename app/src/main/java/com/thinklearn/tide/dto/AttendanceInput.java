@@ -3,8 +3,6 @@ package com.thinklearn.tide.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,9 +20,11 @@ public class AttendanceInput implements Parcelable {
 
     private List<Student> studentList;
 
-    private Map<String, List<String>> absentees;
+    private Map<String, List<String>> presentAM;
+    private Map<String, List<String>> presentPM;
 
-    private List<String> presentStudents;
+    private List<String> presentStudentsAM;
+    private List<String> presentStudentsPM;
 
     public AttendanceInput() {
 
@@ -47,15 +47,26 @@ public class AttendanceInput implements Parcelable {
             studentList = null;
         }
         if (in.readByte() == 0x01) {
-            absentees = readAbsentees(in);
+            presentAM = readPresent(in);
         } else {
-            absentees = null;
+            presentAM = null;
         }
         if (in.readByte() == 0x01) {
-            presentStudents = new ArrayList<String>();
-            in.readList(presentStudents, String.class.getClassLoader());
+            presentPM = readPresent(in);
         } else {
-            presentStudents = null;
+            presentPM = null;
+        }
+        if (in.readByte() == 0x01) {
+            presentStudentsAM = new ArrayList<String>();
+            in.readList(presentStudentsAM, String.class.getClassLoader());
+        } else {
+            presentStudentsAM = null;
+        }
+        if (in.readByte() == 0x01) {
+            presentStudentsPM = new ArrayList<String>();
+            in.readList(presentStudentsPM, String.class.getClassLoader());
+        } else {
+            presentStudentsPM = null;
         }
     }
 
@@ -85,32 +96,44 @@ public class AttendanceInput implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeList(studentList);
         }
-        if (absentees == null) {
+        if (presentAM == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            writeAbsenteesToParcel(dest, flags);
+            writePresentToParcel(presentAM,dest, flags);
         }
-        if (presentStudents == null) {
+        if (presentPM == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            dest.writeList(presentStudents);
+            writePresentToParcel(presentPM, dest, flags);
+        }
+        if (presentStudentsAM == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(presentStudentsAM);
+        }
+        if (presentStudentsPM == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(presentStudentsPM);
         }
     }
 
     // For writing to a Parcel
-    public void writeAbsenteesToParcel(
-            Parcel parcel, int flags) {
-        parcel.writeInt(absentees.size());
-        for(Map.Entry<String, List<String>> e : absentees.entrySet()){
+    public void writePresentToParcel(
+            Map<String, List<String>> present, Parcel parcel, int flags) {
+        parcel.writeInt(present.size());
+        for(Map.Entry<String, List<String>> e : present.entrySet()){
             parcel.writeString(e.getKey());
             parcel.writeStringList(e.getValue());
         }
     }
 
     // For reading from a Parcel
-    public Map<String, List<String>> readAbsentees(
+    public Map<String, List<String>> readPresent(
             Parcel parcel)
     {
         int size = parcel.readInt();
@@ -171,19 +194,23 @@ public class AttendanceInput implements Parcelable {
         this.studentList = studentList;
     }
 
-    public Map<String, List<String>> getAbsentees() {
-        return absentees;
+    public Map<String, List<String>> getPresentAM() {
+        return presentAM;
+    }
+    public Map<String, List<String>> getPresentPM() {
+        return presentPM;
     }
 
-    public void setAbsentees(Map<String, List<String>> absentees) {
-        this.absentees = absentees;
-    }
+    public void setPresentAM(Map<String, List<String>> presentAM) { this.presentAM = presentAM; }
+    public void setPresentPM(Map<String, List<String>> presentPM) { this.presentPM = presentPM; }
 
-    public List<String> getPresentStudents() {
-        return presentStudents;
-    }
+    public List<String> getPresentStudentsAM() {
 
-    public void setPresentStudents(List<String> presentStudents) {
-        this.presentStudents = presentStudents;
+        return presentStudentsAM;
     }
+    public List<String> getPresentStudentsPM() {
+        return presentStudentsPM;
+    }
+    public void setPresentStudentsAM(List<String> presentStudentsAM) { this.presentStudentsAM = presentStudentsAM; }
+    public void setPresentStudentsPM(List<String> presentStudentsPM) { this.presentStudentsPM = presentStudentsPM; }
 }

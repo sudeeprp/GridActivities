@@ -31,6 +31,10 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     private AttendanceInput attendance = new AttendanceInput();
     private String todayStr = "today";
     private Boolean isAttendanceCaptured = false;
+    class AttendancePosition{
+        public int position;
+        public int am_or_pm;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +44,8 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
             getSupportActionBar().hide();
         attendance = getIntent().getParcelableExtra("attendance");
         TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
-        int[] fixedColumnWidths = new int[]{30, 10, 10, 10, 10, 10, 10, 10};
-        int fixedRowHeight = 50;
+        int[] fixedColumnWidths = new int[]{20, 10, 10, 10, 10, 10, 10, 10};
+        int fixedRowHeight = 80;
         int fixedHeaderHeight = 60;
         final SimpleDateFormat dbFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Date today = new Date();
@@ -56,9 +60,9 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         });
 
         TableRow row = new TableRow(this);
-        TableRow clickableRow = null;
+        TableRow clickableRow;
         //header (fixed vertically)
-        TableLayout header = (TableLayout) findViewById(R.id.table_header);
+        TableLayout header = findViewById(R.id.table_header);
         row.setLayoutParams(wrapWrapTableRowParams);
         row.setGravity(Gravity.CENTER);
         row.setBackgroundColor(Color.YELLOW);
@@ -72,6 +76,9 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         Date weekStartDate = attendance.getWeekStartDate();
         Calendar calendar = Calendar.getInstance();
         for (int i = 0; i < 7; i++) {
+            String weekStartDateStr = dbFormatter.format(weekStartDate);
+            if (todayStr.equals(weekStartDateStr))
+                fixedColumnWidths[i + 1] = 20;
             TextView dateTextView = makeTableRowWithText(shortFormatter.format(weekStartDate), fixedColumnWidths[i + 1], fixedHeaderHeight);
             dateTextView.setPadding(6, 6, 6, 6);
             row.addView(dateTextView);
@@ -83,10 +90,10 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
 
         List<Student> students = attendance.getStudentList();
         //header (fixed horizontally)
-        TableLayout fixedColumn = (TableLayout) findViewById(R.id.fixed_column);
+        TableLayout fixedColumn = findViewById(R.id.fixed_column);
         for (int i = 0; i < students.size(); i++) {
             Student student = students.get(i);
-            TextView fixedView = makeTableRowWithText(student.getFirstName() + " " + student.getSurname(), fixedColumnWidths[0], fixedRowHeight);
+            TextView fixedView = makeTableRowWithText(student.getFirstName() + " " + student.getSurname(), fixedColumnWidths[0], fixedRowHeight, 18);
             fixedView.setGravity(Gravity.START);
             fixedView.setPadding(10, 0, 10, 0);
             clickableRow = new TableRow(this);
@@ -105,25 +112,32 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                     textView.setText(R.string.holiday);
                     clickableRow.addView(textView);
                 } else if (todayStr.equals(weekStartDateStr)) {
-                    Button clickableArea = makeTableRowWithButton(" ", fixedColumnWidths[j + 1], fixedRowHeight, wrapWrapTableRowParams);
-                    clickableArea.setOnClickListener(this);
-                    clickableArea.setTag(i);
-                    clickableRow.addView(clickableArea);
-                    if (attendance.getPresentStudents() != null && attendance.getPresentStudents().contains(student.getId())) {
-                        clickableArea.setText("✓");
-                        clickableArea.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    Button clickableAreaAM = makeTableRowWithButton(R.string.am, fixedColumnWidths[j + 1]/2, fixedRowHeight, wrapWrapTableRowParams);
+                    setButtonAttributes(clickableAreaAM, R.string.am, i);
+                    clickableRow.addView(clickableAreaAM);
+                    if (attendance.getPresentStudentsAM() != null && attendance.getPresentStudentsAM().contains(student.getId())) {
+                        clickableAreaAM.setText("✓");
+                    }
+                    Button clickableAreaPM = makeTableRowWithButton(R.string.pm, fixedColumnWidths[j + 1]/2, fixedRowHeight, wrapWrapTableRowParams);
+                    setButtonAttributes(clickableAreaPM, R.string.pm,i);
+                    clickableRow.addView(clickableAreaPM);
+                    if (attendance.getPresentStudentsPM() != null && attendance.getPresentStudentsPM().contains(student.getId())) {
+                        clickableAreaPM.setText("✓");
                     }
                 } else {
-                    TextView textView = makeTableRowWithText("", fixedColumnWidths[j + 1], fixedRowHeight);
-                    clickableRow.addView(textView);
-                    List<String> absenteeIds = attendance.getAbsentees().get(weekStartDateStr);
-                    if (weekStartDateStr.compareTo(todayStr) < 0) {
-                        if(absenteeIds == null) {
-                            textView.setText("");
-                        } else if (!absenteeIds.contains(student.getId())) {
-                            textView.setText("✓");
-                        }
-                        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    TextView textViewAM = makeTableRowWithText("", fixedColumnWidths[j + 1]/2, fixedRowHeight);
+                    clickableRow.addView(textViewAM);
+                    List<String> presentIdsAM = attendance.getPresentAM().get(weekStartDateStr);
+                    textViewAM.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    if (weekStartDateStr.compareTo(todayStr) < 0&& (presentIdsAM != null && presentIdsAM.contains(student.getId()))) {
+                        textViewAM.setText("✓");
+                    }
+                    TextView textViewPM = makeTableRowWithText("", fixedColumnWidths[j + 1]/2, fixedRowHeight);
+                    clickableRow.addView(textViewPM);
+                    List<String> presentIdsPM = attendance.getPresentPM().get(weekStartDateStr);
+                    textViewPM.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    if (weekStartDateStr.compareTo(todayStr) < 0 && (presentIdsPM != null && presentIdsPM.contains(student.getId()))) {
+                        textViewPM.setText("✓");
                     }
                 }
                 calendar.setTime(weekStartDate);
@@ -135,32 +149,39 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     }
 
     private void saveAttendance() {
-        if(attendance.getPresentStudents() != null) {
-            ClassroomInteractor.set_day_presents(todayStr, attendance.getPresentStudents());
-        }
+        ClassroomInteractor.set_day_presents (todayStr, attendance.getPresentStudentsAM(), attendance.getPresentStudentsPM());
         finish();
     }
+    private void setButtonAttributes(Button clickableArea,int am_or_pm, int position){
+        clickableArea.setOnClickListener(this);
+        AttendancePosition position_tag_am = new AttendancePosition();
+        position_tag_am.position = position;
+        position_tag_am.am_or_pm = am_or_pm;
+        clickableArea.setTag(position_tag_am);
+        clickableArea.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+    }
 
-    private Button makeTableRowWithButton(String text, int fixedColumnWidth, int fixedRowHeight, TableRow.LayoutParams wrapWrapTableRowParams) {
+    private Button makeTableRowWithButton(int text, int fixedColumnWidth, int fixedRowHeight, TableRow.LayoutParams wrapWrapTableRowParams) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int width = (fixedColumnWidth * screenWidth / 100);
         Button button = new Button(this);
         button.setLayoutParams(wrapWrapTableRowParams);
         button.setText(text);
-        button.setTextSize(18);
         button.setHeight(fixedRowHeight);
         button.setWidth(width);
         button.setBackgroundColor(getResources().getColor(R.color.colorLimeGreen));
         return button;
     }
-
     public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels) {
+        return makeTableRowWithText(text, widthInPercentOfScreenWidth, fixedHeightInPixels, 15);
+    }
+    public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels, int fontSize) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int width = (widthInPercentOfScreenWidth * screenWidth / 100);
         TextView recyclableTextView = new TextView(this);
         recyclableTextView.setText(text);
         recyclableTextView.setTextColor(Color.BLACK);
-        recyclableTextView.setTextSize(18);
+        recyclableTextView.setTextSize(fontSize);
         recyclableTextView.setWidth(width);
         recyclableTextView.setHeight(fixedHeightInPixels);
         recyclableTextView.setGravity(Gravity.CENTER);
@@ -170,18 +191,27 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     @Override
     public void onClick(View v) {
         Button button = (Button) v;
-        int position = (int) button.getTag();
+        AttendancePosition  attendancePosition = (AttendancePosition) button.getTag();
         isAttendanceCaptured=true;
-        if (button.getText().equals(" ")) {
-            button.setText("✓");
-            if (attendance.getPresentStudents() == null)
-                attendance.setPresentStudents(new ArrayList<String>());
-            attendance.getPresentStudents().add(attendance.getStudentList().get(position).getId());
+        if (attendance.getPresentStudentsAM() == null) {
+            attendance.setPresentStudentsAM(new ArrayList<String>());
+        }
+        if (attendance.getPresentStudentsPM() == null) {
+            attendance.setPresentStudentsPM(new ArrayList<String>());
+        }
+        String student_id = attendance.getStudentList().get(attendancePosition.position).getId();
+        List<String> presentList = null;
+        if(attendancePosition.am_or_pm == R.string.am) {
+            presentList = attendance.getPresentStudentsAM();
         } else {
-            button.setText(" ");
-            if (attendance.getPresentStudents() == null)
-                attendance.setPresentStudents(new ArrayList<String>());
-            attendance.getPresentStudents().remove(attendance.getStudentList().get(position).getId());
+            presentList = attendance.getPresentStudentsPM();
+        }
+        if (!presentList.contains(student_id)) {
+            button.setText("✓");
+            presentList.add(student_id);
+        } else {
+            button.setText(attendancePosition.am_or_pm);
+            presentList.remove(student_id);
         }
     }
 

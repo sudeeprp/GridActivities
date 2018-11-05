@@ -46,7 +46,8 @@ object ClassroomInteractor {
     var students = ArrayList<Student>()
     var subject_current_chapter = HashMap<String, String>()
     var loadedEvent: DBOpDone? = null
-    var absentees: MutableMap<String, MutableList<String>> = hashMapOf()
+    var presentAM: MutableMap<String, MutableList<String>> = hashMapOf()
+    var presentPM: MutableMap<String, MutableList<String>> = hashMapOf()
 
     fun baseDir(): String {
         val base_dir = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
@@ -202,43 +203,29 @@ object ClassroomInteractor {
             subject_current_chapter.put(it.key!!, it.value.toString())
         }
     }
-    fun fill_assets_into_absentees(attendance_snapshot: DataSnapshot?) {
-        absentees.clear()
+    fun fill_assets_into_present(attendance_snapshot: DataSnapshot?) {
+        presentAM.clear()
+        presentPM.clear()
         val t = object : GenericTypeIndicator<ArrayList<String>>() {}
         attendance_snapshot?.children?.forEach {
             val date = it.key.toString()
-            val absentee_ids = it.child("absent").getValue(t)
-            if(absentee_ids != null) {
-                absentees[date] = absentee_ids
-            }
+            val presentAM_ids = it.child("presentAM").getValue(t)
+            if(presentAM_ids != null) presentAM[date] = presentAM_ids
+            val presentPM_ids = it.child("presentPM").getValue(t)
+            if(presentPM_ids != null) presentPM[date] = presentPM_ids
         }
     }
     @JvmStatic
-    fun set_day_absents(date: String, absentees: ArrayList<String>) {
-        val attendance_date_ref = FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
-                child(loadedClassroomID).child("attendance").child(date)
-        if(absentees.size == 0) {
-            attendance_date_ref.child("full_class").setValue(":)")
-        } else {
-            attendance_date_ref.child("full_class").removeValue()
-        }
-        FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
-                child(loadedClassroomID).child("attendance").child(date).child("absent").setValue(absentees)
-    }
-    @JvmStatic
-    fun set_day_presents(date: String, presentees: List<String>) {
+    fun set_day_presents(date: String, dayPresentAM: List<String>?, dayPresentPM: List<String>?) {
         //If we get an attendance-set-request before students, ignore
         //presentees is coming from java, where it can be null.
-        if(students.size == 0 || presentees == null) {
+        if(students.size == 0) {
             return
         }
-        val absentees = ArrayList<String>()
-        for(student in students) {
-            if(!(student.id in presentees)) {
-                absentees.add(student.id)
-            }
-        }
-        set_day_absents(date, absentees)
+        val attendance_date_ref = FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").
+                child(loadedClassroomID).child("attendance").child(date)
+        attendance_date_ref.child("presentAM").setValue(dayPresentAM)
+        attendance_date_ref.child("presentPM").setValue(dayPresentPM)
     }
     fun removeLoadedEvent() {
         loadedEvent = null
@@ -309,7 +296,7 @@ object ClassroomInteractor {
                         fill_assets_into_teachers(p0.child("teachers"))
                         fill_assets_into_students(p0.child("students"))
                         fill_assets_into_current_chapters(p0.child("class_subject_current"))
-                        fill_assets_into_absentees(p0.child("attendance"))
+                        fill_assets_into_present(p0.child("attendance"))
                     }
                     override fun onCancelled(p0: DatabaseError) {
                         println("classroom_assets fetch: onCancelled ${p0.toException()}")
@@ -427,23 +414,25 @@ object ClassroomInteractor {
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
         week_attendance.holidayList = listOf(calendar.time)
         week_attendance.weekStartDate = calendar.time
-        week_attendance.absentees = hashMapOf()
+        week_attendance.presentAM = hashMapOf()
+        week_attendance.presentPM = hashMapOf()
         for (i in 1..6) {
             calendar.add(Calendar.DAY_OF_MONTH, 1)
             val date: Date = calendar.time
             val hyphenated_date: String = date_format.format(date)
-            if(hyphenated_date in absentees) {
-                week_attendance.absentees[hyphenated_date] = absentees[hyphenated_date]
+            if(hyphenated_date in presentAM) {
+                week_attendance.presentAM[hyphenated_date] = presentAM[hyphenated_date]
+            }
+            if(hyphenated_date in presentPM) {
+                week_attendance.presentPM[hyphenated_date] = presentPM[hyphenated_date]
             }
         }
         val today: String = date_format.format(Calendar.getInstance().time)
-        if(today in absentees) {
-            week_attendance.presentStudents = ArrayList<String>()
-            for(student in students) {
-                if(!(student.id in absentees[today]!!)) {
-                    week_attendance.presentStudents.add(student.id)
-                }
-            }
+        if(today in presentAM) {
+            week_attendance.presentStudentsAM = presentAM[today]
+        }
+        if(today in presentPM) {
+            week_attendance.presentStudentsPM = presentPM[today]
         }
         return week_attendance
     }
