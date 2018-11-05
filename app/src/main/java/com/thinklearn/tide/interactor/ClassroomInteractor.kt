@@ -120,6 +120,9 @@ object ClassroomInteractor {
         return studentRef.child("finished_activities").child(subject).
                 child(chapter).child(activity_id_to_firebase_id(activity_identifier))
     }
+    fun db_activity_log_reference(): DatabaseReference {
+        return FirebaseDatabase.getInstance().getReference(learningProject()).child("activity_log")
+    }
     fun activity_id_to_firebase_id(activity_id: String): String {
         return activity_id.replace('.', '^')
     }
@@ -176,13 +179,15 @@ object ClassroomInteractor {
             var dob_day = it.child("birth_date").child("dd").value
             var dob_month = it.child("birth_date").child("mm").value
             val dob_year = it.child("birth_date").child("yyyy").value
-            if(dob_year != null) {
-                if(dob_day == null) dob_day = 1
-                if(dob_month == null) dob_month = 1
+            if(dob_year != null && dob_year != "") {
+                if(dob_day == null || dob_day == "") dob_day = "1"
+                if(dob_month == null || dob_month == "") dob_month = "1"
                 students[i].birthDate = SimpleDateFormat("dd/MM/yyyy").parse(dob_day.toString() + "/" + dob_month.toString() + "/" + dob_year.toString())
             }
             students[i].gender = it.child("gender").value.toString()
             students[i].grade = it.child("grade").value.toString()
+            students[i].qualifier = it.child("qualifier").value.toString()
+            if(students[i].qualifier == null) students[i].qualifier = ""
         }
     }
     fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
@@ -237,6 +242,7 @@ object ClassroomInteractor {
             val uploadMap = mutableMapOf<String, Any>()
             uploadMap.plusAssign(mapClassDescriptionToDBKeys(class_id, classroomAndAssetsJSON))
             uploadMap.plusAssign(mapAssetsToDBKeys(class_id, classroomAndAssetsJSON))
+            uploadMap.plusAssign(mapThumbnailsToDBKeys(class_id, classroomAndAssetsJSON))
 
             val proj_ref = FirebaseDatabase.getInstance().getReference(learningProject())
             proj_ref.updateChildren(uploadMap)
@@ -255,8 +261,8 @@ object ClassroomInteractor {
     }
     private fun mapClassDescriptionToDBKeys
             (class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
-        val classroom_key = "classroom_details"
         var classroomMap = mutableMapOf<String, Any>()
+        val classroom_key = "classroom_details"
         if (classroomAndAssetsJSON.has(classroom_key)) {
             val classroomPart = classroomAndAssetsJSON.getJSONObject(classroom_key)
             val classroom_prefix =  "/classrooms/" + class_id + "/"
@@ -265,10 +271,10 @@ object ClassroomInteractor {
         return classroomMap
     }
     private fun mapAssetsToDBKeys(class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
-        val teachers_key = "teachers"
         val assetMap = mutableMapOf<String, Any>()
-
         val class_asset_prefix = "/classroom_assets/" + class_id
+
+        val teachers_key = "teachers"
         if(classroomAndAssetsJSON.has(teachers_key)) {
             val teachersPart = classroomAndAssetsJSON.getJSONObject(teachers_key)
             val teachers_prefix = class_asset_prefix + "/teachers/"
@@ -283,6 +289,17 @@ object ClassroomInteractor {
         }
         return assetMap
     }
+    fun mapThumbnailsToDBKeys(class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
+        var thumbnailMap = mutableMapOf<String, Any>()
+        val thumbnail_key = "thumbnails"
+        if(classroomAndAssetsJSON.has(thumbnail_key)) {
+            val thumbnailPart = classroomAndAssetsJSON.getJSONObject(thumbnail_key)
+            val thumbnail_prefix = "/thumbnails/classrooms/" + class_id + "/"
+            thumbnailMap = jsonToMap(thumbnail_prefix, thumbnailPart)
+        }
+        return thumbnailMap
+    }
+
     fun load(learningProject: String, classroom_id: String, loaded_event: DBOpDone) {
         writeConfig(ConfigKeys.learning_project_file, ConfigKeys.project_name_key, learningProject)
         writeConfig(ConfigKeys.selected_class_file, ConfigKeys.selected_class_key, classroom_id)
@@ -350,10 +367,12 @@ object ClassroomInteractor {
     }
     fun set_active_chapter(grade: String, subject: String, chapter: String) {
         val gradesub = grade_subject(grade, subject)
-        FirebaseDatabase.getInstance().getReference(loadedLearningProject).
-                child("classroom_assets").child(loadedClassroomID).
-                child("class_subject_current").child(gradesub).setValue(chapter)
+        FirebaseDatabase.getInstance().getReference(loadedLearningProject).child("classroom_assets").child(loadedClassroomID).child("class_subject_current").child(gradesub).setValue(chapter)
         subject_current_chapter[gradesub] = chapter
+        write_activity_log("{\"activity\": \"Chapter activation\", " +
+                "\"grade\": \"$grade\", " +
+                "\"subject\": \"$subject\", " +
+                "\"chapter\": \"$chapter\"}")
     }
     fun get_students_in_chapter(grade: String, subject: String, chapter: String): ArrayList<Student> {
         val students_in_chapter = ArrayList<Student>()
@@ -378,7 +397,7 @@ object ClassroomInteractor {
         for(chapter in chapters.chapter_list) {
             student_chapters_map[chapter.name] = ArrayList<Student>()
         }
-        for(student in students.filter { it.grade == grade }) {
+        for(student in students.filter { it.grade == grade && !it.qualifier.contains("guest") }) {
             val current_chapter = chapter_of_student(student, subject, chapters)
             student_chapters_map[current_chapter]?.add(student)
         }
@@ -403,10 +422,19 @@ object ClassroomInteractor {
                 SimpleDateFormat("HH:mm:ssz").format(currentTime)
         studentActivityRef.child("time_stamp").setValue(currentTimestamp)
     }
+    fun write_activity_log(activity: String) {
+        val activityLogRef = db_activity_log_reference()
+        class ActivityLogEntry
+            (val activity_log: String, val class_id: String, val timestamp: String)
+        val activityLogEntry = ActivityLogEntry(
+                activity, loadedClassroomID,
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(Date()))
+        activityLogRef.push().setValue(activityLogEntry)
+    }
     @JvmStatic
     fun get_current_week_attendance(): AttendanceInput {
         val week_attendance = AttendanceInput()
-        week_attendance.studentList = students
+        week_attendance.studentList = students.filter { !it.qualifier.contains("guest") }
 
         val date_format = SimpleDateFormat("yyyy-MM-dd")
         val calendar = Calendar.getInstance()
@@ -437,8 +465,11 @@ object ClassroomInteractor {
         return week_attendance
     }
     @JvmStatic
-    fun filterStudents(selectedGrade: String, selectedGender: String): List<Student> {
-        val filteredStudentList: List<Student> = students.filter { it.grade == selectedGrade && it.gender == selectedGender}
+    fun filterStudents(selectedGrade: String, selectedGender: String, includeGuest: Boolean = true): List<Student> {
+        var filteredStudentList: List<Student> = students.filter { it.grade == selectedGrade && it.gender == selectedGender}
+        if(!includeGuest) {
+            filteredStudentList = filteredStudentList.filter { !it.qualifier.contains("guest") }
+        }
         return filteredStudentList
     }
 }

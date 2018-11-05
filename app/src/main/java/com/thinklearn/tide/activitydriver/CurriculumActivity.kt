@@ -16,6 +16,8 @@ import android.webkit.WebViewClient
 import android.widget.MediaController
 import android.widget.Toast
 import android.widget.VideoView
+import com.thinklearn.tide.interactor.ClassroomContext
+import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
 import java.io.File
 
@@ -126,7 +128,7 @@ class CurriculumActivity : AppCompatActivity() {
         videoView.setVideoURI(uri)
         videoView.requestFocus()
         videoView.start()
-        videoView.setOnCompletionListener { endActivity("") }
+        videoView.setOnCompletionListener { endActivity("Done") }
     }
     fun loadPDF(contentStartPage: String) {
         try {
@@ -178,13 +180,27 @@ class CurriculumActivity : AppCompatActivity() {
         }
     }
     fun endActivity(datapoint: String) {
-        val studentActivityResult = Intent()
-        studentActivityResult.putExtra("SELECTED_GRADE", grade)
-        studentActivityResult.putExtra("SELECTED_SUBJECT", subject)
-        studentActivityResult.putExtra("SELECTED_CHAPTER", chapter)
-        studentActivityResult.putExtra("SELECTED_ACTIVITY", activity_identifier)
-        studentActivityResult.putExtra("DATAPOINT", datapoint)
-        setResult(Activity.RESULT_OK, studentActivityResult)
+        var studentId = ClassroomContext.selectedStudent?.id
+        if(studentId == null) studentId = "-"
+        var teacherId = ClassroomContext.selectedTeacher?.id
+        if(teacherId == null) teacherId = "-"
+        ClassroomInteractor.write_activity_log("{\"activity\": \"Launched\", " +
+                "\"student_id\": \"$studentId\", " +
+                "\"teacher_id\": \"$teacherId\", " +
+                "\"subject\": \"$subject\", " +
+                "\"chapter\": \"$chapter\", " +
+                "\"activity_id\": \"$activity_identifier\", " +
+                "\"datapoint\": \"$datapoint\"}")
+
+        if (datapoint != "") {
+            val studentActivityResult = Intent()
+            studentActivityResult.putExtra("SELECTED_GRADE", grade)
+            studentActivityResult.putExtra("SELECTED_SUBJECT", subject)
+            studentActivityResult.putExtra("SELECTED_CHAPTER", chapter)
+            studentActivityResult.putExtra("SELECTED_ACTIVITY", activity_identifier)
+            studentActivityResult.putExtra("DATAPOINT", datapoint)
+            setResult(Activity.RESULT_OK, studentActivityResult)
+        }
         finish()
     }
 }

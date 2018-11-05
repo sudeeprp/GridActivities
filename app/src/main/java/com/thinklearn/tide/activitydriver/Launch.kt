@@ -207,14 +207,14 @@ class Launch : AppCompatActivity() {
                 val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
                 ClassroomInteractor.uploadClassroom(cassetJSON, object: DBOpDone {
                     override fun onSuccess() {
-                        Toast.makeText(this@Launch, "Classroom data uploaded successfully", Toast.LENGTH_LONG).show()
+                        dbConnectionStatus("Classroom data uploaded successfully")
                     }
                     override fun onFailure(msg: String?) {
-                        Toast.makeText(this@Launch, "Failed to upload classroom data: " + msg, Toast.LENGTH_LONG).show()
+                        dbConnectionStatus("Failed to upload classroom data: " + msg)
                     }
                 })
             } catch(e: JSONException) {
-                dbConnectionStatus(resources.getString(R.string.not_class_file) + uri.toString())
+                dbConnectionStatus(resources.getString(R.string.not_class_file))
             }
         }
     }
