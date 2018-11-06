@@ -250,8 +250,12 @@ class Launch : AppCompatActivity() {
         val connectionStatus = findViewById<TextView>(R.id.ConnectionStatus)
         val dataStatus = findViewById<TextView>(R.id.DataStatus)
 
-        connectionStatus?.text = EnvironmentalContext.dbConnectionStatusMsg + " " +
-                EnvironmentalContext.dbOnlineStatus
-        dataStatus?.text = EnvironmentalContext.dataStatusMsg
+        if(connectionStatus != null) {
+            connectionStatus.text = EnvironmentalContext.dbConnectionStatusMsg + " " +
+                    EnvironmentalContext.dbOnlineStatus
+        }
+        if(dataStatus != null) {
+            dataStatus.text = EnvironmentalContext.dataStatusMsg
+        }
     }
 }

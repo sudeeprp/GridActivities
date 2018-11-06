@@ -189,6 +189,7 @@ object ClassroomInteractor {
             students[i].qualifier = it.child("qualifier").value.toString()
             if(students[i].qualifier == null) students[i].qualifier = ""
         }
+        students.sortWith(compareBy { it.surname })
     }
     fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
         students_thumbnails?.children?.forEach {
