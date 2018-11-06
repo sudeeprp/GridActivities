@@ -15,9 +15,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.FileInputStream
 import com.google.firebase.auth.FirebaseAuth
 import com.thinklearn.tide.interactor.*
+import java.io.IOException
 
 
 val DB_TOKEN_REQUEST = 12
@@ -184,37 +184,38 @@ class Launch : AppCompatActivity() {
     }
 
     fun uploadClassFromFile(resultCode: Int, data: Intent?) {
+        val MAX_CLASS_FILE_SIZE = 500 * 1024
         if(resultCode == Activity.RESULT_OK && data != null) {
             var classroomAndAssetsJSONstr: String = ""
             val uri = data.getData();
             if(uri == null)
                 return
-            val parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r")
-            if(parcelFileDescriptor == null)
-                return
-            val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
-            val buffered = inputStream.bufferedReader()
-
-            var linecount = 0
-            val max_linecount = 15000
-            var line = buffered.readLine()
-            while (line != null && linecount < max_linecount) {
-                classroomAndAssetsJSONstr += line;
-                line = buffered.readLine()
-                linecount += 1
-            }
             try {
-                val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
-                ClassroomInteractor.uploadClassroom(cassetJSON, object: DBOpDone {
-                    override fun onSuccess() {
-                        dbConnectionStatus("Classroom data uploaded successfully")
-                    }
-                    override fun onFailure(msg: String?) {
-                        dbConnectionStatus("Failed to upload classroom data: " + msg)
-                    }
-                })
-            } catch(e: JSONException) {
-                dbConnectionStatus(resources.getString(R.string.not_class_file))
+                val inputStream = contentResolver.openInputStream(uri)
+                if(inputStream == null)
+                    return
+                val buffered = inputStream.bufferedReader()
+                val buffer = CharArray(MAX_CLASS_FILE_SIZE)
+                buffered.read(buffer)
+                classroomAndAssetsJSONstr = String(buffer)
+                try {
+                    val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
+                    ClassroomInteractor.uploadClassroom(cassetJSON, object : DBOpDone {
+                        override fun onSuccess() {
+                            dbConnectionStatus("Classroom data uploaded successfully")
+                        }
+                        override fun onFailure(msg: String?) {
+                            dbConnectionStatus("Failed to upload classroom data: " + msg)
+                        }
+                    })
+                } catch (e: JSONException) {
+                    dbConnectionStatus(resources.getString(R.string.not_class_file))
+                }
+                //this closes the inputstream as well
+                //https://stackoverflow.com/questions/1388602/do-i-need-to-close-both-filereader-and-bufferedreader
+                buffered.close()
+            } catch(e: IOException) {
+                dbConnectionStatus("Error reading file: " + e.message)
             }
         }
     }
