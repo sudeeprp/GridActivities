@@ -1,5 +1,7 @@
 package com.thinklearn.tide.interactor
 
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Environment
 import android.util.Log
 import org.json.JSONArray
@@ -74,6 +76,15 @@ class ContentInteractor {
     fun get_subjects(grade: String): ArrayList<String> {
         //TODO: Get subjects from the curriculum directories
         return arrayListOf("french", "math")
+    }
+    fun get_grade_background_path(grade: String): String {
+        return content.content_path + "/g" + grade + ".png"
+    }
+    fun get_subject_background_path(grade: String, subject: String): String {
+        return chapters_directory(grade, subject) + "background.png"
+    }
+    fun get_grades(): ArrayList<String> {
+        return arrayListOf("1", "2")
     }
     fun chapters_directory(grade: String, subject: String): String {
         return content.content_path + "/" + grade + "_" + subject + "/"

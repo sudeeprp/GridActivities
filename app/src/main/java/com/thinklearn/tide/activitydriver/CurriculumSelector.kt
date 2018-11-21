@@ -1,12 +1,18 @@
 package com.thinklearn.tide.activitydriver
 
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
+import android.widget.*
 import com.thinklearn.tide.dto.Student
+import com.thinklearn.tide.interactor.ContentInteractor
 
 class CurriculumSelector : AppCompatActivity() {
 
@@ -27,14 +33,17 @@ class CurriculumSelector : AppCompatActivity() {
     fun showGrades() {
         setContentView(R.layout.activity_curriculum_selector)
 
-        val grade1button = findViewById<Button>(R.id.grade1button)
-        val grade2button = findViewById<Button>(R.id.grade2button)
-
-        grade1button.setOnClickListener {
-            showSubjects("1")
-        }
-        grade2button.setOnClickListener {
-            showSubjects("2")
+        val curriculumTable = findViewById<LinearLayout>(R.id.curriculum_table)
+        val grades = ContentInteractor().get_grades()
+        grades.forEach {
+            val gradeButton = Button(this)
+            val bk_bitmap = BitmapFactory.decodeFile(ContentInteractor().get_grade_background_path(it))
+            val background = BitmapDrawable(resources, bk_bitmap)
+            gradeButton.background = background
+            gradeButton.text = resources.getString(resources.getIdentifier("grade" + it, "string", packageName))
+            gradeButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32.toFloat())
+            gradeButton.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1.toFloat())
+            curriculumTable.addView(gradeButton)
         }
     }
 

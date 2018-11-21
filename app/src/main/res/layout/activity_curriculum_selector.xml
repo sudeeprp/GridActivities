@@ -6,29 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".CurriculumSelector">
 
-    <Button
-        android:id="@+id/grade1button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/g1_background"
-        android:text="@string/grade1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/grade2button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+    <LinearLayout
+        android:id="@+id/curriculum_table"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" />
 
-    <Button
-        android:id="@+id/grade2button"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/g2_background"
-        android:text="@string/grade2"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/grade1button"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
