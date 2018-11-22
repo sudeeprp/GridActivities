@@ -126,6 +126,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                     }
                 } else {
                     TextView textViewAM = makeTableRowWithText("", fixedColumnWidths[j + 1]/2, fixedRowHeight);
+                    textViewAM.setBackgroundColor(0xFFDDDDDD);
                     clickableRow.addView(textViewAM);
                     List<String> presentIdsAM = attendance.getPresentAM().get(weekStartDateStr);
                     textViewAM.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
