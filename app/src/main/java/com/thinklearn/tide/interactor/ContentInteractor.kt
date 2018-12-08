@@ -1,12 +1,12 @@
 package com.thinklearn.tide.interactor
 
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.os.Environment
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.File
+import java.lang.Integer.parseInt
 
 val default_curriculum = """
 <!DOCTYPE html>
@@ -55,10 +55,13 @@ class Chapters {
 class ContentInteractor {
     object content{
         var content_path = ""
+        val grades_file = "display names of grades.json"
+        val subjects_file = "display names of subjects.json"
+        val subject_background_pic = "subject_logo.png"
     }
 
     constructor() {
-        if(content.content_path == "") {
+        if(content.content_path.isEmpty()) {
             val trial_path = "/storage/sdcard1/LearningGrid/"
             val content_desc_file = File(trial_path + "content_descriptor.json")
             if(content_desc_file.exists() && content_desc_file.canRead()) {
@@ -68,23 +71,76 @@ class ContentInteractor {
             }
         }
     }
+    fun getConfig(filename: String, key: String): String {
+        val configFile = File(content.content_path + filename)
+        var configValue = ""
+        if(configFile.exists()) {
+            val configJsonStr = configFile.readText()
+            val configJSON = JSONObject(configJsonStr)
+            if(configJSON.has(key)) {
+                configValue = configJSON.get(key).toString()
+            }
+        }
+        return configValue
+    }
+    fun getTokenFromDirlist(path: String, dirPrefix: String, tokenNumber: Int): ArrayList<String> {
+        var contentDirEntries = File(path).list().filter { File(path + "/" + it).isDirectory }
+        if(dirPrefix.isNotEmpty()) {
+            contentDirEntries = contentDirEntries.filter { it.startsWith(dirPrefix) }
+        }
+        val tokens = arrayListOf<String>()
+        contentDirEntries.forEach {
+            val dirTokens = it.split("_")
+            if (dirTokens.size > 1) {
+                try {
+                    //The first token must be a grade-number for us to parse the grade/subject out
+                    parseInt(dirTokens[0])
+                    if (!tokens.contains(dirTokens[tokenNumber])) {
+                        tokens.plusAssign(dirTokens[tokenNumber])
+                    }
+                } catch (e: NumberFormatException) {
+                    //do nothing
+                }
+            }
+        }
+        return tokens
+    }
+    fun getSetBefore_(path: String): ArrayList<String> {
+        return getTokenFromDirlist(path, "", 0)
+    }
+    fun getSetAfter_(path: String, dirPrefix: String): ArrayList<String> {
+        return getTokenFromDirlist(path, dirPrefix, 1)
+    }
 
     fun chapters_page(grade: String, subject: String): String {
         return chapters_directory(grade, subject) + "chapters.html"
     }
 
     fun get_subjects(grade: String): ArrayList<String> {
-        //TODO: Get subjects from the curriculum directories
-        return arrayListOf("french", "math")
+        var subjects = getSetAfter_(content.content_path, grade + "_")
+        if(subjects.size == 0) {
+            subjects = arrayListOf("french", "math")
+        }
+        return subjects
     }
     fun get_grade_background_path(grade: String): String {
         return content.content_path + "/g" + grade + ".png"
     }
+    fun get_grade_display_name(grade: String): String {
+        return getConfig(content.grades_file, grade)
+    }
     fun get_subject_background_path(grade: String, subject: String): String {
-        return chapters_directory(grade, subject) + "background.png"
+        return chapters_directory(grade, subject) + content.subject_background_pic
+    }
+    fun get_subject_display_name(subject: String): String {
+        return getConfig(content.subjects_file, subject)
     }
     fun get_grades(): ArrayList<String> {
-        return arrayListOf("1", "2")
+        var grades = getSetBefore_(content.content_path)
+        if(grades.size == 0) {
+            grades = arrayListOf("1", "2")
+        }
+        return grades
     }
     fun chapters_directory(grade: String, subject: String): String {
         return content.content_path + "/" + grade + "_" + subject + "/"
