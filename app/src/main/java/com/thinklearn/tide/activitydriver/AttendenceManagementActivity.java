@@ -42,7 +42,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         setContentView(R.layout.activity_attendence_management);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
-        attendance = getIntent().getParcelableExtra("attendance");
+        attendance = ClassroomInteractor.get_current_week_attendance();
         TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
         int[] fixedColumnWidths = new int[]{20, 10, 10, 10, 10, 10, 10, 10};
         int fixedRowHeight = 80;

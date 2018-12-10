@@ -53,12 +53,14 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
                 if(v == ivAttendance) {
                     output = new TeacherWelcomeOutput("Attendance");
                     Intent intent = new Intent(TeacherWelcomeActivity.this, AttendenceManagementActivity.class);
-                    AttendanceInput attendance = ClassroomInteractor.get_current_week_attendance();
-                    intent.putExtra("attendance", attendance);
+                    //TODO: nobig remove passing big intent
+                    //AttendanceInput attendance = ClassroomInteractor.get_current_week_attendance();
+                    //intent.putExtra("attendance", attendance);
                     startActivityForResult(intent, 3);
                 } else if(v == ivStudents) {
                     Intent intent = new Intent(TeacherWelcomeActivity.this, StudentGradeSelectionActivity.class);
-                    intent.putParcelableArrayListExtra("studentInputList", (ArrayList<? extends Parcelable>) studentInputList);
+                    //TODO: nobig remove passing big intent
+                    //intent.putParcelableArrayListExtra("studentInputList", (ArrayList<? extends Parcelable>) studentInputList);
                     intent.putExtra("purpose", "PROFILE_EDIT");
                     startActivity(intent);
                 } else if(v == ivDashboard) {
