@@ -40,7 +40,8 @@ public class StudentGradeSelectionActivity extends AppCompatActivity implements 
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(StudentGradeSelectionActivity.this,TeacherLoginActivity.class);
-                    intent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.teachers);
+                    //TODO: nobig remove passing big intent
+                    //intent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.teachers);
                     finish();
                     startActivity(intent);
                 }
@@ -72,17 +73,19 @@ public class StudentGradeSelectionActivity extends AppCompatActivity implements 
         if(purpose.equals("STUDENT_ACTIVITY")) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         }
-        List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
-        intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) gradeFilter(students, selectedGrade));
+        //TODO: nobig remove passing big intent
+        //List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
+        //intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) gradeFilter(students, selectedGrade));
         startActivity(intent);
     }
 
-    private List<Student> gradeFilter(List<Student> students, String selectedGrade) {
-        List<Student> filteredStudents = new ArrayList<>();
-        for (Student student : students) {
-            if(student.getGrade().equals(selectedGrade))
-                filteredStudents.add(student);
-        }
-        return filteredStudents;
-    }
+    //TODO: nobig remove passing big intent
+    //private List<Student> gradeFilter(List<Student> students, String selectedGrade) {
+    //    List<Student> filteredStudents = new ArrayList<>();
+    //    for (Student student : students) {
+    //        if(student.getGrade().equals(selectedGrade))
+    //            filteredStudents.add(student);
+    //    }
+    //    return filteredStudents;
+    //}
 }

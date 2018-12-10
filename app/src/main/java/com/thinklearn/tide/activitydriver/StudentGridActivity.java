@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.thinklearn.tide.adapter.StudentGridAdapter;
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomContext;
+import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,18 +30,20 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
         if(getSupportActionBar() != null)
             getSupportActionBar().hide();
 
+        String selectedGrade = getIntent().getStringExtra("selectedGrade");
+        String selectedGender = getIntent().getStringExtra("selectedGender");
         String displayGrade = getString(
-                getResources().getIdentifier("grade" + getIntent().getStringExtra("selectedGrade"),
-                    "string", getPackageName()));
+                getResources().getIdentifier("grade" + selectedGrade,"string", getPackageName()));
         String displayGender = getString(
-                getResources().getIdentifier(getIntent().getStringExtra("selectedGender"),
-                    "string", getPackageName()));
+                getResources().getIdentifier(selectedGender, "string", getPackageName()));
 
         findViewById(R.id.loginButton).setEnabled(false);
         ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
         ((TextView) findViewById(R.id.selectedGender)).setText(": " +displayGender);
 
-        studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        //TODO: nobig remove passing big intent
+        //studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender, true);
         GridView gridView = findViewById(R.id.gvStudentGrid);
 
         final StudentGridAdapter studentGridAdapter = new StudentGridAdapter(StudentGridActivity.this,studentInputList,StudentGridActivity.this);

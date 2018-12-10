@@ -12,6 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.thinklearn.tide.dto.Student;
+import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,9 @@ public class GenderSelectionActivity extends AppCompatActivity implements View.O
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
         setTitle(getString(R.string.select_gender) + " (" + getString(R.string.current_grade) + ":" + selectedGrade + ")");
 
-        List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        //TODO: nobig remove passing big intent
+        //List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
+        List<Student> studentInputList = ClassroomInteractor.filterStudents(selectedGrade, false);
         ArrayList<String> genderList = getUniqueGenders(studentInputList);
         if(genderList.size() == 1) {
             startNextActivity(genderList.get(0));
@@ -68,17 +72,19 @@ public class GenderSelectionActivity extends AppCompatActivity implements View.O
         }
         intent.putExtra("selectedGrade",getIntent().getStringExtra("selectedGrade"));
         intent.putExtra("selectedGender",selectedGender);
-        List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
-        intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) genderFilter(students, selectedGender));
+        //TODO: nobig remove passing big intent
+        //List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
+        //intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) genderFilter(students, selectedGender));
         startActivity(intent);
     }
 
-    private List<Student> genderFilter(List<Student> students, String selectedGender) {
-        List<Student> filteredStudents = new ArrayList<>();
-        for (Student student : students) {
-            if(student.getGender().equals(selectedGender))
-                filteredStudents.add(student);
-        }
-        return filteredStudents;
-    }
+    //TODO: nobig remove passing big intent
+    //private List<Student> genderFilter(List<Student> students, String selectedGender) {
+    //    List<Student> filteredStudents = new ArrayList<>();
+    //    for (Student student : students) {
+    //        if(student.getGender().equals(selectedGender))
+    //            filteredStudents.add(student);
+    //    }
+    //    return filteredStudents;
+    //}
 }

@@ -435,7 +435,7 @@ object ClassroomInteractor {
     @JvmStatic
     fun get_current_week_attendance(): AttendanceInput {
         val week_attendance = AttendanceInput()
-        week_attendance.studentList = students.filter { !it.qualifier.contains("guest") }
+        week_attendance.studentList = students.filter { !isGuest(it) }
 
         val date_format = SimpleDateFormat("yyyy-MM-dd")
         val calendar = Calendar.getInstance()
@@ -465,11 +465,21 @@ object ClassroomInteractor {
         }
         return week_attendance
     }
+    fun isGuest(student: Student): Boolean {
+        return student.qualifier.contains("guest")
+    }
+    @JvmStatic
+    fun filterStudents(selectedGrade: String, includeGuest: Boolean = true): List<Student> {
+        return filterStudents(selectedGrade, "", includeGuest)
+    }
     @JvmStatic
     fun filterStudents(selectedGrade: String, selectedGender: String, includeGuest: Boolean = true): List<Student> {
-        var filteredStudentList: List<Student> = students.filter { it.grade == selectedGrade && it.gender == selectedGender}
+        var filteredStudentList: List<Student> = students.filter { it.grade == selectedGrade }
+        if(selectedGender.isNotEmpty()) {
+            filteredStudentList = filteredStudentList.filter { it.gender == selectedGender }
+        }
         if(!includeGuest) {
-            filteredStudentList = filteredStudentList.filter { !it.qualifier.contains("guest") }
+            filteredStudentList = filteredStudentList.filter { !isGuest(it) }
         }
         return filteredStudentList
     }
