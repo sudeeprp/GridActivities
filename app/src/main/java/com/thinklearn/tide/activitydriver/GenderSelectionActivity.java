@@ -29,8 +29,6 @@ public class GenderSelectionActivity extends AppCompatActivity implements View.O
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
         setTitle(getString(R.string.select_gender) + " (" + getString(R.string.current_grade) + ":" + selectedGrade + ")");
 
-        //TODO: nobig remove passing big intent
-        //List<Student> studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
         List<Student> studentInputList = ClassroomInteractor.filterStudents(selectedGrade, false);
         ArrayList<String> genderList = getUniqueGenders(studentInputList);
         if(genderList.size() == 1) {
@@ -72,19 +70,6 @@ public class GenderSelectionActivity extends AppCompatActivity implements View.O
         }
         intent.putExtra("selectedGrade",getIntent().getStringExtra("selectedGrade"));
         intent.putExtra("selectedGender",selectedGender);
-        //TODO: nobig remove passing big intent
-        //List<Student> students = getIntent().getParcelableArrayListExtra("studentInputList");
-        //intent.putParcelableArrayListExtra("studentInputList", (ArrayList<Student>) genderFilter(students, selectedGender));
         startActivity(intent);
     }
-
-    //TODO: nobig remove passing big intent
-    //private List<Student> genderFilter(List<Student> students, String selectedGender) {
-    //    List<Student> filteredStudents = new ArrayList<>();
-    //    for (Student student : students) {
-    //        if(student.getGender().equals(selectedGender))
-    //            filteredStudents.add(student);
-    //    }
-    //    return filteredStudents;
-    //}
 }

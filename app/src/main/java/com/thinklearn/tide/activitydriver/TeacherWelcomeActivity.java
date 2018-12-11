@@ -16,6 +16,7 @@ import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.dto.Teacher;
 import com.thinklearn.tide.dto.TeacherWelcomeOutput;
 import com.thinklearn.tide.interactor.AppInfo;
+import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.util.ArrayList;
@@ -35,12 +36,18 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         setContentView(R.layout.activity_teacher_start_screen);
         ((TextView)findViewById(R.id.teacher_start_version)).setText(AppInfo.appVersion(this));
-        TextView tvTeacherName = findViewById(R.id.tvTeacherName);
+
+        TextView tvTeacherName = findViewById(R.id.selectedTeacherName);
+        String teacherName = "";
 
         if(getIntent().hasExtra("TEACHER_IDENTIFICATION")) {
             Teacher input = getIntent().getParcelableExtra("TEACHER_IDENTIFICATION");
-            tvTeacherName.setText(input.getTeacherName());
+            teacherName = input.getTeacherName();
+        } else {
+            teacherName = ClassroomContext.selectedTeacher.getTeacherName();
         }
+        tvTeacherName.setText(teacherName);
+
         studentInputList = ClassroomInteractor.students;
         final ImageView ivAttendance =  findViewById(R.id.ivAttendanceImage);
         final ImageView ivStudents =  findViewById(R.id.ivStudentImage);
@@ -53,14 +60,9 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
                 if(v == ivAttendance) {
                     output = new TeacherWelcomeOutput("Attendance");
                     Intent intent = new Intent(TeacherWelcomeActivity.this, AttendenceManagementActivity.class);
-                    //TODO: nobig remove passing big intent
-                    //AttendanceInput attendance = ClassroomInteractor.get_current_week_attendance();
-                    //intent.putExtra("attendance", attendance);
                     startActivityForResult(intent, 3);
                 } else if(v == ivStudents) {
                     Intent intent = new Intent(TeacherWelcomeActivity.this, StudentGradeSelectionActivity.class);
-                    //TODO: nobig remove passing big intent
-                    //intent.putParcelableArrayListExtra("studentInputList", (ArrayList<? extends Parcelable>) studentInputList);
                     intent.putExtra("purpose", "PROFILE_EDIT");
                     startActivity(intent);
                 } else if(v == ivDashboard) {
