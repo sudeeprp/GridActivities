@@ -5,8 +5,8 @@ import android.os.Parcelable;
 
 public class Teacher implements Parcelable {
 
-    private String id;
-    private String teacherName;
+    private String id = "";
+    private String teacherName = "";
     private String thumbnail;
 
     public Teacher() {

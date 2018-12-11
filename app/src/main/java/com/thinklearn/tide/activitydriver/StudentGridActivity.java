@@ -41,8 +41,6 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
         ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
         ((TextView) findViewById(R.id.selectedGender)).setText(": " +displayGender);
 
-        //TODO: nobig remove passing big intent
-        //studentInputList = getIntent().getParcelableArrayListExtra("studentInputList");
         studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender, true);
         GridView gridView = findViewById(R.id.gvStudentGrid);
 
