@@ -164,14 +164,12 @@ class Launch : AppCompatActivity() {
     }
     fun startTeacherLogin() {
         val teacherLoginIntent = Intent(this, TeacherLoginActivity::class.java)
-        teacherLoginIntent.putParcelableArrayListExtra("TEACHER_LIST", ClassroomInteractor.teachers)
         teacherLoginIntent.putExtra("purpose", "PROFILE_EDIT")
         finish()
         startActivity(teacherLoginIntent)
     }
     fun startStudentLogin() {
         val studentLoginIntent = Intent(this, StudentGradeSelectionActivity::class.java)
-        studentLoginIntent.putParcelableArrayListExtra("studentInputList", ClassroomInteractor.students)
         studentLoginIntent.putExtra("purpose", "STUDENT_ACTIVITY")
         finish()
         startActivity(studentLoginIntent)

@@ -17,8 +17,8 @@
     <string name="classLabel">Classe</string>
     <string name="date_of_birth">Date de naissance</string>
     <string name="gender">Genre</string>
-    <string name="am">UN M</string>
-    <string name="pm">PM</string>
+    <string name="am">Matin</string>
+    <string name="pm">Après-midi</string>
     <string name="unknown_id">Identifiant inconnu</string>
     <string name="unknown_first_name">Prénom inconnu</string>
     <string name="unknown_surname">Nom inconnu</string>

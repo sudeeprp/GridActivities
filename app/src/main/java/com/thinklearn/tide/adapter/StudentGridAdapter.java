@@ -73,19 +73,19 @@ public class StudentGridAdapter extends BaseAdapter {
         // set image based on selected text
         ImageView studentImage =  gridView
                 .findViewById(R.id.ivStudentImage);
-
+        Bitmap decodedByte = null;
         if(studentList.get(position).getThumbnail() != null) {
             byte[] decodedString = Base64.decode(currentStudent.getThumbnail(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
-            roundedBitmapDrawable.setCircular(true);
-            studentImage.setImageDrawable(roundedBitmapDrawable);
+            decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         } else {
-            Bitmap decodedByte = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.student);
-            RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);
-            roundedBitmapDrawable.setCircular(true);
-            studentImage.setImageDrawable(roundedBitmapDrawable);
+            decodedByte = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.student);
         }
+        Bitmap scaledPicture = Bitmap.createScaledBitmap(decodedByte, 100, 100, true);
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),scaledPicture);
+        roundedBitmapDrawable.setCircular(true);
+        roundedBitmapDrawable.setCornerRadius(10);
+        studentImage.setImageDrawable(roundedBitmapDrawable);
+
         gridView.setOnClickListener(new View.OnClickListener() {
 
             @Override

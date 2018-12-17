@@ -1,5 +1,7 @@
 @echo off
 notepad app\build.gradle
+mkdir stage\release
+mkdir stage\ICproduction
 set JAVA_HOME=C:\Program Files\Android\Android Studio\jre
 color e4
 call gradlew assembleRelease -Pandroid.injected.signing.store.file=..\keystore-tide.jks -Pandroid.injected.signing.store.password=tide@!23 -Pandroid.injected.signing.key.alias=tidelearning -Pandroid.injected.signing.key.password=tide@!23

@@ -44,7 +44,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         setContentView(R.layout.activity_attendence_management);
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
-        attendance = getIntent().getParcelableExtra("attendance");
+        attendance = ClassroomInteractor.get_current_week_attendance();
         TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
         int[] fixedColumnWidths = new int[]{20, 10, 10, 10, 10, 10, 10, 10};
         int fixedRowHeight = 80;
@@ -140,6 +140,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
                     }
                 } else {
                     TextView textViewAM = makeTableRowWithText("", fixedColumnWidths[j + 1]/2, fixedRowHeight);
+                    textViewAM.setBackgroundColor(0xFFDDDDDD);
                     clickableRow.addView(textViewAM);
                     List<String> presentIdsAM = attendance.getPresentAM().get(weekStartDateStr);
                     textViewAM.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
