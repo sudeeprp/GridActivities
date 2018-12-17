@@ -1,12 +1,10 @@
 package com.thinklearn.tide.activitydriver;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +12,7 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,6 +40,7 @@ public class StudentDetailFragment extends Fragment {
     private ImageView imageView;
     private RecyclerView.Adapter adapter;
     private Bitmap newBitmap;
+    private Button Assess;
 
 
     public StudentDetailFragment() {
@@ -54,11 +54,7 @@ public class StudentDetailFragment extends Fragment {
         if (getArguments().containsKey(STUDENT)) {
             mItem = getArguments().getParcelable(STUDENT);
 
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.getFirstName());
-            }
+
         }
     }
 
@@ -66,6 +62,8 @@ public class StudentDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.student_detail, container, false);
+
+
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
@@ -87,7 +85,17 @@ public class StudentDetailFragment extends Fragment {
                      Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                      startActivityForResult(intent, REQUEST_CAMERA);
                  }
-             });
+                 });
+         
+            Assess = rootView.findViewById(R.id.button);
+            Assess.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), AssessmentRecordActivity.class);
+                    intent.putExtra(StudentDetailFragment.STUDENT,mItem);
+                    startActivity(intent);
+                }
+            });
 
             if(mItem.getThumbnail() != null) {
                 byte[] decodedString = Base64.decode(mItem.getThumbnail(), Base64.DEFAULT);

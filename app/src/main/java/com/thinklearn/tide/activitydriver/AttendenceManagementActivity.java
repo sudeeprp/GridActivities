@@ -1,8 +1,10 @@
 package com.thinklearn.tide.activitydriver;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
@@ -80,7 +82,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
             if (todayStr.equals(weekStartDateStr))
                 fixedColumnWidths[i + 1] = 20;
             TextView dateTextView = makeTableRowWithText(shortFormatter.format(weekStartDate), fixedColumnWidths[i + 1], fixedHeaderHeight);
-            dateTextView.setPadding(6, 6, 6, 6);
+            dateTextView.setPadding(6, 8, 6, 6);
             row.addView(dateTextView);
             calendar.setTime(weekStartDate);
             calendar.add(Calendar.DATE, 1);
@@ -88,14 +90,26 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
         }
         header.addView(row);
 
-        List<Student> students = attendance.getStudentList();
+        final List<Student> students = attendance.getStudentList();
         //header (fixed horizontally)
         TableLayout fixedColumn = findViewById(R.id.fixed_column);
+        View.OnClickListener studentListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView fixedView = (TextView)v;
+                int i = (int)fixedView.getTag();
+                Intent intent = new Intent(AttendenceManagementActivity.this,StudentDetailActivity.class);
+                intent.putExtra(StudentDetailFragment.STUDENT, students.get(i));
+                startActivity(intent);
+            }
+        };
         for (int i = 0; i < students.size(); i++) {
             Student student = students.get(i);
             TextView fixedView = makeTableRowWithText(student.getFirstName() + " " + student.getSurname(), fixedColumnWidths[0], fixedRowHeight, 18);
             fixedView.setGravity(Gravity.START);
-            fixedView.setPadding(10, 0, 10, 0);
+            fixedView.setPadding(10, 25, 10, 0);
+            fixedView.setOnClickListener(studentListener);
+            fixedView.setTag(i);
             clickableRow = new TableRow(this);
             clickableRow.setLayoutParams(wrapWrapTableRowParams);
             clickableRow.setGravity(Gravity.CENTER);
@@ -175,6 +189,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels) {
         return makeTableRowWithText(text, widthInPercentOfScreenWidth, fixedHeightInPixels, 15);
     }
+
     public TextView makeTableRowWithText(String text, int widthInPercentOfScreenWidth, int fixedHeightInPixels, int fontSize) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
         int width = (widthInPercentOfScreenWidth * screenWidth / 100);
@@ -214,6 +229,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
             presentList.remove(student_id);
         }
     }
+
 
     @Override
     public void onBackPressed() {

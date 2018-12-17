@@ -2,10 +2,6 @@ package com.thinklearn.tide.activitydriver;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
@@ -22,8 +18,6 @@ public class StudentDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_detail);
-        Toolbar toolbar = findViewById(R.id.detail_toolbar);
-        setSupportActionBar(toolbar);
 
 
         // Show the Up button in the action bar.
@@ -50,7 +44,7 @@ public class StudentDetailActivity extends AppCompatActivity {
             StudentDetailFragment fragment = new StudentDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.student_detail_container, fragment)
+                    .add(R.id.assessment_record_activity, fragment)
                     .commit();
         }
     }
