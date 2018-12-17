@@ -12,8 +12,6 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
-import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.interactor.ClassroomContext
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
@@ -100,8 +98,8 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
     fun getChapterStatus(chapterIdent: String): String {
         //TODO: Get status based on completion from ClassroomInteractor.
         var status = "pending"
-        val current_chapter = ClassroomInteractor.get_active_chapter(grade, subject)
-        if(current_chapter == chapterIdent) {
+        val current_chapter_id = ClassroomInteractor.get_active_chapter_id(grade, subject)
+        if(current_chapter_id == chapterIdent) {
             status = "current"
         }
         return status

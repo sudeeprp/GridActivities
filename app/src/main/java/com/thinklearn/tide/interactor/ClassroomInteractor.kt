@@ -189,6 +189,7 @@ object ClassroomInteractor {
             students[i].qualifier = it.child("qualifier").value.toString()
             if(students[i].qualifier == null) students[i].qualifier = ""
         }
+        students.sortWith(compareBy { it.surname })
     }
     fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
         students_thumbnails?.children?.forEach {
@@ -362,7 +363,7 @@ object ClassroomInteractor {
     fun grade_subject(grade: String, subject: String): String {
         return grade + "_" + subject.toLowerCase()
     }
-    fun get_active_chapter(grade: String, subject: String): String? {
+    fun get_active_chapter_id(grade: String, subject: String): String? {
         return subject_current_chapter.get(grade_subject(grade, subject))
     }
     fun set_active_chapter(grade: String, subject: String, chapter: String) {
@@ -374,22 +375,22 @@ object ClassroomInteractor {
                 "\"subject\": \"$subject\", " +
                 "\"chapter\": \"$chapter\"}")
     }
-    fun get_students_in_chapter(grade: String, subject: String, chapter: String): ArrayList<Student> {
+    fun get_students_in_chapter(grade: String, subject: String, chapter_id: String): ArrayList<Student> {
         val students_in_chapter = ArrayList<Student>()
         students.forEach {
-            if(it.grade == grade && get_active_chapter(grade, subject) == chapter) {
+            if(it.grade == grade && get_active_chapter_id(grade, subject) == chapter_id) {
                 students_in_chapter.add(it)
             }
         }
         return students_in_chapter
     }
-    fun chapter_of_student(student: Student, subject: String, chapters: Chapters): String {
+    fun chapter_id_of_student(student: Student, subject: String, chapters: Chapters): String {
         //TODO: Search thru chapters up to class-current and find the one where the student has pending activities
-        var currentChapter = get_active_chapter(student.grade, subject)
-        if(currentChapter == null) {
-            currentChapter = ContentInteractor().first_chapter(student.grade, subject)
+        var current_chapter_id = get_active_chapter_id(student.grade, subject)
+        if(current_chapter_id == null) {
+            current_chapter_id = ContentInteractor().first_chapter_id(student.grade, subject)
         }
-        return currentChapter!!
+        return current_chapter_id?:"null"
     }
     fun students_and_chapters(grade: String, subject: String): HashMap<String, ArrayList<Student>> {
         val student_chapters_map = HashMap<String, ArrayList<Student>>()
@@ -398,17 +399,17 @@ object ClassroomInteractor {
             student_chapters_map[chapter.name] = ArrayList<Student>()
         }
         for(student in students.filter { it.grade == grade && !it.qualifier.contains("guest") }) {
-            val current_chapter = chapter_of_student(student, subject, chapters)
+            val current_chapter = chapter_id_of_student(student, subject, chapters)
             student_chapters_map[current_chapter]?.add(student)
         }
         return student_chapters_map
     }
     fun current_chapter_page(student: Student, subject: String): String {
-        var chapterName = get_active_chapter(student.grade, subject)
-        if(chapterName == null) {
-            chapterName = ContentInteractor().first_chapter(student.grade, subject)
+        var chapter_id = get_active_chapter_id(student.grade, subject)
+        if(chapter_id == null) {
+            chapter_id = ContentInteractor().first_chapter_id(student.grade, subject)
         }
-        return ContentInteractor().chapters_directory(student.grade, subject) + "/" + chapterName + "/index.html"
+        return ContentInteractor().chapters_directory(student.grade, subject) + "/" + chapter_id + "/index.html"
     }
     fun set_student_activity_status(studentId: String, activity_subject: String, activity_chapter: String,
                                activity_identifier: String, activity_datapoint: String) {

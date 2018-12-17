@@ -82,8 +82,8 @@ class ContentInteractor {
         val subject_chapters_file = File(chapters_directory(grade, subject) + "/chapter_activities.json")
         return Chapters(subject_chapters_file)
     }
-    fun first_chapter(grade: String, subject: String): String? {
-        var firstChapter: String? = null
+    fun first_chapter_id(grade: String, subject: String): String? {
+        var firstChapterId: String? = null
         val chaptersDir = chapters_directory(grade, subject)
         val subject_chapters_file = File(chaptersDir + "/chapter_activities.json")
         if(subject_chapters_file.exists()) {
@@ -91,10 +91,10 @@ class ContentInteractor {
             val subject_chapters_array = JSONArray(subject_chapters_json)
             if (subject_chapters_array.length() > 0) {
                 val first_chapter_desc = subject_chapters_array.getJSONObject(0)
-                firstChapter = first_chapter_desc.getString("chapter_name")
+                firstChapterId = first_chapter_desc.getString("chapter_id")
             }
         }
-        return firstChapter
+        return firstChapterId
     }
     fun activity_directory(grade: String, subject: String, chapterName: String, activity_identifier: String): String {
         return chapters_directory(grade, subject) + "/" + chapterName + "/" + activity_identifier
