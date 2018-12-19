@@ -1,24 +1,16 @@
 package com.thinklearn.tide.activitydriver;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-
-import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.AppInfo;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 import com.thinklearn.tide.interactor.ConfigKeys;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StudentGradeSelectionActivity extends AppCompatActivity implements View.OnClickListener {
 
