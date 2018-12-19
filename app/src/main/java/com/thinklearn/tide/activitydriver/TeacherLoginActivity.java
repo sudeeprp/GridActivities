@@ -56,7 +56,7 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         schoolName.setText(ClassroomInteractor.school_name);
 
         Intent teacherLoginIntent = getIntent();
-        teacherWelcomeInputList = teacherLoginIntent.getParcelableArrayListExtra("TEACHER_LIST");
+        teacherWelcomeInputList = ClassroomInteractor.teachers;
         if(teacherWelcomeInputList.size() == 0) {
             selectedTeacherName.setCurrentText(getResources().getString(R.string.reselection));
         }
@@ -81,7 +81,6 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(TeacherLoginActivity.this, StudentGradeSelectionActivity.class);
-                intent.putParcelableArrayListExtra("studentInputList", ClassroomInteractor.students);
                 intent.putExtra("purpose", "STUDENT_ACTIVITY");
                 finish();
                 startActivity(intent);
