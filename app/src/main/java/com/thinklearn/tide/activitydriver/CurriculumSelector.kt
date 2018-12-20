@@ -3,6 +3,7 @@ package com.thinklearn.tide.activitydriver
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
@@ -30,10 +31,17 @@ class CurriculumSelector : AppCompatActivity() {
             showGrades()
         }
     }
-    fun tabledButton( backgroundPath: String, displayName: String): Button {
-        val button = Button(this)
+    fun tabledButton( backgroundPath: String, displayName: String): Button? {
+        var button: Button? = null
         val bk_bitmap = BitmapFactory.decodeFile(backgroundPath)
-        val background = BitmapDrawable(resources, bk_bitmap)
+        if(bk_bitmap != null) {
+            val background = BitmapDrawable(resources, bk_bitmap)
+            button = tabledButton(background, displayName)
+        }
+        return button
+    }
+    fun tabledButton(background: Drawable, displayName: String): Button {
+        val button = Button(this)
         button.background = background
         button.text = displayName
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32.toFloat())
@@ -51,7 +59,11 @@ class CurriculumSelector : AppCompatActivity() {
             if(gradeDisplayName.isEmpty()) {
                 gradeDisplayName = resources.getString(resources.getIdentifier("grade" + it, "string", packageName))
             }
-            val gradeButton = tabledButton(ContentInteractor().get_grade_background_path(it),gradeDisplayName)
+            var gradeButton = tabledButton(ContentInteractor().get_grade_background_path(it),gradeDisplayName)
+            if(gradeButton == null) {
+                val defaultDrawableID = resources.getIdentifier("g" + it, "drawable", packageName)
+                gradeButton = tabledButton(resources.getDrawable(defaultDrawableID, null), gradeDisplayName)
+            }
             gradeButton.tag = it
             gradeButton.setOnClickListener { showSubjects(it.tag.toString()) }
             curriculumTable.addView(gradeButton)
@@ -67,8 +79,12 @@ class CurriculumSelector : AppCompatActivity() {
             if(subjectDisplayName.isEmpty()) {
                 subjectDisplayName = resources.getString(resources.getIdentifier(subject, "string", packageName))
             }
-            val subjectButton =
+            var subjectButton =
                     tabledButton(ContentInteractor().get_subject_background_path(grade, subject), subjectDisplayName)
+            if(subjectButton == null) {
+                val defaultDrawableID = resources.getIdentifier("g" + grade + "_" + subject, "drawable", packageName)
+                subjectButton = tabledButton(resources.getDrawable(defaultDrawableID, null), subjectDisplayName)
+            }
             subjectButton.gravity = Gravity.BOTTOM or Gravity.CENTER
             subjectButton.setPadding(20, index * 40, 20, 20)
             subjectButton.tag = subject
