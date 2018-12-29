@@ -5,7 +5,6 @@ import com.google.firebase.database.FirebaseDatabase
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
-import java.io.IOException
 import java.util.*
 
 
@@ -96,7 +95,7 @@ object ClassroomDataExchange {
         val exportFilePath = exchangePath + "classroomdata-" + ClassroomInteractor.loadedClassroomID +
                 "-" + EnvironmentalContext.getDeviceIdentity() + ".json"
         val exportFile = File(exportFilePath)
-        exportFile.writeText(exportJson.toString(2))
+        exportFile.writeText(exportJson.toString(2).replace("\\/", "/"))
 
         return exportFilePath
     }
@@ -127,16 +126,19 @@ object ClassroomDataExchange {
             studentsJson.put(it.id + "/birth_date/yyyy", birthyear)
             studentsJson.put(it.id + "/gender", it.gender)
             studentsJson.put(it.id + "/grade", it.grade)
+            if(it.qualifier != null) {
+                studentsJson.put(it.id + "/qualifier", it.qualifier)
+            }
         }
         return studentsJson
     }
     fun exportThumbnailsJson(): JSONObject {
         val thumbnailsJson = JSONObject()
         ClassroomInteractor.teachers.forEach {
-            thumbnailsJson.put("teachers/" + it.id + "thumbnail", it.thumbnail)
+            thumbnailsJson.put("teachers/" + it.id + "/thumbnail", it.thumbnail)
         }
         ClassroomInteractor.students.forEach {
-            thumbnailsJson.put("students/" + it.id + "thumbnail", it.thumbnail)
+            thumbnailsJson.put("students/" + it.id + "/thumbnail", it.thumbnail)
         }
         return thumbnailsJson
     }
