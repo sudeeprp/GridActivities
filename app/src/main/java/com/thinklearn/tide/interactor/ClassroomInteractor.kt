@@ -1,17 +1,12 @@
 package com.thinklearn.tide.interactor
 
-import android.os.Environment
-import com.google.firebase.database.*
 import com.thinklearn.tide.dto.AttendanceInput
 import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.dto.Teacher
-import org.json.JSONException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import org.json.JSONObject
-import java.io.File
 
 
 interface DBOpDone {
