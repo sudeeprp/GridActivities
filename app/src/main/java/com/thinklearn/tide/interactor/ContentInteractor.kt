@@ -4,6 +4,7 @@ import android.os.Environment
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.File
 
 val default_curriculum = """
@@ -53,18 +54,32 @@ class Chapters {
 class ContentInteractor {
     object content{
         var content_path = ""
+        var content_version = ""
     }
+    val content_desc_filename = "content_descriptor.json"
 
     constructor() {
         if(content.content_path == "") {
             val trial_path = "/storage/sdcard1/LearningGrid/"
-            val content_desc_file = File(trial_path + "content_descriptor.json")
-            if(content_desc_file.exists() && content_desc_file.canRead()) {
+            val trial_content_desc_file = File(trial_path + content_desc_filename)
+            if(trial_content_desc_file.exists() && trial_content_desc_file.canRead()) {
                 content.content_path = trial_path
             } else {
                 content.content_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
             }
+            val content_desc_file = File(content.content_path + content_desc_filename)
+            if(content_desc_file.exists()) {
+                try {
+                    content.content_version = JSONObject(content_desc_file.readText()).get("content_version").toString()
+                } catch(j: JSONException) {
+                    Log.e("no content version", "JSON parse error: " + j.message)
+                }
+            }
         }
+    }
+
+    fun get_content_version(): String {
+        return content.content_version
     }
 
     fun chapters_page(grade: String, subject: String): String {

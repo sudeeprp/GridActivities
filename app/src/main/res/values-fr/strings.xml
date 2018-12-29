@@ -56,4 +56,13 @@
     <string name="pre_auth">Pré-authentifié</string>
     <string name="no_tab_activity">Cette activitée n\'est pas encore accessible sur la tablette: </string>
     <string name="not_class_file">Le fichier ne contient pas les données d\'une classe</string>
+    <string name="tab_status">Status</string>
+    <string name="internet_status">Internet Connection</string>
+    <string name="db_online_status_label">Data Connection</string>
+    <string name="is_online">Connected</string>
+    <string name="offline">Offline</string>
+    <string name="content_version">Content version</string>
+    <string name="classroom_export">Export Classroom</string>
+    <string name="export_success">Classroom data exported: </string>
+    <string name="export_failed">Data export failed: </string>
 </resources>

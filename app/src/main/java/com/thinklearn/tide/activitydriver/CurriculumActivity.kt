@@ -17,6 +17,7 @@ import android.widget.MediaController
 import android.widget.Toast
 import android.widget.VideoView
 import com.thinklearn.tide.interactor.ClassroomContext
+import com.thinklearn.tide.interactor.ClassroomDBInteractor
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
 import java.io.File
@@ -184,7 +185,7 @@ class CurriculumActivity : AppCompatActivity() {
         if(studentId == null) studentId = "-"
         var teacherId = ClassroomContext.selectedTeacher?.id
         if(teacherId == null) teacherId = "-"
-        ClassroomInteractor.write_activity_log("{\"activity\": \"Launched\", " +
+        ClassroomDBInteractor.write_activity_log("{\"activity\": \"Launched\", " +
                 "\"student_id\": \"$studentId\", " +
                 "\"teacher_id\": \"$teacherId\", " +
                 "\"subject\": \"$subject\", " +
