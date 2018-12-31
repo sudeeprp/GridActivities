@@ -124,7 +124,7 @@ class ContentInteractor {
         return subjects
     }
     fun get_grade_background_path(grade: String): String {
-        return content.content_path + "/g" + grade + ".png"
+        return content.content_path + "/grade" + grade + "_logo.png"
     }
     fun get_grade_display_name(grade: String): String {
         return getConfig(content.grades_file, grade)
