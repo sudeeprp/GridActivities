@@ -14,7 +14,6 @@ object ClassroomDataExchange {
     val teachers_key = "teachers"
     val students_key = "students"
     val thumbnails_key = "thumbnails"
-    val preferred_path = "/storage/sdcard1/"
     val exchange_folder = "LearningGridExchange/"
 
     fun uploadClassroom(classroomAndAssetsJSON: JSONObject, uploaded: DBOpDone) {
@@ -83,10 +82,7 @@ object ClassroomDataExchange {
         exportJson.put(students_key, exportStudentsJson())
         exportJson.put(thumbnails_key, exportThumbnailsJson())
 
-        var exchangePath = preferred_path
-        if (!File(exchangePath).exists()) {
-            exchangePath = Environment.getExternalStorageDirectory().getPath() + "/"
-        }
+        var exchangePath = Environment.getExternalStorageDirectory().getPath() + "/"
         exchangePath += exchange_folder
         val exchangeDirFile = File(exchangePath)
         if (!exchangeDirFile.exists()) {
