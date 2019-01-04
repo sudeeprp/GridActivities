@@ -63,7 +63,7 @@ class Launch : AppCompatActivity() {
         authenticateToken()
     }
     fun tokenAuthenticationDone() {
-        EnvironmentalContext.listenToOnlining({refreshStatusMessages()})
+        EnvironmentalContext.listenToOnlining(this, {refreshStatusMessages()})
         launchStartScreen()
     }
     fun authenticateToken() {
@@ -103,12 +103,12 @@ class Launch : AppCompatActivity() {
     fun loadAndStart(start_mode: String) {
         if(selected_class_id != "") {
             setContentView(R.layout.activity_initial_load)
-            ClassroomInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : DBOpDone {
+            ClassroomDBInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : DBOpDone {
                 override fun onSuccess() {
-                    ClassroomInteractor.removeLoadedEvent()
-                    if (start_mode == ConfigKeys.teacher_mode_value) {
+                    ClassroomDBInteractor.removeLoadedEvent()
+                    if (start_mode == ClassroomConfig.teacher_mode_value) {
                         startTeacherLogin()
-                    } else if (start_mode == ConfigKeys.student_mode_value) {
+                    } else if (start_mode == ClassroomConfig.student_mode_value) {
                         startStudentLogin()
                     }
                 }
@@ -198,7 +198,7 @@ class Launch : AppCompatActivity() {
                 classroomAndAssetsJSONstr = String(buffer)
                 try {
                     val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
-                    ClassroomInteractor.uploadClassroom(cassetJSON, object : DBOpDone {
+                    ClassroomDataExchange.uploadClassroom(cassetJSON, object : DBOpDone {
                         override fun onSuccess() {
                             dbConnectionStatus("Classroom data uploaded successfully")
                         }
@@ -250,7 +250,7 @@ class Launch : AppCompatActivity() {
         val dataStatus = findViewById<TextView>(R.id.DataStatus)
 
         if(connectionStatus != null) {
-            connectionStatus.text = EnvironmentalContext.dbConnectionStatusMsg + " " +
+            connectionStatus.text = EnvironmentalContext.dbConnectionStatusMsg + " / " +
                     EnvironmentalContext.dbOnlineStatus
         }
         if(dataStatus != null) {

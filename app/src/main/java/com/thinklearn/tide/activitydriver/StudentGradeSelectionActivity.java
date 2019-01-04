@@ -7,10 +7,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-
 import com.thinklearn.tide.interactor.AppInfo;
+import com.thinklearn.tide.interactor.ClassroomConfig;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
-import com.thinklearn.tide.interactor.ConfigKeys;
 
 public class StudentGradeSelectionActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -27,7 +26,7 @@ public class StudentGradeSelectionActivity extends AppCompatActivity implements 
         String purpose = getIntent().getStringExtra("purpose");
         if (purpose.equals("STUDENT_ACTIVITY")) {
             setTitle(AppInfo.appVersion(this));
-            ClassroomInteractor.setTabMode(ConfigKeys.student_mode_value);
+            ClassroomInteractor.setTabMode(ClassroomConfig.student_mode_value);
             switchtoteacher.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

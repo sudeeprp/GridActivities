@@ -13,6 +13,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.thinklearn.tide.interactor.ClassroomContext
+import com.thinklearn.tide.interactor.ClassroomDBInteractor
 import com.thinklearn.tide.interactor.ClassroomInteractor
 import com.thinklearn.tide.interactor.ContentInteractor
 import org.json.JSONArray
@@ -72,7 +73,7 @@ class ChapterSelector : AppCompatActivity() {
             val activity_chapter = data.getStringExtra("SELECTED_CHAPTER")
             val activity_identifier = data.getStringExtra("SELECTED_ACTIVITY")
             val activity_datapoint = data.getStringExtra("DATAPOINT")
-            ClassroomInteractor.set_student_activity_status(ClassroomContext.selectedStudent!!.id, activity_subject,
+            ClassroomDBInteractor.set_student_activity_status(ClassroomContext.selectedStudent!!.id, activity_subject,
                     activity_chapter, activity_identifier, activity_datapoint)
         }
     }
@@ -106,7 +107,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
     }
     @JavascriptInterface
     fun setChapterActive(chapterIdent: String) {
-        ClassroomInteractor.set_active_chapter(grade, subject, chapterIdent)
+        ClassroomDBInteractor.set_active_chapter(grade, subject, chapterIdent)
     }
     @JavascriptInterface
     fun getStudentsInSubject(): String {

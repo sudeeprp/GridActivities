@@ -53,21 +53,32 @@ class Chapters {
 }
 
 class ContentInteractor {
+    val grades_file = "display names of grades.json"
+    val subjects_file = "display names of subjects.json"
+    val subject_background_pic = "subject_logo.png"
+    val content_desc_filename = "content_descriptor.json"
+
     object content{
         var content_path = ""
-        val grades_file = "display names of grades.json"
-        val subjects_file = "display names of subjects.json"
-        val subject_background_pic = "subject_logo.png"
+        var content_version = ""
     }
 
     constructor() {
         if(content.content_path.isEmpty()) {
             val trial_path = "/storage/sdcard1/LearningGrid/"
-            val content_desc_file = File(trial_path + "content_descriptor.json")
-            if(content_desc_file.exists() && content_desc_file.canRead()) {
+            val trial_content_desc_file = File(trial_path + content_desc_filename)
+            if(trial_content_desc_file.exists() && trial_content_desc_file.canRead()) {
                 content.content_path = trial_path
             } else {
                 content.content_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGrid/"
+            }
+            val content_desc_file = File(content.content_path + content_desc_filename)
+            if(content_desc_file.exists()) {
+                try {
+                    content.content_version = JSONObject(content_desc_file.readText()).get("content_version").toString()
+                } catch(j: JSONException) {
+                    Log.e("no content version", "JSON parse error: " + j.message)
+                }
             }
         }
     }
@@ -112,6 +123,10 @@ class ContentInteractor {
         return getTokenFromDirlist(path, dirPrefix, 1)
     }
 
+    fun get_content_version(): String {
+        return content.content_version
+    }
+
     fun chapters_page(grade: String, subject: String): String {
         return chapters_directory(grade, subject) + "chapters.html"
     }
@@ -127,13 +142,13 @@ class ContentInteractor {
         return content.content_path + "/grade" + grade + "_logo.png"
     }
     fun get_grade_display_name(grade: String): String {
-        return getConfig(content.grades_file, grade)
+        return getConfig(grades_file, grade)
     }
     fun get_subject_background_path(grade: String, subject: String): String {
-        return chapters_directory(grade, subject) + content.subject_background_pic
+        return chapters_directory(grade, subject) + subject_background_pic
     }
     fun get_subject_display_name(subject: String): String {
-        return getConfig(content.subjects_file, subject)
+        return getConfig(subjects_file, subject)
     }
     fun get_grades(): ArrayList<String> {
         var grades = getSetBefore_(content.content_path)

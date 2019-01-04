@@ -93,6 +93,15 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/school_name"
         android:src="@drawable/boygirl"/>
+    <ImageButton
+        android:id="@+id/teacher_settings_utils"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="5dp"
+        android:background="@android:color/transparent"
+        android:layout_below="@id/switchtostudent"
+        android:src="@drawable/settings"/>
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"

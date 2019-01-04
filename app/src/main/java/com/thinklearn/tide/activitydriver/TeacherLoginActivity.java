@@ -19,7 +19,7 @@ import com.thinklearn.tide.dto.Teacher;
 import com.thinklearn.tide.interactor.AppInfo;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
-import com.thinklearn.tide.interactor.ConfigKeys;
+import com.thinklearn.tide.interactor.ClassroomConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         setContentView(R.layout.activity_teacher_login);
         ((TextView)findViewById(R.id.tvVersion)).setText(AppInfo.appVersion(this));
 
-        ClassroomInteractor.setTabMode(ConfigKeys.teacher_mode_value);
+        ClassroomInteractor.setTabMode(ClassroomConfig.teacher_mode_value);
 
         recyclerView = findViewById(R.id.rvHorizantalTeacherList);
         selectedTeacherName = findViewById(R.id.tvSSelectedteacherName);
@@ -81,6 +81,13 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
                 Intent intent = new Intent(TeacherLoginActivity.this, StudentGradeSelectionActivity.class);
                 intent.putExtra("purpose", "STUDENT_ACTIVITY");
                 finish();
+                startActivity(intent);
+            }
+        });
+        findViewById(R.id.teacher_settings_utils).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TeacherLoginActivity.this, SettingsUtilActivity.class);
                 startActivity(intent);
             }
         });
