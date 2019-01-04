@@ -87,13 +87,15 @@ class SettingsUtilActivity : AppCompatActivity() {
     fun sendToSDCard() {
         val exchangePath = "/storage/sdcard1/"
         if (File(exchangePath).canWrite()) {
-            val targetFolder = File(exchangePath + exchange_folder)
+            val targetFolderName = exchangePath + exchange_folder
+            val targetFolder = File(targetFolderName)
             if(targetFolder.exists()) {
                 targetFolder.mkdirs()
             }
             val sourceFile = File(ClassroomDataExchange.get_last_exchange_file_path())
-            sourceFile.copyTo(File(targetFolder.name + ClassroomDataExchange.last_exchange_filename),
-                            true)
+            val targetFileName = targetFolderName + ClassroomDataExchange.last_exchange_filename
+            sourceFile.copyTo(File(targetFileName), true)
+            Toast.makeText(this, resources.getString(R.string.export_success) + targetFileName, Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, R.string.no_sdcard, Toast.LENGTH_LONG).show()
         }
