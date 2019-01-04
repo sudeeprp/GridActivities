@@ -11,12 +11,10 @@ import com.thinklearn.tide.interactor.*
 import java.io.File
 import java.io.IOException
 import android.bluetooth.BluetoothAdapter
-import android.os.Environment
 import android.widget.*
 
 
 class SettingsUtilActivity : AppCompatActivity() {
-    var exportFilePath: String = ""
     var exportChoices = arrayOf ("To sdcard",            "via Bluetooth")
     var exportRoutines = arrayOf(fun() {sendToSDCard()}, fun() {sendViaBluetooth()})
     var selectedExportChoiceIndex = -1
@@ -77,8 +75,7 @@ class SettingsUtilActivity : AppCompatActivity() {
     fun exportData() {
         try {
             if(selectedExportChoiceIndex != -1) {
-                exportFilePath = ClassroomDataExchange.exportClassroomData()
-                Toast.makeText(this, resources.getString(R.string.export_success) + exportFilePath, Toast.LENGTH_LONG).show()
+                ClassroomDataExchange.exportClassroomData()
                 exportRoutines[selectedExportChoiceIndex]()
             } else {
                 Toast.makeText(this, R.string.select_export_dest, Toast.LENGTH_LONG).show()
@@ -90,11 +87,15 @@ class SettingsUtilActivity : AppCompatActivity() {
     fun sendToSDCard() {
         val exchangePath = "/storage/sdcard1/"
         if (File(exchangePath).canWrite()) {
-            val targetFolder = File(exchangePath + exchange_folder)
+            val targetFolderName = exchangePath + exchange_folder
+            val targetFolder = File(targetFolderName)
             if(targetFolder.exists()) {
                 targetFolder.mkdirs()
             }
-            File(exportFilePath).copyTo(targetFolder, true)
+            val sourceFile = File(ClassroomDataExchange.get_last_exchange_file_path())
+            val targetFileName = targetFolderName + ClassroomDataExchange.last_exchange_filename
+            sourceFile.copyTo(File(targetFileName), true)
+            Toast.makeText(this, resources.getString(R.string.export_success) + targetFileName, Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, R.string.no_sdcard, Toast.LENGTH_LONG).show()
         }
@@ -113,10 +114,11 @@ class SettingsUtilActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 3) {
+            val lastExportedFile = File(ClassroomDataExchange.get_last_exchange_file_path())
             val intent = Intent()
             intent.action = Intent.ACTION_SEND
             intent.type = "*/*"
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(File(exportFilePath)))
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(lastExportedFile))
 
             val appsList = packageManager.queryIntentActivities(intent, 0)
                     .filter{ it.activityInfo.packageName == "com.android.bluetooth" }

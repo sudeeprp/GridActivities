@@ -3,7 +3,8 @@
 .gradle
 /local.properties
 /.idea/libraries
-/.idea
+/.idea/workspace.xml
+/.idea/caches
 /stage
 .DS_Store
 /build

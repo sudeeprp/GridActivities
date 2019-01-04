@@ -60,5 +60,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/SchoolsList"
         app:layout_constraintRight_toRightOf="parent"/>
+    <TextView
+        android:id="@+id/launch_version_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:layout_marginEnd="24dp"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/GoStudent"/>
 
 </android.support.constraint.ConstraintLayout>

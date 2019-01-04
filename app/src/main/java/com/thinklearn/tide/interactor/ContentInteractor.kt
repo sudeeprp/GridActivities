@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
+import java.lang.Integer.parseInt
 
 val default_curriculum = """
 <!DOCTYPE html>
@@ -52,14 +53,18 @@ class Chapters {
 }
 
 class ContentInteractor {
+    val grades_file = "display names of grades.json"
+    val subjects_file = "display names of subjects.json"
+    val subject_background_pic = "subject_logo.png"
+    val content_desc_filename = "content_descriptor.json"
+
     object content{
         var content_path = ""
         var content_version = ""
     }
-    val content_desc_filename = "content_descriptor.json"
 
     constructor() {
-        if(content.content_path == "") {
+        if(content.content_path.isEmpty()) {
             val trial_path = "/storage/sdcard1/LearningGrid/"
             val trial_content_desc_file = File(trial_path + content_desc_filename)
             if(trial_content_desc_file.exists() && trial_content_desc_file.canRead()) {
@@ -77,6 +82,46 @@ class ContentInteractor {
             }
         }
     }
+    fun getConfig(filename: String, key: String): String {
+        val configFile = File(content.content_path + filename)
+        var configValue = ""
+        if(configFile.exists()) {
+            val configJsonStr = configFile.readText()
+            val configJSON = JSONObject(configJsonStr)
+            if(configJSON.has(key)) {
+                configValue = configJSON.get(key).toString()
+            }
+        }
+        return configValue
+    }
+    fun getTokenFromDirlist(path: String, dirPrefix: String, tokenNumber: Int): ArrayList<String> {
+        var contentDirEntries = File(path).list().filter { File(path + "/" + it).isDirectory }
+        if(dirPrefix.isNotEmpty()) {
+            contentDirEntries = contentDirEntries.filter { it.startsWith(dirPrefix) }
+        }
+        val tokens = arrayListOf<String>()
+        contentDirEntries.forEach {
+            val dirTokens = it.split("_")
+            if (dirTokens.size > 1) {
+                try {
+                    //The first token must be a grade-number for us to parse the grade/subject out
+                    parseInt(dirTokens[0])
+                    if (!tokens.contains(dirTokens[tokenNumber])) {
+                        tokens.plusAssign(dirTokens[tokenNumber])
+                    }
+                } catch (e: NumberFormatException) {
+                    //do nothing
+                }
+            }
+        }
+        return tokens
+    }
+    fun getSetBefore_(path: String): ArrayList<String> {
+        return getTokenFromDirlist(path, "", 0)
+    }
+    fun getSetAfter_(path: String, dirPrefix: String): ArrayList<String> {
+        return getTokenFromDirlist(path, dirPrefix, 1)
+    }
 
     fun get_content_version(): String {
         return content.content_version
@@ -87,8 +132,30 @@ class ContentInteractor {
     }
 
     fun get_subjects(grade: String): ArrayList<String> {
-        //TODO: Get subjects from the curriculum directories
-        return arrayListOf("french", "math")
+        var subjects = getSetAfter_(content.content_path, grade + "_")
+        if(subjects.size == 0) {
+            subjects = arrayListOf("french", "math")
+        }
+        return subjects
+    }
+    fun get_grade_background_path(grade: String): String {
+        return content.content_path + "/grade" + grade + "_logo.png"
+    }
+    fun get_grade_display_name(grade: String): String {
+        return getConfig(grades_file, grade)
+    }
+    fun get_subject_background_path(grade: String, subject: String): String {
+        return chapters_directory(grade, subject) + subject_background_pic
+    }
+    fun get_subject_display_name(subject: String): String {
+        return getConfig(subjects_file, subject)
+    }
+    fun get_grades(): ArrayList<String> {
+        var grades = getSetBefore_(content.content_path)
+        if(grades.size == 0) {
+            grades = arrayListOf("1", "2")
+        }
+        return grades
     }
     fun chapters_directory(grade: String, subject: String): String {
         return content.content_path + "/" + grade + "_" + subject + "/"

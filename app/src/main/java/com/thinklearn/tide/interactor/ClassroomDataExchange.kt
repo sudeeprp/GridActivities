@@ -14,8 +14,12 @@ object ClassroomDataExchange {
     val teachers_key = "teachers"
     val students_key = "students"
     val thumbnails_key = "thumbnails"
-    val exchange_folder = "LearningGridExchange/"
+    var last_exchange_folder_path = ""
+    var last_exchange_filename = ""
 
+    fun get_last_exchange_file_path(): String {
+        return last_exchange_folder_path + last_exchange_filename
+    }
     fun uploadClassroom(classroomAndAssetsJSON: JSONObject, uploaded: DBOpDone) {
         if(classroomAndAssetsJSON.has(class_id_key)) {
             val class_id: String = classroomAndAssetsJSON.getString(class_id_key)
@@ -75,25 +79,24 @@ object ClassroomDataExchange {
         }
         return thumbnailMap
     }
-    fun exportClassroomData(): String {
+    fun exportClassroomData() {
         val exportJson = JSONObject()
         exportJson.put(class_id_key, ClassroomInteractor.loadedClassroomID)
         exportJson.put(teachers_key, exportTeachersJson())
         exportJson.put(students_key, exportStudentsJson())
         exportJson.put(thumbnails_key, exportThumbnailsJson())
 
-        var exchangePath = Environment.getExternalStorageDirectory().getPath() + "/"
-        exchangePath += exchange_folder
-        val exchangeDirFile = File(exchangePath)
+        val exchange_folder_path = Environment.getExternalStorageDirectory().getPath() + "/LearningGridExchange/"
+        val exchangeDirFile = File(exchange_folder_path)
         if (!exchangeDirFile.exists()) {
             exchangeDirFile.mkdirs()
         }
-        val exportFilePath = exchangePath + "classroomdata-" + ClassroomInteractor.loadedClassroomID +
+        val exportFileName = "classroomdata-" + ClassroomInteractor.loadedClassroomID +
                 "-" + EnvironmentalContext.getDeviceIdentity() + ".json"
-        val exportFile = File(exportFilePath)
+        val exportFile = File(exchange_folder_path + exportFileName)
         exportFile.writeText(exportJson.toString(2).replace("\\/", "/"))
-
-        return exportFilePath
+        last_exchange_folder_path = exchange_folder_path
+        last_exchange_filename = exportFileName
     }
     fun exportTeachersJson(): JSONObject {
         val teachersJson = JSONObject()

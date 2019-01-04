@@ -122,6 +122,7 @@ class Launch : AppCompatActivity() {
     }
     fun showConfigScreen() {
         setContentView(R.layout.activity_launch)
+        findViewById<TextView>(R.id.launch_version_display).text = AppInfo.appVersion(this)
 
         val schoolsListView = findViewById<ListView>(R.id.SchoolsList)
         val thisContext = this
