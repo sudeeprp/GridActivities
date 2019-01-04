@@ -22,6 +22,7 @@ public class StudentGradeSelectionActivity extends AppCompatActivity implements 
         setSupportActionBar(myToolbar);
 
         ImageButton switchtoteacher = (ImageButton)findViewById(R.id.switchtoteacher);
+        ImageButton studentSettings = (ImageButton)findViewById(R.id.student_settings);
 
         String purpose = getIntent().getStringExtra("purpose");
         if (purpose.equals("STUDENT_ACTIVITY")) {
@@ -32,6 +33,13 @@ public class StudentGradeSelectionActivity extends AppCompatActivity implements 
                 public void onClick(View v) {
                     Intent intent = new Intent(StudentGradeSelectionActivity.this,TeacherLoginActivity.class);
                     finish();
+                    startActivity(intent);
+                }
+            });
+            studentSettings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(StudentGradeSelectionActivity.this, SettingsUtilActivity.class);
                     startActivity(intent);
                 }
             });
