@@ -99,35 +99,6 @@ object ClassroomInteractor {
     fun get_active_chapter_id(grade: String, subject: String): String? {
         return subject_current_chapter.get(grade_subject(grade, subject))
     }
-    fun get_students_in_chapter(grade: String, subject: String, chapter_id: String): ArrayList<Student> {
-        val students_in_chapter = ArrayList<Student>()
-        students.forEach {
-            if(it.grade == grade && get_active_chapter_id(grade, subject) == chapter_id) {
-                students_in_chapter.add(it)
-            }
-        }
-        return students_in_chapter
-    }
-    fun chapter_id_of_student(student: Student, subject: String, chapters: Chapters): String {
-        //TODO: Search thru chapters up to class-current and find the one where the student has pending activities
-        var current_chapter_id = get_active_chapter_id(student.grade, subject)
-        if(current_chapter_id == null) {
-            current_chapter_id = ContentInteractor().first_chapter_id(student.grade, subject)
-        }
-        return current_chapter_id?:"null"
-    }
-    fun students_and_chapters(grade: String, subject: String): HashMap<String, ArrayList<Student>> {
-        val student_chapters_map = HashMap<String, ArrayList<Student>>()
-        val chapters = ContentInteractor().chapters_and_activities(grade, subject)
-        for(chapter in chapters.chapter_list) {
-            student_chapters_map[chapter.name] = ArrayList<Student>()
-        }
-        for(student in students.filter { it.grade == grade && !it.qualifier.contains("guest") }) {
-            val current_chapter = chapter_id_of_student(student, subject, chapters)
-            student_chapters_map[current_chapter]?.add(student)
-        }
-        return student_chapters_map
-    }
     fun current_chapter_page(student: Student, subject: String): String {
         var chapter_id = get_active_chapter_id(student.grade, subject)
         if(chapter_id == null) {

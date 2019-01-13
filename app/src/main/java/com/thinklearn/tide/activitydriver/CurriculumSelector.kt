@@ -55,10 +55,7 @@ class CurriculumSelector : AppCompatActivity() {
         val curriculumTable = findViewById<LinearLayout>(R.id.curriculum_table)
         val grades = ContentInteractor().get_grades()
         grades.forEach {
-            var gradeDisplayName = ContentInteractor().get_grade_display_name(it)
-            if(gradeDisplayName.isEmpty()) {
-                gradeDisplayName = resources.getString(resources.getIdentifier("grade" + it, "string", packageName))
-            }
+            val gradeDisplayName = ContentInteractor().get_grade_display_name(it, this, packageName)
             var gradeButton = tabledButton(ContentInteractor().get_grade_background_path(it),gradeDisplayName)
             if(gradeButton == null) {
                 val defaultDrawableID = resources.getIdentifier("g" + it, "drawable", packageName)
@@ -75,10 +72,7 @@ class CurriculumSelector : AppCompatActivity() {
         val subjectTable = findViewById<LinearLayout>(R.id.subject_table)
         val subjects = ContentInteractor().get_subjects(grade)
         subjects.forEachIndexed { index, subject ->
-            var subjectDisplayName = ContentInteractor().get_subject_display_name(subject)
-            if(subjectDisplayName.isEmpty()) {
-                subjectDisplayName = resources.getString(resources.getIdentifier(subject, "string", packageName))
-            }
+            var subjectDisplayName = ContentInteractor().get_subject_display_name(subject, this, packageName)
             var subjectButton =
                     tabledButton(ContentInteractor().get_subject_background_path(grade, subject), subjectDisplayName)
             if(subjectButton == null) {

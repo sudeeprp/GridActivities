@@ -12,10 +12,7 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.thinklearn.tide.interactor.ClassroomContext
-import com.thinklearn.tide.interactor.ClassroomDBInteractor
-import com.thinklearn.tide.interactor.ClassroomInteractor
-import com.thinklearn.tide.interactor.ContentInteractor
+import com.thinklearn.tide.interactor.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -87,13 +84,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
 
     @JavascriptInterface
     fun getCurrentGrade(): String {
-        val resId = chapterContext.resources.getIdentifier("grade" + grade, "string", chapterContext.packageName)
-        return chapterContext.getString(resId)
+        return ContentInteractor().get_grade_display_name(grade, chapterContext, chapterContext.packageName)
     }
     @JavascriptInterface
     fun getCurrentSubject(): String {
-        val resId = chapterContext.resources.getIdentifier(subject, "string", chapterContext.packageName)
-        return chapterContext.getString(resId)
+        return ContentInteractor().get_subject_display_name(subject, chapterContext, chapterContext.packageName)
     }
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
@@ -111,7 +106,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
     }
     @JavascriptInterface
     fun getStudentsInSubject(): String {
-        val studentsInChapters = ClassroomInteractor.students_and_chapters(grade, subject)
+        val studentsInChapters = ClassroomProgressInteractor.students_and_chapters(grade, subject)
         val studentsInChaptersJSON = JSONArray()
         for(chapter in studentsInChapters) {
             val chapterJSON = JSONObject()

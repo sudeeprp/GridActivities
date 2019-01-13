@@ -1,5 +1,6 @@
 package com.thinklearn.tide.interactor
 
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 import org.json.JSONArray
@@ -46,6 +47,9 @@ class Chapters {
                 Log.e("chapters file", chapters_file.toString() + ": " + j.message)
             }
         }
+    }
+    constructor(chapters: ArrayList<Chapter>) {
+        chapter_list = chapters
     }
     class ActivityInChapter(val activity_identifier: String, val mandatory: Boolean)
     class Chapter(val name: String, val activities: ArrayList<ActivityInChapter>)
@@ -141,14 +145,24 @@ class ContentInteractor {
     fun get_grade_background_path(grade: String): String {
         return content.content_path + "/grade" + grade + "_logo.png"
     }
-    fun get_grade_display_name(grade: String): String {
-        return getConfig(grades_file, grade)
+    fun get_grade_display_name(grade: String, context: Context, packageName: String): String {
+        var gradeDisplayName = getConfig(grades_file, grade)
+        if(gradeDisplayName.isEmpty()) {
+            gradeDisplayName = context.resources.getString(context.resources.getIdentifier
+                                    ("grade" + grade, "string", packageName))
+        }
+        return gradeDisplayName
     }
     fun get_subject_background_path(grade: String, subject: String): String {
         return chapters_directory(grade, subject) + subject_background_pic
     }
-    fun get_subject_display_name(subject: String): String {
-        return getConfig(subjects_file, subject)
+    fun get_subject_display_name(subject: String, context: Context, packageName: String): String {
+        var subjectDisplayName = getConfig(subjects_file, subject)
+        if(subjectDisplayName.isEmpty()) {
+            subjectDisplayName = context.resources.getString(context.resources.getIdentifier
+                                    (subject, "string", packageName))
+        }
+        return subjectDisplayName
     }
     fun get_grades(): ArrayList<String> {
         var grades = getSetBefore_(content.content_path)
