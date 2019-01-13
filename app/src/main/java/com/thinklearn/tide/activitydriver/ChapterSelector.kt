@@ -125,12 +125,26 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
                     thumbnail = Base64.encodeToString(thumbByteArray, Base64.DEFAULT)
                 }
                 studentJSON.put("thumbnail", thumbnail)
+                studentJSON.put("status", ClassroomProgressInteractor
+                        .chapter_status_of_student(student, subject, chapter.key))
                 studentsJSON.put(studentJSON)
             }
             chapterJSON.put("students", studentsJSON)
             studentsInChaptersJSON.put(chapterJSON)
         }
         return studentsInChaptersJSON.toString(2)
+    }
+    @JavascriptInterface
+    fun getActivitiesStatus(): String {
+        val activitiesStatusJSON = JSONObject()
+        if(ClassroomContext.selectedStudent != null) {
+            val activitiesStatus = ClassroomProgressInteractor.getActivitiesStatus(
+                                      ClassroomContext.selectedStudent!!, getCurrentSubject(), chapter_shown)
+            for(activityStatus in activitiesStatus) {
+                activitiesStatusJSON.put(activityStatus.activityID, activityStatus.status)
+            }
+        }
+        return activitiesStatusJSON.toString(2)
     }
     @JavascriptInterface
     fun chapterEntered(chapterName: String) {

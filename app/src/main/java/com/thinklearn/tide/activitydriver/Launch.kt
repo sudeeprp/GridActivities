@@ -185,7 +185,6 @@ class Launch : AppCompatActivity() {
     fun uploadClassFromFile(resultCode: Int, data: Intent?) {
         val MAX_CLASS_FILE_SIZE = 500 * 1024
         if(resultCode == Activity.RESULT_OK && data != null) {
-            var classroomAndAssetsJSONstr: String = ""
             val uri = data.getData();
             if(uri == null)
                 return
@@ -196,7 +195,7 @@ class Launch : AppCompatActivity() {
                 val buffered = inputStream.bufferedReader()
                 val buffer = CharArray(MAX_CLASS_FILE_SIZE)
                 buffered.read(buffer)
-                classroomAndAssetsJSONstr = String(buffer)
+                val classroomAndAssetsJSONstr = String(buffer)
                 try {
                     val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
                     ClassroomDataExchange.uploadClassroom(cassetJSON, object : DBOpDone {

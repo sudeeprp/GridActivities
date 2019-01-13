@@ -110,8 +110,23 @@ object ClassroomDBInteractor {
             ClassroomInteractor.students[i].grade = it.child("grade").value.toString()
             ClassroomInteractor.students[i].qualifier = it.child("qualifier").value.toString()
             if(ClassroomInteractor.students[i].qualifier == null) ClassroomInteractor.students[i].qualifier = ""
+            fill_academic_records(i, it.child("finished_activities"))
         }
         ClassroomInteractor.students.sortWith(compareBy { it.surname })
+    }
+    fun fill_academic_records(studentIndex: Int, finished_activities: DataSnapshot) {
+        finished_activities.children.forEach { subjectSnapshot ->
+            subjectSnapshot.children.forEach { chapterSnapshot ->
+                chapterSnapshot.children.forEach { activitySnapshot ->
+                    activitySnapshot.children.forEach { activityAttribute ->
+                        ClassroomInteractor.students[studentIndex].setActivityAttribute(
+                                subjectSnapshot.key!!, chapterSnapshot.key!!,
+                                firebase_id_to_activity_id(activitySnapshot.key!!),
+                                activityAttribute.key!!, activityAttribute.value.toString())
+                    }
+                }
+            }
+        }
     }
     fun fill_thumbnails_into_students(students_thumbnails: DataSnapshot?) {
         students_thumbnails?.children?.forEach {
