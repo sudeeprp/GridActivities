@@ -20,13 +20,11 @@ class ActivityStatus(val activityID: String, val status: String)
 object ProgressInteractor {
     //Interpreted status
     val assessment_ready_status = "assessment_ready"
-    val done_status = "done"
-    val approved_status = "approved"
-    val none_status = "none"
     val to_be_done_status = "to_be_done"
-    //TODO: Remove here, since it's related to class and not to progression?
-    val current_status = "current"
     val inprogress_status = "inprogress"
+    val approved_status = "approved"
+    val done_status = "done"
+    val none_status = "none"
 
     //Keys from the DB
     val status_key = "status"
@@ -39,14 +37,13 @@ object ProgressInteractor {
 
     //For student status screen, where activity status can be set
     //This goes by student record, *independent* of curriculum updates. So all data has to be in the subjectRecords only
-    fun getStudentAssessmentRecords(subjectRecords: HashMap<String, AcademicRecords.ChapterRecords>): ArrayList<AssessmentRecord> {
+    fun getStudentActivityRecords(subjectRecords: HashMap<String, AcademicRecords.ChapterAcademics>): ArrayList<AssessmentRecord> {
         val assessments = arrayListOf<AssessmentRecord>()
         subjectRecords.forEach {
             val subjectName = it.key
             it.value.chapterRecords.forEach {
                 val chapterName = it.key
                 it.value.activityRecords.forEach {
-                    //TODO: process only assessments (will be one of the attributes)
                     val activityAttrs = it.value.activityAttributes
                     assessments.add(makeAssessmentRecord(subjectName, chapterName,
                             assessmentName = it.key,
@@ -58,15 +55,16 @@ object ProgressInteractor {
         return assessments
     }
     //For display in the student-login-grid and for chapter-level-summary to compute current chapter
-    fun getActivitiesStatus(chapter: Chapters.Chapter, activityAcademics: AcademicRecords.ActivityRecords)
+    fun getActivitiesStatus(chapter: Chapters.Chapter, activityAcademics: AcademicRecords.ActivityAcademics?)
             : ArrayList<ActivityStatus> {
         val activitiesStatus = arrayListOf<ActivityStatus>()
         chapter.activities.forEach {
             val is_mandatory = it.mandatory
-            val is_foundInAcademics = activityAcademics.activityRecords.containsKey(it.activity_identifier)
+            val is_foundInAcademics: Boolean
+                    = activityAcademics?.activityRecords?.containsKey(it.activity_identifier)?:false
             var statusRecord = ""
             if(is_foundInAcademics &&
-               activityAcademics.activityRecords[it.activity_identifier]!!.activityAttributes.containsKey("status")) {
+               activityAcademics!!.activityRecords[it.activity_identifier]!!.activityAttributes.containsKey("status")) {
                   statusRecord = activityAcademics.activityRecords[it.activity_identifier]!!.activityAttributes["status"]!!
             }
             activitiesStatus.add(ActivityStatus(it.activity_identifier,
@@ -75,34 +73,44 @@ object ProgressInteractor {
         return activitiesStatus
     }
     fun activitiesSummaryStatus(chapter: Chapters.Chapter,
-                                activityAcademics: AcademicRecords.ActivityRecords?): String {
+                                activityAcademics: AcademicRecords.ActivityAcademics?): String {
         var summaryStatus = none_status
-        if(activityAcademics != null) {
-            val activitiesStatus = getActivitiesStatus(chapter, activityAcademics)
-            val assessment_ready_found = findActivityStatus(activitiesStatus, assessment_ready_status)
-            val to_do_found = findActivityStatus(activitiesStatus, to_be_done_status)
-            val done_found = findActivityStatus(activitiesStatus, done_status)
-            val approved_found = findActivityStatus(activitiesStatus, approved_status)
+        val activitiesStatus = getActivitiesStatus(chapter, activityAcademics)
+        val assessment_ready_found = findActivityStatus(activitiesStatus, assessment_ready_status)
+        val to_do_found = findActivityStatus(activitiesStatus, to_be_done_status)
+        val done_found = findActivityStatus(activitiesStatus, done_status)
+        val approved_found = findActivityStatus(activitiesStatus, approved_status)
 
-            if(approved_found && !to_do_found && !assessment_ready_found) {
-                summaryStatus = done_status
-            } else if(done_found && to_do_found) {
-                summaryStatus = inprogress_status
-            }
+        if(approved_found && !to_do_found && !assessment_ready_found) {
+            summaryStatus = done_status
+        } else if(done_found && to_do_found) {
+            summaryStatus = inprogress_status
+        } else if(to_do_found) {
+            summaryStatus = to_be_done_status
         }
         return summaryStatus
     }
-    fun computeCurrentChapter(classChapter: String, curriculumChapters: Chapters, chapterAcademics: AcademicRecords.ChapterRecords): String {
+    fun getActivityAcademics(chapterAcademics: AcademicRecords.ChapterAcademics?, chapterID: String)
+            : AcademicRecords.ActivityAcademics? {
+        var activityAcademics: AcademicRecords.ActivityAcademics? = null
+        if(chapterAcademics != null) {
+            activityAcademics = chapterAcademics.chapterRecords[chapterID]
+        }
+        return activityAcademics
+    }
+    fun computeCurrentChapter(classChapter: String, curriculumChapters: Chapters,
+                              chapterAcademics: AcademicRecords.ChapterAcademics?): String {
         curriculumChapters.chapter_list.forEach {
-            val summaryStatus = activitiesSummaryStatus(it, chapterAcademics.chapterRecords[it.name]!!)
-            if(summaryStatus != done_status && summaryStatus != none_status) {
+            val summaryStatus = activitiesSummaryStatus(it, getActivityAcademics(chapterAcademics, it.name))
+            if (summaryStatus != done_status && summaryStatus != none_status) {
                 return it.name
             }
-            if(it.name == classChapter) {
+            //Dont look beyond the class-current-chapter
+            if (it.name == classChapter) {
                 return classChapter
             }
         }
-        return ""
+        return classChapter
     }
     fun jsonGrab(json: JSONObject, key: String): String {
         var value = ""
@@ -116,7 +124,7 @@ object ProgressInteractor {
         var time_in_sec = ""
         var max_score = ""
         var actual_score = ""
-        var evaluation: ArrayList<String> = arrayListOf()
+        val evaluation: ArrayList<String> = arrayListOf()
         try {
             val evalJson = JSONObject(datapoint)
             time_in_sec = jsonGrab(evalJson, time_in_sec_key)

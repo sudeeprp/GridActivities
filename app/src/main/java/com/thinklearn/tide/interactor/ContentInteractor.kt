@@ -18,6 +18,18 @@ val default_curriculum = """
 """.trimIndent()
 
 class Chapters {
+    class ActivityInChapter(val activity_identifier: String, val mandatory: Boolean)
+    class Chapter(val name: String, val activities: ArrayList<ActivityInChapter>)
+    var chapter_list = ArrayList<Chapter>()
+
+    fun getChapter(chapterID: String): Chapter? {
+        for(chapter in chapter_list) {
+            if(chapter.name == chapterID) {
+                return chapter
+            }
+        }
+        return null
+    }
     constructor(chapters_file: File) {
         if(chapters_file.exists()) {
             val chapters_json = chapters_file.readText()
@@ -51,9 +63,6 @@ class Chapters {
     constructor(chapters: ArrayList<Chapter>) {
         chapter_list = chapters
     }
-    class ActivityInChapter(val activity_identifier: String, val mandatory: Boolean)
-    class Chapter(val name: String, val activities: ArrayList<ActivityInChapter>)
-    var chapter_list = ArrayList<Chapter>()
 }
 
 class ContentInteractor {
