@@ -89,8 +89,8 @@ public class Student implements Parcelable {
     public void setActivityAttribute(String subjectID, String chapterID, String activityID, String activityKey, String activityValue) {
         if(academicRecords == null) {
             academicRecords = new AcademicRecords();
-            academicRecords.setActivityAttribute(subjectID, chapterID, activityID, activityKey, activityValue);
         }
+        academicRecords.setActivityAttribute(subjectID, chapterID, activityID, activityKey, activityValue);
     }
 
     public AcademicRecords getAcademicRecords() {
