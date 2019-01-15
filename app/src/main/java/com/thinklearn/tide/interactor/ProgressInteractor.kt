@@ -5,10 +5,10 @@ import com.thinklearn.tide.dto.AcademicRecords
 import org.json.JSONException
 import org.json.JSONObject
 
-class AssessmentRecord(
+class ActivityRecord(
         val subject_name: String,
         val chapter_name: String,
-        val assessment_name: String,
+        val activity_name: String,
         val time_in_sec: String,
         val max_score: String,
         val actual_score: String,
@@ -37,8 +37,8 @@ object ProgressInteractor {
 
     //For student status screen, where activity status can be set
     //This goes by student record, *independent* of curriculum updates. So all data has to be in the subjectRecords only
-    fun getStudentActivityRecords(subjectRecords: HashMap<String, AcademicRecords.ChapterAcademics>): ArrayList<AssessmentRecord> {
-        val assessments = arrayListOf<AssessmentRecord>()
+    fun getStudentActivityRecords(subjectRecords: HashMap<String, AcademicRecords.ChapterAcademics>): ArrayList<ActivityRecord> {
+        val assessments = arrayListOf<ActivityRecord>()
         subjectRecords.forEach {
             val subjectName = it.key
             it.value.chapterRecords.forEach {
@@ -81,7 +81,9 @@ object ProgressInteractor {
         val done_found = findActivityStatus(activitiesStatus, done_status)
         val approved_found = findActivityStatus(activitiesStatus, approved_status)
 
-        if(approved_found && !to_do_found && !assessment_ready_found) {
+        if(assessment_ready_found) {
+            summaryStatus = assessment_ready_status
+        } else if(approved_found && !to_do_found) {
             summaryStatus = done_status
         } else if(done_found && to_do_found) {
             summaryStatus = inprogress_status
@@ -120,7 +122,7 @@ object ProgressInteractor {
         return value
     }
     fun makeAssessmentRecord(subjectName: String, chapterName: String, assessmentName: String,
-                                    assessmentStatus: String?, datapoint: String?): AssessmentRecord {
+                                    assessmentStatus: String?, datapoint: String?): ActivityRecord {
         var time_in_sec = ""
         var max_score = ""
         var actual_score = ""
@@ -139,7 +141,7 @@ object ProgressInteractor {
         } catch(j: JSONException) {
             Log.d("Datapoint parse error", "Datapoint is not a json string")
         }
-        return AssessmentRecord(subjectName, chapterName, assessmentName,
+        return ActivityRecord(subjectName, chapterName, assessmentName,
                 time_in_sec, max_score, actual_score, evaluation, assessmentStatus)
     }
     fun interpretActivityStatus(is_mandatory: Boolean, is_foundInAcademics: Boolean, statusRecord: String): String {

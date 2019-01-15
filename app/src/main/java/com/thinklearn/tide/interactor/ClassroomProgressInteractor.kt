@@ -5,6 +5,10 @@ import com.thinklearn.tide.dto.ChapterID
 import com.thinklearn.tide.dto.Student
 
 object ClassroomProgressInteractor {
+    @JvmStatic
+    fun getActivityRecords(student: Student): ArrayList<ActivityRecord> {
+        return ProgressInteractor.getStudentActivityRecords(student.academicRecords.getSubjectRecords())
+    }
     fun getActivitiesStatus(student: Student, subjectID: String, chapterID: String): ArrayList<ActivityStatus> {
         var activitiesStatus: ArrayList<ActivityStatus> = arrayListOf()
         val chapter = ContentInteractor().chapters_and_activities(student.grade, subjectID).getChapter(chapterID)

@@ -170,8 +170,8 @@ object ClassroomDBInteractor {
         attendance_date_ref.child("presentAM").setValue(dayPresentAM)
         attendance_date_ref.child("presentPM").setValue(dayPresentPM)
     }
-    fun set_student_activity_status(studentId: String, activity_subject: String, activity_chapter: String,
-                                    activity_identifier: String, activity_datapoint: String) {
+    fun set_student_activity_data(studentId: String, activity_subject: String, activity_chapter: String,
+                                  activity_identifier: String, activity_datapoint: String) {
         val studentRef = db_onestudent_reference(studentId)
         val studentActivityRef =
                 db_student_activity_reference(studentRef, activity_subject, activity_chapter, activity_identifier)
@@ -181,6 +181,14 @@ object ClassroomDBInteractor {
         val currentTimestamp = SimpleDateFormat("yyyy-MM-dd").format(currentTime) + "T" +
                 SimpleDateFormat("HH:mm:ssz").format(currentTime)
         studentActivityRef.child("time_stamp").setValue(currentTimestamp)
+    }
+    @JvmStatic
+    fun set_student_activity_status(studentId: String, activity_subject: String, activity_chapter: String,
+                                    activity_identifier: String, activity_status: String) {
+        val studentRef = db_onestudent_reference(studentId)
+        val studentActivityRef =
+                db_student_activity_reference(studentRef, activity_subject, activity_chapter, activity_identifier)
+        studentActivityRef.child("status").setValue(activity_status)
     }
     fun write_activity_log(activity: String) {
         val activityLogRef = db_activity_log_reference()

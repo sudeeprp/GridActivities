@@ -70,7 +70,7 @@ class ChapterSelector : AppCompatActivity() {
             val activity_chapter = data.getStringExtra("SELECTED_CHAPTER")
             val activity_identifier = data.getStringExtra("SELECTED_ACTIVITY")
             val activity_datapoint = data.getStringExtra("DATAPOINT")
-            ClassroomDBInteractor.set_student_activity_status(ClassroomContext.selectedStudent!!.id, activity_subject,
+            ClassroomDBInteractor.set_student_activity_data(ClassroomContext.selectedStudent!!.id, activity_subject,
                     activity_chapter, activity_identifier, activity_datapoint)
         }
     }
@@ -139,7 +139,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
         val activitiesStatusJSON = JSONObject()
         if(ClassroomContext.selectedStudent != null) {
             val activitiesStatus = ClassroomProgressInteractor.getActivitiesStatus(
-                                      ClassroomContext.selectedStudent!!, getCurrentSubject(), chapter_shown)
+                                      ClassroomContext.selectedStudent!!, subject, chapter_shown)
             for(activityStatus in activitiesStatus) {
                 activitiesStatusJSON.put(activityStatus.activityID, activityStatus.status)
             }
