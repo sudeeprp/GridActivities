@@ -3,17 +3,13 @@ package com.thinklearn.tide.activitydriver;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
-import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,9 +12,7 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.thinklearn.tide.interactor.ClassroomContext
-import com.thinklearn.tide.interactor.ClassroomInteractor
-import com.thinklearn.tide.interactor.ContentInteractor
+import com.thinklearn.tide.interactor.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -72,7 +70,7 @@ class ChapterSelector : AppCompatActivity() {
             val activity_chapter = data.getStringExtra("SELECTED_CHAPTER")
             val activity_identifier = data.getStringExtra("SELECTED_ACTIVITY")
             val activity_datapoint = data.getStringExtra("DATAPOINT")
-            ClassroomInteractor.set_student_activity_status(ClassroomContext.selectedStudent!!.id, activity_subject,
+            ClassroomDBInteractor.set_student_activity_data(ClassroomContext.selectedStudent!!.id, activity_subject,
                     activity_chapter, activity_identifier, activity_datapoint)
         }
     }
@@ -86,13 +84,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
 
     @JavascriptInterface
     fun getCurrentGrade(): String {
-        val resId = chapterContext.resources.getIdentifier("grade" + grade, "string", chapterContext.packageName)
-        return chapterContext.getString(resId)
+        return ContentInteractor().get_grade_display_name(grade, chapterContext, chapterContext.packageName)
     }
     @JavascriptInterface
     fun getCurrentSubject(): String {
-        val resId = chapterContext.resources.getIdentifier(subject, "string", chapterContext.packageName)
-        return chapterContext.getString(resId)
+        return ContentInteractor().get_subject_display_name(subject, chapterContext, chapterContext.packageName)
     }
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
@@ -106,11 +102,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
     }
     @JavascriptInterface
     fun setChapterActive(chapterIdent: String) {
-        ClassroomInteractor.set_active_chapter(grade, subject, chapterIdent)
+        ClassroomDBInteractor.set_active_chapter(grade, subject, chapterIdent)
     }
     @JavascriptInterface
     fun getStudentsInSubject(): String {
-        val studentsInChapters = ClassroomInteractor.students_and_chapters(grade, subject)
+        val studentsInChapters = ClassroomProgressInteractor.students_and_chapters(grade, subject)
         val studentsInChaptersJSON = JSONArray()
         for(chapter in studentsInChapters) {
             val chapterJSON = JSONObject()
@@ -129,12 +125,26 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
                     thumbnail = Base64.encodeToString(thumbByteArray, Base64.DEFAULT)
                 }
                 studentJSON.put("thumbnail", thumbnail)
+                studentJSON.put("status", ClassroomProgressInteractor
+                        .chapter_status_of_student(student, subject, chapter.key))
                 studentsJSON.put(studentJSON)
             }
             chapterJSON.put("students", studentsJSON)
             studentsInChaptersJSON.put(chapterJSON)
         }
         return studentsInChaptersJSON.toString(2)
+    }
+    @JavascriptInterface
+    fun getActivitiesStatus(): String {
+        val activitiesStatusJSON = JSONObject()
+        if(ClassroomContext.selectedStudent != null) {
+            val activitiesStatus = ClassroomProgressInteractor.getActivitiesStatus(
+                                      ClassroomContext.selectedStudent!!, subject, chapter_shown)
+            for(activityStatus in activitiesStatus) {
+                activitiesStatusJSON.put(activityStatus.activityID, activityStatus.status)
+            }
+        }
+        return activitiesStatusJSON.toString(2)
     }
     @JavascriptInterface
     fun chapterEntered(chapterName: String) {

@@ -24,6 +24,8 @@ public class Student implements Parcelable {
 
     private String qualifier;
 
+    private AcademicRecords academicRecords;
+
     public String getId() {
         return id;
     }
@@ -83,6 +85,17 @@ public class Student implements Parcelable {
     public String getQualifier() { return qualifier; }
 
     public void setQualifier(String qualifier) { this.qualifier = qualifier; }
+
+    public void setActivityAttribute(String subjectID, String chapterID, String activityID, String activityKey, String activityValue) {
+        if(academicRecords == null) {
+            academicRecords = new AcademicRecords();
+        }
+        academicRecords.setActivityAttribute(subjectID, chapterID, activityID, activityKey, activityValue);
+    }
+
+    public AcademicRecords getAcademicRecords() {
+        return academicRecords;
+    }
 
     public Student() { }
 

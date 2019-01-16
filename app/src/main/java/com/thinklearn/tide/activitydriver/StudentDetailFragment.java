@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.thinklearn.tide.dto.Student;
+import com.thinklearn.tide.interactor.ClassroomDBInteractor;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.io.ByteArrayOutputStream;
@@ -150,7 +151,7 @@ public class StudentDetailFragment extends Fragment {
         byte[] byteArray = stream.toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
-        ClassroomInteractor.set_student_thumbnail(mItem.getId(), encoded);
+        ClassroomDBInteractor.set_student_thumbnail(mItem.getId(), encoded);
         mItem.setThumbnail(encoded);
         adapter.notifyDataSetChanged();
     }

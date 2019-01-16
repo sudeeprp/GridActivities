@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.thinklearn.tide.dto.AttendanceInput;
 import com.thinklearn.tide.dto.Student;
+import com.thinklearn.tide.interactor.ClassroomDBInteractor;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
 import java.text.ParseException;
@@ -164,7 +165,7 @@ public class AttendenceManagementActivity extends AppCompatActivity implements V
     }
 
     private void saveAttendance() {
-        ClassroomInteractor.set_day_presents (todayStr, attendance.getPresentStudentsAM(), attendance.getPresentStudentsPM());
+        ClassroomDBInteractor.set_day_presents (todayStr, attendance.getPresentStudentsAM(), attendance.getPresentStudentsPM());
         finish();
     }
     private void setButtonAttributes(Button clickableArea,int am_or_pm, int position){
