@@ -6,9 +6,9 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class ActivityRecord(
-        val subject_name: String,
-        val chapter_name: String,
-        val activity_name: String,
+        val subjectID: String,
+        val chapterID: String,
+        val activityID: String,
         val time_in_sec: String,
         val max_score: String,
         val actual_score: String,

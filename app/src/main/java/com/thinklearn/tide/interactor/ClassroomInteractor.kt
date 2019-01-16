@@ -85,6 +85,7 @@ object ClassroomInteractor {
         }
         return null
     }
+    @JvmStatic
     fun get_student(id: String): Student? {
         for(student in students) {
             if(student.id == id) {

@@ -36,26 +36,23 @@ import static java.lang.Math.min;
 public class StudentDetailFragment extends Fragment {
 
     private static final int REQUEST_CAMERA = 0;
-    public static final String STUDENT = "student";
+    public static final String STUDENT_ID = "student_id";
     private Student mItem;
     private ImageView imageView;
     private RecyclerView.Adapter adapter;
-    private Bitmap newBitmap;
-    private Button Assess;
-
 
     public StudentDetailFragment() {
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(STUDENT)) {
-            mItem = getArguments().getParcelable(STUDENT);
-
-
+        if (getArguments().containsKey(STUDENT_ID)) {
+            String studentID = getArguments().getString(STUDENT_ID);
+            if(studentID != null) {
+                mItem = ClassroomInteractor.get_student(studentID);
+            }
         }
     }
 
@@ -64,9 +61,6 @@ public class StudentDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.student_detail, container, false);
 
-
-
-        // Show the dummy content as text in a TextView.
         if (mItem != null) {
             ((TextView)rootView.findViewById(R.id.tvStudentName)).setText(" " + mItem.getFirstName() + " " + mItem.getSurname());
             ((TextView) rootView.findViewById(R.id.tvId)).setText("" + mItem.getId());
@@ -87,13 +81,13 @@ public class StudentDetailFragment extends Fragment {
                      startActivityForResult(intent, REQUEST_CAMERA);
                  }
                  });
-         
-            Assess = rootView.findViewById(R.id.button);
-            Assess.setOnClickListener(new View.OnClickListener() {
+
+            Button assessButton = rootView.findViewById(R.id.button);
+            assessButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getActivity(), AssessmentRecordActivity.class);
-                    intent.putExtra(StudentDetailFragment.STUDENT,mItem);
+                    intent.putExtra(StudentDetailFragment.STUDENT_ID, mItem.getId());
                     startActivity(intent);
                 }
             });
@@ -116,9 +110,12 @@ public class StudentDetailFragment extends Fragment {
     }
 
     private void onCaptureImageResult(Intent data) {
-        newBitmap = (Bitmap) data.getExtras().get("data");
-        imageView.setImageBitmap(newBitmap);
-        setNewThumbnail(newBitmap);
+        String IMAGE_DATA_KEY = "data";
+        if(data.getExtras().containsKey(IMAGE_DATA_KEY)) {
+            Bitmap newBitmap = (Bitmap) data.getExtras().get(IMAGE_DATA_KEY);
+            imageView.setImageBitmap(newBitmap);
+            setNewThumbnail(newBitmap);
+        }
     }
 
     private String getLocalDateOfBirth(Context context, Date birthDate) {

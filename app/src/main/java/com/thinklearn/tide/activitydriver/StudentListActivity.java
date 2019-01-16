@@ -146,7 +146,7 @@ public class StudentListActivity extends AppCompatActivity {
                     Student item = (Student) view.getTag();
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
-                        arguments.putParcelable(StudentDetailFragment.STUDENT, item);
+                        arguments.putString(StudentDetailFragment.STUDENT_ID, item.getId());
                         StudentDetailFragment fragment = new StudentDetailFragment();
                         fragment.setAdapter(SimpleItemRecyclerViewAdapter.this);
                         fragment.setArguments(arguments);
@@ -156,7 +156,7 @@ public class StudentListActivity extends AppCompatActivity {
                     } else {
                         Context context = view.getContext();
                         Intent intent = new Intent(context, StudentDetailActivity.class);
-                        intent.putExtra(StudentDetailFragment.STUDENT, item);
+                        intent.putExtra(StudentDetailFragment.STUDENT_ID, item.getId());
 
                         context.startActivity(intent);
                     }

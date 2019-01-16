@@ -39,8 +39,8 @@ public class StudentDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putParcelable(StudentDetailFragment.STUDENT,
-                    getIntent().getParcelableExtra(StudentDetailFragment.STUDENT));
+            String studentID = getIntent().getStringExtra(StudentDetailFragment.STUDENT_ID);
+            arguments.putString(StudentDetailFragment.STUDENT_ID, studentID);
             StudentDetailFragment fragment = new StudentDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

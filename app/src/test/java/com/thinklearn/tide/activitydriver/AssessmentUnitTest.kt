@@ -98,7 +98,7 @@ class AssessmentUnitTest {
         val academicRecords = fill_academicRecords()
         val assessmentRecords = ProgressInteractor.getStudentActivityRecords(academicRecords.getSubjectRecords())
         assessmentRecords.forEach {
-            println("{" + it.subject_name + " " + it.chapter_name + " " + it.activity_name + " " + it.assessment_status +
+            println("{" + it.subjectID + " " + it.chapterID + " " + it.activityID + " " + it.assessment_status +
                     " " + it.time_in_sec + " " + it.max_score + " " + it.actual_score + " " + it.evaluation + "}")
         }
         assertEquals(2, assessmentRecords.size)
