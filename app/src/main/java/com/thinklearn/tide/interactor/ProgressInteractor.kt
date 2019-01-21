@@ -12,19 +12,22 @@ class ActivityRecord(
         val time_in_sec: String,
         val max_score: String,
         val actual_score: String,
-        val evaluation: ArrayList<String>?,
-        val assessment_status: String?)
+        var evaluation: ArrayList<String>?,
+        @JvmField var assessment_status: String?)
 
 class ActivityStatus(val activityID: String, val status: String)
 
 object ProgressInteractor {
     //Interpreted status
-    val assessment_ready_status = "assessment_ready"
-    val to_be_done_status = "to_be_done"
-    val inprogress_status = "inprogress"
-    val approved_status = "approved"
-    val done_status = "done"
-    val none_status = "none"
+    @JvmField val assessment_ready_status = "assessment_ready"
+    @JvmField val to_be_done_status = "to_be_done"
+    @JvmField val inprogress_status = "inprogress"
+    @JvmField val approved_status = "approved"
+    @JvmField val done_status = "done"
+    @JvmField val none_status = "none"
+    @JvmField val correct_result = "correct"
+    @JvmField val incorrect_result = "incorrect"
+    @JvmField val not_attempted = "not attempted"
 
     //Keys from the DB
     val status_key = "status"
@@ -45,9 +48,9 @@ object ProgressInteractor {
                 val chapterName = it.key
                 it.value.activityRecords.forEach {
                     val activityAttrs = it.value.activityAttributes
-                    assessments.add(makeAssessmentRecord(subjectName, chapterName,
-                            assessmentName = it.key,
-                            assessmentStatus = activityAttrs[status_key],
+                    assessments.add(makeActivityRecord(subjectName, chapterName,
+                            activityID = it.key,
+                            activityStatus = activityAttrs[status_key],
                             datapoint = activityAttrs[data_point_key]))
                 }
             }
@@ -103,12 +106,12 @@ object ProgressInteractor {
     fun computeCurrentChapter(classChapter: String, curriculumChapters: Chapters,
                               chapterAcademics: AcademicRecords.ChapterAcademics?): String {
         curriculumChapters.chapter_list.forEach {
-            val summaryStatus = activitiesSummaryStatus(it, getActivityAcademics(chapterAcademics, it.name))
+            val summaryStatus = activitiesSummaryStatus(it, getActivityAcademics(chapterAcademics, it.id))
             if (summaryStatus != done_status && summaryStatus != none_status) {
-                return it.name
+                return it.id
             }
             //Dont look beyond the class-current-chapter
-            if (it.name == classChapter) {
+            if (it.id == classChapter) {
                 return classChapter
             }
         }
@@ -121,11 +124,16 @@ object ProgressInteractor {
         }
         return value
     }
-    fun makeAssessmentRecord(subjectName: String, chapterName: String, assessmentName: String,
-                                    assessmentStatus: String?, datapoint: String?): ActivityRecord {
+    fun makeActivityRecord(subjectID: String, chapterID: String, activityID: String,
+                           activityStatus: String?, datapoint: String?): ActivityRecord {
         var time_in_sec = ""
         var max_score = ""
         var actual_score = ""
+        var assessmentStatus = activityStatus
+        //A tab assessment is ready for eval just by virtue of being present
+        if(activityStatus == null && activityID.contains("tab assessment")) {
+            assessmentStatus = ProgressInteractor.assessment_ready_status
+        }
         val evaluation: ArrayList<String> = arrayListOf()
         try {
             val evalJson = JSONObject(datapoint)
@@ -135,14 +143,22 @@ object ProgressInteractor {
             if(evalJson.has(eval_key)) {
                 val evaluationJson = evalJson.getJSONArray(eval_key)
                 for (i in 0..(evaluationJson.length() - 1)) {
-                    evaluation.add(evaluationJson.get(i).toString())
+                    evaluation.add(translateEvaluation(evaluationJson.get(i).toString()))
                 }
             }
         } catch(j: JSONException) {
             Log.d("Datapoint parse error", "Datapoint is not a json string")
         }
-        return ActivityRecord(subjectName, chapterName, assessmentName,
+        return ActivityRecord(subjectID, chapterID, activityID,
                 time_in_sec, max_score, actual_score, evaluation, assessmentStatus)
+    }
+    fun translateEvaluation(raw_eval: String): String {
+        var eval = ProgressInteractor.not_attempted
+        when(raw_eval) {
+            "1" -> eval = ProgressInteractor.correct_result
+            "0" -> eval = ProgressInteractor.incorrect_result
+        }
+        return eval
     }
     fun interpretActivityStatus(is_mandatory: Boolean, is_foundInAcademics: Boolean, statusRecord: String): String {
         if(is_mandatory) {
@@ -153,7 +169,7 @@ object ProgressInteractor {
     }
     fun interpretStatusForMandatoryActivity(is_foundInAcademics: Boolean, statusRecord: String): String {
         if(is_foundInAcademics) {
-            if(statusRecord == done_status) {
+            if(statusRecord == approved_status) {
                 return approved_status
             } else {
                 return assessment_ready_status

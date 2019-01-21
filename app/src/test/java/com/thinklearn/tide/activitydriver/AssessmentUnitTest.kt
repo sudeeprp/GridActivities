@@ -13,21 +13,21 @@ class AssessmentUnitTest {
     fun fill_curriculum(): Chapters {
         val chapterList = arrayListOf<Chapters.Chapter>()
         chapterList.add(Chapters.Chapter(
-                "chap11",
+                "chap11", "chap11",
                 arrayListOf(Chapters.ActivityInChapter("activity111", false),
                             Chapters.ActivityInChapter("activity112", true),
                             Chapters.ActivityInChapter("activity113", false)
                 )
         ))
         chapterList.add(Chapters.Chapter(
-                "chap12",
+                "chap12", "chap11",
                 arrayListOf(Chapters.ActivityInChapter("activity121", false),
                         Chapters.ActivityInChapter("activity122", true),
                         Chapters.ActivityInChapter("activity123", false)
                 )
         ))
         chapterList.add(Chapters.Chapter(
-                "chap13",
+                "chap13", "chap11",
                 arrayListOf(Chapters.ActivityInChapter("activity131", false),
                         Chapters.ActivityInChapter("activity132", true),
                         Chapters.ActivityInChapter("activity133", false)
@@ -105,7 +105,7 @@ class AssessmentUnitTest {
     }
     @Test
     fun activitiesStatus_isCorrect() {
-        val chapter = Chapters.Chapter(name = "chap11",
+        val chapter = Chapters.Chapter(id = "chap11", name = "chap11",
                 activities = arrayListOf(Chapters.ActivityInChapter(activity_identifier = "activity111", mandatory = false)))
         val activityAcademics = fill_academicRecords().getSubjectRecords()["sub1"]!!.chapterRecords["chap11"]!!
         val activitiesStatus = ProgressInteractor.getActivitiesStatus(chapter, activityAcademics)
