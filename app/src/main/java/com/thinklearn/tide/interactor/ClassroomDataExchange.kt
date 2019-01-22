@@ -91,8 +91,9 @@ object ClassroomDataExchange {
         if (!exchangeDirFile.exists()) {
             exchangeDirFile.mkdirs()
         }
+        //Extension is .json.txt to enable good data-transfer
         val exportFileName = "classroomdata-" + ClassroomInteractor.loadedClassroomID +
-                "-" + EnvironmentalContext.getDeviceIdentity() + ".json"
+                "-" + EnvironmentalContext.getDeviceIdentity() + ".json.txt"
         val exportFile = File(exchange_folder_path + exportFileName)
         exportFile.writeText(exportJson.toString(2).replace("\\/", "/"))
         last_exchange_folder_path = exchange_folder_path

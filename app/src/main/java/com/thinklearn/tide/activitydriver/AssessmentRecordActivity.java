@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public class AssessmentRecordActivity extends AppCompatActivity {
     private Student selectedStudent;
-    private ArrayList<ActivityRecord> activityRecords;
+    private ArrayList<ActivityRecord> assessmentRecords;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,27 +45,32 @@ public class AssessmentRecordActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle
                         (" " + selectedStudent.getFirstName() + " " + selectedStudent.getSurname());
             }
-            activityRecords = ClassroomProgressInteractor.getActivityRecords(selectedStudent);
-            if(activityRecords != null) {
+            assessmentRecords = ClassroomProgressInteractor.getAssessmentRecords(selectedStudent);
+            if(assessmentRecords != null && assessmentRecords.size() > 0) {
                 TableLayout assessment = findViewById(R.id.assessment_table);
                 View.OnClickListener listener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ImageView statusView = (ImageView)v;
                         int i = (int)statusView.getTag();
-                        String newStatus = toggleActivityStatus(activityRecords.get(i));
-                        activityRecords.get(i).assessment_status = newStatus;
+                        String newStatus = toggleActivityStatus(assessmentRecords.get(i));
+                        assessmentRecords.get(i).assessment_status = newStatus;
                         statusView.setImageResource(assessmentStatus_to_imageID(newStatus));
                     }
                 };
-                for(int i = 0; i < activityRecords.size(); i++) {
+                for(int i = 0; i < assessmentRecords.size(); i++) {
                     TableRow clickableRow = new TableRow(this);
                     TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
                     clickableRow.setLayoutParams(wrapWrapTableRowParams);
-                    clickableRow.addView(make_datapointHeading(activityRecords.get(i)));
-                    clickableRow.addView(make_datapointView(activityRecords.get(i)));
-                    clickableRow.addView(make_statusView(activityRecords.get(i), listener, i));
+                    clickableRow.addView(make_datapointHeading(assessmentRecords.get(i)));
+                    clickableRow.addView(make_datapointView(assessmentRecords.get(i)));
+                    clickableRow.addView(make_statusView(assessmentRecords.get(i), listener, i));
                     assessment.addView(clickableRow);
+                }
+            } else {
+                TextView heading = (TextView)findViewById(R.id.assessment_heading);
+                if(heading != null) {
+                    heading.setText(R.string.no_assessments);
                 }
             }
         }
@@ -144,7 +149,7 @@ public class AssessmentRecordActivity extends AppCompatActivity {
 
         datapointHeading.setText(
                 contentInteractor.get_subject_display_name(activityRecord.getSubjectID(), this, getPackageName()) +
-                ", " + contentInteractor.get_chapter_display_name(selectedStudent.getGrade(),
+                "\n" + contentInteractor.get_chapter_display_name(selectedStudent.getGrade(),
                                                                 activityRecord.getSubjectID(),
                                                                 activityRecord.getChapterID()) +
                 "\n" + activityRecord.getActivityID());

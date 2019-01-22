@@ -13,6 +13,15 @@ object ClassroomProgressInteractor {
         }
         return activityRecords
     }
+    @JvmStatic
+    fun getAssessmentRecords(student: Student): ArrayList<ActivityRecord>? {
+        var assessmentRecords: ArrayList<ActivityRecord>? = null
+        val activityRecords = getActivityRecords(student)
+        if (activityRecords != null) {
+            assessmentRecords = ProgressInteractor.filter_assessments(activityRecords)
+        }
+        return assessmentRecords
+    }
     fun getActivitiesStatus(student: Student, subjectID: String, chapterID: String): ArrayList<ActivityStatus> {
         var activitiesStatus: ArrayList<ActivityStatus> = arrayListOf()
         val chapter = ContentInteractor().chapters_and_activities(student.grade, subjectID).getChapter(chapterID)

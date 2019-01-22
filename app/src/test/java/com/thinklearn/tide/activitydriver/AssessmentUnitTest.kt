@@ -54,9 +54,9 @@ class AssessmentUnitTest {
     fun academicsCompletedFirstChapter(): AcademicRecords {
         val academicRecords = AcademicRecords()
         with(academicRecords) {
-            setActivityAttribute("sub1", "chap11", "activity111", "status", "done")
+            setActivityAttribute("sub1", "chap11", "activity111", "status", ProgressInteractor.done_status)
             setActivityAttribute("sub1", "chap11", "activity111", "data_point", big_datapoint)
-            setActivityAttribute("sub1", "chap11", "activity112", "status", "done")
+            setActivityAttribute("sub1", "chap11", "activity112", "status", ProgressInteractor.approved_status)
             setActivityAttribute("sub1", "chap11", "activity112", "data_point", big_datapoint)
             setActivityAttribute("sub1", "chap12", "activity121", "data_point", brief_datapoint)
         }
@@ -65,7 +65,7 @@ class AssessmentUnitTest {
     fun fill_academicRecords(): AcademicRecords {
         val academicRecords = AcademicRecords()
         with(academicRecords) {
-            setActivityAttribute("sub1", "chap11", "activity111", "status", "done")
+            setActivityAttribute("sub1", "chap11", "activity111", "status", ProgressInteractor.done_status)
             setActivityAttribute("sub1", "chap11", "activity111", "data_point", big_datapoint)
             setActivityAttribute("sub1", "chap12", "activity121", "data_point", brief_datapoint)
         }

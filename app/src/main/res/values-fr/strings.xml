@@ -71,4 +71,6 @@
     <string name="activity_max_score_label">Maximum score</string>
     <string name="activity_actual_score_label">Actual score</string>
     <string name="activity_datapoints_label">Data Points</string>
+    <string name="assessment_heading">Assessment Records</string>
+    <string name="no_assessments">No Assessment Records found</string>
 </resources>

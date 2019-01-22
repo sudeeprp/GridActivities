@@ -193,4 +193,13 @@ object ProgressInteractor {
         }
         return false
     }
+    fun filter_assessments(activityRecords: ArrayList<ActivityRecord>): ArrayList<ActivityRecord> {
+        var assessments: ArrayList<ActivityRecord> = arrayListOf()
+        for(activity in activityRecords) {
+            if(activity.activityID.contains("assessment", ignoreCase = true)) {
+                assessments.add(activity)
+            }
+        }
+        return assessments
+    }
 }
