@@ -121,6 +121,11 @@
                 android:text="@string/dashboard"
                 android:textColor="#000"
                 android:textSize="20sp" />
+            <ImageView
+                android:id="@+id/status_on_dashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
         </LinearLayout>
     </LinearLayout>
 

@@ -150,7 +150,10 @@ public class StudentDetailFragment extends Fragment {
 
         ClassroomDBInteractor.set_student_thumbnail(mItem.getId(), encoded);
         mItem.setThumbnail(encoded);
-        adapter.notifyDataSetChanged();
+        //When launched from attendance screen, this will be stand-alone without the list on the left
+        if(adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {

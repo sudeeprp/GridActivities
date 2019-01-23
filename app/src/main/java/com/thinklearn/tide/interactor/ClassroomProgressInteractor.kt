@@ -64,11 +64,47 @@ object ClassroomProgressInteractor {
         for(chapter in chapters.chapter_list) {
             student_chapters_map[chapter.id] = ArrayList<Student>()
         }
-        for(student in ClassroomInteractor.students.filter { it.grade == grade && !it.qualifier.contains("guest") }) {
+        for(student in ClassroomInteractor.students.filter { it.grade == grade && !ClassroomInteractor.isGuest(it) }) {
             val current_chapter = chapter_id_of_student(student, subject, chapters)
             student_chapters_map[current_chapter]?.add(student)
         }
         return student_chapters_map
     }
-
+    fun assessment_is_pending(students: List<Student>): Boolean {
+        var pending_found = false
+        for(student in students) {
+            val pending_count = ClassroomProgressInteractor.getActivityRecords(student)?.
+                    filter { it.assessment_status == ProgressInteractor.assessment_ready_status }?.size
+            if ( pending_count != null && pending_count > 0) {
+                pending_found = true
+                break
+            }
+        }
+        return pending_found
+    }
+    @JvmStatic
+    fun class_has_assessment_pending(): Boolean {
+        return assessment_is_pending(ClassroomInteractor.students)
+    }
+    @JvmStatic
+    fun grade_has_assessment_pending(grade: String): Boolean {
+        return assessment_is_pending(ClassroomInteractor.students.
+                filter { it.grade == grade && !ClassroomInteractor.isGuest(it) })
+    }
+    @JvmStatic
+    fun subject_has_assessment_pending(grade: String, subjectID: String): Boolean {
+        var assessment_pending = false
+        val students_in_grade = ClassroomInteractor.students.
+                filter { it.grade == grade && !ClassroomInteractor.isGuest(it) }
+        for(student in students_in_grade) {
+            val activityRecords = ClassroomProgressInteractor.getActivityRecords(student)?.
+                    filter { it.assessment_status == ProgressInteractor.assessment_ready_status &&
+                             it.subjectID == subjectID}
+            if(activityRecords != null && activityRecords.size > 0) {
+                assessment_pending = true
+                break
+            }
+        }
+        return assessment_pending
+    }
 }
