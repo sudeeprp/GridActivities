@@ -2,6 +2,7 @@ package com.thinklearn.tide.interactor
 
 import android.util.Log
 import com.thinklearn.tide.dto.AcademicRecords
+import com.thinklearn.tide.dto.ActivityID
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -57,21 +58,43 @@ object ProgressInteractor {
         }
         return assessments
     }
+    fun findAcademicEntries(activityID: String, activityAcademics: AcademicRecords.ActivityAcademics?)
+            :HashMap<ActivityID, AcademicRecords.ActivityAttributes> {
+        val academicEntries = hashMapOf<ActivityID, AcademicRecords.ActivityAttributes>()
+        val activityIDlower = activityID.toLowerCase()
+        val activityID_prefix = activityIDlower + "."
+        if(activityAcademics != null) {
+            activityAcademics.activityRecords.forEach { activityRecord ->
+                val activityRecordID = activityRecord.key.toLowerCase()
+                if(activityRecordID == activityIDlower ||
+                        activityRecordID.startsWith(activityID_prefix)) {
+                    academicEntries[activityRecord.key] = activityRecord.value
+                }
+            }
+        }
+        return academicEntries
+    }
     //For display in the student-login-grid and for chapter-level-summary to compute current chapter
     fun getActivitiesStatus(chapter: Chapters.Chapter, activityAcademics: AcademicRecords.ActivityAcademics?)
             : ArrayList<ActivityStatus> {
         val activitiesStatus = arrayListOf<ActivityStatus>()
         chapter.activities.forEach {
             val is_mandatory = it.mandatory
-            val is_foundInAcademics: Boolean
-                    = activityAcademics?.activityRecords?.containsKey(it.activity_identifier)?:false
-            var statusRecord = ""
-            if(is_foundInAcademics &&
-               activityAcademics!!.activityRecords[it.activity_identifier]!!.activityAttributes.containsKey("status")) {
-                  statusRecord = activityAcademics.activityRecords[it.activity_identifier]!!.activityAttributes["status"]!!
+            var is_foundInAcademics = false
+            val academicEntries = findAcademicEntries(it.activity_identifier, activityAcademics)
+            academicEntries.forEach { academicActivity ->
+                var statusRecord = ""
+                if(academicActivity.value.activityAttributes.containsKey("status")) {
+                    statusRecord = academicActivity.value.activityAttributes["status"]!!
+                }
+                activitiesStatus.add(ActivityStatus(academicActivity.key,
+                        interpretActivityStatus(is_mandatory, true, statusRecord)))
+                is_foundInAcademics = true
             }
-            activitiesStatus.add(ActivityStatus(it.activity_identifier,
-                    interpretActivityStatus(is_mandatory, is_foundInAcademics, statusRecord)))
+            if(!is_foundInAcademics) {
+                activitiesStatus.add(ActivityStatus(it.activity_identifier,
+                        interpretActivityStatus(is_mandatory, false, "")))
+            }
         }
         return activitiesStatus
     }
@@ -124,6 +147,13 @@ object ProgressInteractor {
         }
         return value
     }
+    fun repairJSONStr(datapoint: String): String {
+        var repairedJSONStr = datapoint
+        repairedJSONStr = repairedJSONStr.replace("[n", "[\"n\"")
+        repairedJSONStr = repairedJSONStr.replace(" n,", " \"n\",")
+        repairedJSONStr = repairedJSONStr.replace(" n]", " \"n\"]")
+        return repairedJSONStr
+    }
     fun makeActivityRecord(subjectID: String, chapterID: String, activityID: String,
                            activityStatus: String?, datapoint: String?): ActivityRecord {
         var time_in_sec = ""
@@ -135,19 +165,22 @@ object ProgressInteractor {
             assessmentStatus = ProgressInteractor.assessment_ready_status
         }
         val evaluation: ArrayList<String> = arrayListOf()
-        try {
-            val evalJson = JSONObject(datapoint)
-            time_in_sec = jsonGrab(evalJson, time_in_sec_key)
-            max_score = jsonGrab(evalJson, max_score_key)
-            actual_score = jsonGrab(evalJson, actual_score_key)
-            if(evalJson.has(eval_key)) {
-                val evaluationJson = evalJson.getJSONArray(eval_key)
-                for (i in 0..(evaluationJson.length() - 1)) {
-                    evaluation.add(translateEvaluation(evaluationJson.get(i).toString()))
+        if(datapoint != null) {
+            val datapointJsonStr = repairJSONStr(datapoint)
+            try {
+                val evalJson = JSONObject(datapointJsonStr)
+                time_in_sec = jsonGrab(evalJson, time_in_sec_key)
+                max_score = jsonGrab(evalJson, max_score_key)
+                actual_score = jsonGrab(evalJson, actual_score_key)
+                if(evalJson.has(eval_key)) {
+                    val evaluationJson = evalJson.getJSONArray(eval_key)
+                    for (i in 0..(evaluationJson.length() - 1)) {
+                        evaluation.add(translateEvaluation(evaluationJson.get(i).toString()))
+                    }
                 }
+            } catch(j: JSONException) {
+                Log.d("Datapoint parse", "Datapoint is not a json string")
             }
-        } catch(j: JSONException) {
-            Log.d("Datapoint parse error", "Datapoint is not a json string")
         }
         return ActivityRecord(subjectID, chapterID, activityID,
                 time_in_sec, max_score, actual_score, evaluation, assessmentStatus)
@@ -194,7 +227,7 @@ object ProgressInteractor {
         return false
     }
     fun filter_assessments(activityRecords: ArrayList<ActivityRecord>): ArrayList<ActivityRecord> {
-        var assessments: ArrayList<ActivityRecord> = arrayListOf()
+        val assessments: ArrayList<ActivityRecord> = arrayListOf()
         for(activity in activityRecords) {
             if(activity.activityID.contains("assessment", ignoreCase = true)) {
                 assessments.add(activity)

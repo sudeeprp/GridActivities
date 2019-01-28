@@ -47,6 +47,10 @@ object ClassroomProgressInteractor {
         return ProgressInteractor.computeCurrentChapter(classCurrentChapter, chapters,
                     getChapterAcademics(student, subject))
     }
+    fun chapter_id_of_student(student: Student, subject: String): String {
+        return chapter_id_of_student(student, subject,
+                ContentInteractor().chapters_and_activities(student.grade, subject))
+    }
     fun chapter_status_of_student(student: Student, subject: String, chapterID: ChapterID): String {
         var chapterStatus = ProgressInteractor.none_status
         val chapter = ContentInteractor().chapters_and_activities(student.grade, subject)

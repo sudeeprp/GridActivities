@@ -100,13 +100,6 @@ object ClassroomInteractor {
     fun get_active_chapter_id(grade: String, subject: String): String? {
         return subject_current_chapter.get(grade_subject(grade, subject))
     }
-    fun current_chapter_page(student: Student, subject: String): String {
-        var chapter_id = get_active_chapter_id(student.grade, subject)
-        if(chapter_id == null) {
-            chapter_id = ContentInteractor().first_chapter_id(student.grade, subject)
-        }
-        return ContentInteractor().chapters_directory(student.grade, subject) + "/" + chapter_id + "/index.html"
-    }
     @JvmStatic
     fun get_current_week_attendance(): AttendanceInput {
         val week_attendance = AttendanceInput()

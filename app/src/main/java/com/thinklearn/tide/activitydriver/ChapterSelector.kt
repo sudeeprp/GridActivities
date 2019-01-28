@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.interactor.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -47,8 +48,12 @@ class ChapterSelector : AppCompatActivity() {
             chaptersPage.loadUrl("file://" + ContentInteractor().chapters_page(grade, subject))
         }
         if(ClassroomContext.selectedStudent != null) {
-            chaptersPage.loadUrl("file://" +
-                    ClassroomInteractor.current_chapter_page(ClassroomContext.selectedStudent!!, subject))
+            val student: Student = ClassroomContext.selectedStudent!!
+            val student_current_chapter = ClassroomProgressInteractor
+                    .chapter_id_of_student(student, subject)
+            val chapter_page = ContentInteractor().chapters_directory(student.grade, subject) + "/" +
+                    student_current_chapter + "/index.html"
+            chaptersPage.loadUrl("file://" + chapter_page)
         }
     }
     override fun onBackPressed() {

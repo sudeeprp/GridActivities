@@ -25,7 +25,7 @@ class Chapters {
 
     fun getChapter(chapterID: String): Chapter? {
         for(chapter in chapter_list) {
-            if(chapter.id == chapterID) {
+            if(chapter.id.equals(chapterID, true)) {
                 return chapter
             }
         }
@@ -113,22 +113,24 @@ class ContentInteractor {
         return configValue
     }
     fun getTokenFromDirlist(path: String, dirPrefix: String, tokenNumber: Int): ArrayList<String> {
-        var contentDirEntries = File(path).list().filter { File(path + "/" + it).isDirectory }
-        if(dirPrefix.isNotEmpty()) {
-            contentDirEntries = contentDirEntries.filter { it.startsWith(dirPrefix) }
-        }
         val tokens = arrayListOf<String>()
-        contentDirEntries.forEach {
-            val dirTokens = it.split("_")
-            if (dirTokens.size > 1) {
-                try {
-                    //The first token must be a grade-number for us to parse the grade/subject out
-                    parseInt(dirTokens[0])
-                    if (!tokens.contains(dirTokens[tokenNumber])) {
-                        tokens.plusAssign(dirTokens[tokenNumber])
+        if(File(path).list() != null) {
+            var contentDirEntries = File(path).list().filter { File(path + "/" + it).isDirectory }
+            if (dirPrefix.isNotEmpty()) {
+                contentDirEntries = contentDirEntries.filter { it.startsWith(dirPrefix) }
+            }
+            contentDirEntries.forEach {
+                val dirTokens = it.split("_")
+                if (dirTokens.size > 1) {
+                    try {
+                        //The first token must be a grade-number for us to parse the grade/subject out
+                        parseInt(dirTokens[0])
+                        if (!tokens.contains(dirTokens[tokenNumber])) {
+                            tokens.plusAssign(dirTokens[tokenNumber])
+                        }
+                    } catch (e: NumberFormatException) {
+                        //do nothing
                     }
-                } catch (e: NumberFormatException) {
-                    //do nothing
                 }
             }
         }
