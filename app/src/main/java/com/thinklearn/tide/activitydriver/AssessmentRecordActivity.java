@@ -48,7 +48,7 @@ public class AssessmentRecordActivity extends AppCompatActivity {
             assessmentRecords = ClassroomProgressInteractor.getAssessmentRecords(selectedStudent);
             if(assessmentRecords != null && assessmentRecords.size() > 0) {
                 TableLayout assessment = findViewById(R.id.assessment_table);
-                View.OnClickListener listener = new View.OnClickListener() {
+                View.OnClickListener activityToggle = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ImageView statusView = (ImageView)v;
@@ -58,13 +58,25 @@ public class AssessmentRecordActivity extends AppCompatActivity {
                         statusView.setImageResource(assessmentStatus_to_imageID(newStatus));
                     }
                 };
+                View.OnClickListener activityLauncher = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int i = (int)v.getTag();
+                        Intent activityIntent = new Intent(AssessmentRecordActivity.this, CurriculumActivity.class);
+                        activityIntent.putExtra("SELECTED_GRADE", selectedStudent.getGrade());
+                        activityIntent.putExtra("SELECTED_SUBJECT", assessmentRecords.get(i).getSubjectID());
+                        activityIntent.putExtra("SELECTED_CHAPTER", assessmentRecords.get(i).getChapterID());
+                        activityIntent.putExtra("SELECTED_ACTIVITY", assessmentRecords.get(i).getActivityID());
+                        startActivity(activityIntent);
+                    }
+                };
                 for(int i = 0; i < assessmentRecords.size(); i++) {
                     TableRow clickableRow = new TableRow(this);
                     TableRow.LayoutParams wrapWrapTableRowParams = new TableRow.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
                     clickableRow.setLayoutParams(wrapWrapTableRowParams);
-                    clickableRow.addView(make_datapointHeading(assessmentRecords.get(i)));
+                    clickableRow.addView(make_datapointHeading(assessmentRecords.get(i), activityLauncher, i));
                     clickableRow.addView(make_datapointView(assessmentRecords.get(i)));
-                    clickableRow.addView(make_statusView(assessmentRecords.get(i), listener, i));
+                    clickableRow.addView(make_statusView(assessmentRecords.get(i), activityToggle, i));
                     assessment.addView(clickableRow);
                 }
             } else {
@@ -143,10 +155,11 @@ public class AssessmentRecordActivity extends AppCompatActivity {
 
         return datapointTable;
     }
-    private View make_datapointHeading(ActivityRecord activityRecord) {
+    private View make_datapointHeading(ActivityRecord activityRecord, View.OnClickListener listener, Object tag) {
         TextView datapointHeading = new TextView(this);
         ContentInteractor contentInteractor = new ContentInteractor();
-
+        datapointHeading.setTag(tag);
+        datapointHeading.setOnClickListener(listener);
         datapointHeading.setText(
                 contentInteractor.get_subject_display_name(activityRecord.getSubjectID(), this, getPackageName()) +
                 "\n" + contentInteractor.get_chapter_display_name(selectedStudent.getGrade(),

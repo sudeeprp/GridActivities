@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.dto.Teacher;
-import com.thinklearn.tide.dto.TeacherWelcomeOutput;
 import com.thinklearn.tide.interactor.AppInfo;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
@@ -57,9 +56,7 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent data = new Intent();
-                TeacherWelcomeOutput output = null;
                 if(v == ivAttendance) {
-                    output = new TeacherWelcomeOutput("Attendance");
                     Intent intent = new Intent(TeacherWelcomeActivity.this, AttendenceManagementActivity.class);
                     startActivityForResult(intent, 3);
                 } else if(v == ivStudents) {

@@ -20,15 +20,15 @@ class ActivityStatus(val activityID: String, val status: String)
 
 object ProgressInteractor {
     //Interpreted status
-    @JvmField val assessment_ready_status = "assessment_ready"
-    @JvmField val to_be_done_status = "to_be_done"
-    @JvmField val inprogress_status = "inprogress"
-    @JvmField val approved_status = "approved"
-    @JvmField val done_status = "done"
-    @JvmField val none_status = "none"
-    @JvmField val correct_result = "correct"
-    @JvmField val incorrect_result = "incorrect"
-    @JvmField val not_attempted = "not attempted"
+    const val assessment_ready_status = "assessment_ready"
+    const val to_be_done_status = "to_be_done"
+    const val inprogress_status = "inprogress"
+    const val approved_status = "approved"
+    const val done_status = "done"
+    const val none_status = "none"
+    const val correct_result = "correct"
+    const val incorrect_result = "incorrect"
+    const val not_attempted = "not attempted"
 
     //Keys from the DB
     val status_key = "status"
@@ -37,7 +37,6 @@ object ProgressInteractor {
     val time_in_sec_key = "Time taken in seconds"
     val max_score_key = "Maximum score"
     val actual_score_key = "Actual score"
-    val eval_key = "Correct(1),wrong(0),not attempted(n)"
 
     //For student status screen, where activity status can be set
     //This goes by student record, *independent* of curriculum updates. So all data has to be in the subjectRecords only
@@ -150,9 +149,18 @@ object ProgressInteractor {
     fun repairJSONStr(datapoint: String): String {
         var repairedJSONStr = datapoint
         repairedJSONStr = repairedJSONStr.replace("[n", "[\"n\"")
-        repairedJSONStr = repairedJSONStr.replace(" n,", " \"n\",")
-        repairedJSONStr = repairedJSONStr.replace(" n]", " \"n\"]")
+        repairedJSONStr = repairedJSONStr.replace("n,", " \"n\",")
+        repairedJSONStr = repairedJSONStr.replace("n]", " \"n\"]")
         return repairedJSONStr
+    }
+    fun findEvalKey(evalJson: JSONObject): String? {
+        evalJson.keys().forEach { key->
+            if(key.contains("correct", true) &&
+                    key.contains("attempt", true)) {
+                return key
+            }
+        }
+        return null
     }
     fun makeActivityRecord(subjectID: String, chapterID: String, activityID: String,
                            activityStatus: String?, datapoint: String?): ActivityRecord {
@@ -172,7 +180,8 @@ object ProgressInteractor {
                 time_in_sec = jsonGrab(evalJson, time_in_sec_key)
                 max_score = jsonGrab(evalJson, max_score_key)
                 actual_score = jsonGrab(evalJson, actual_score_key)
-                if(evalJson.has(eval_key)) {
+                val eval_key = findEvalKey(evalJson)
+                if(eval_key != null) {
                     val evaluationJson = evalJson.getJSONArray(eval_key)
                     for (i in 0..(evaluationJson.length() - 1)) {
                         evaluation.add(translateEvaluation(evaluationJson.get(i).toString()))
