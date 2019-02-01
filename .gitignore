@@ -1,4 +1,3 @@
-*.iml
 *.jks
 .gradle
 /local.properties
@@ -9,6 +8,7 @@
 .DS_Store
 /build
 /captures
+/app/app.iml
 /app/release
 /app/ICproduction
 /app/google-services.json
