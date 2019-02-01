@@ -1,12 +1,10 @@
 package com.thinklearn.tide.activitydriver;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +12,7 @@ import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,28 +36,22 @@ import static java.lang.Math.min;
 public class StudentDetailFragment extends Fragment {
 
     private static final int REQUEST_CAMERA = 0;
-    public static final String STUDENT = "student";
+    public static final String STUDENT_ID = "student_id";
     private Student mItem;
     private ImageView imageView;
     private RecyclerView.Adapter adapter;
-    private Bitmap newBitmap;
-
 
     public StudentDetailFragment() {
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(STUDENT)) {
-            mItem = getArguments().getParcelable(STUDENT);
-
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.getFirstName());
+        if (getArguments().containsKey(STUDENT_ID)) {
+            String studentID = getArguments().getString(STUDENT_ID);
+            if(studentID != null) {
+                mItem = ClassroomInteractor.get_student(studentID);
             }
         }
     }
@@ -68,7 +61,6 @@ public class StudentDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.student_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
         if (mItem != null) {
             ((TextView)rootView.findViewById(R.id.tvStudentName)).setText(" " + mItem.getFirstName() + " " + mItem.getSurname());
             ((TextView) rootView.findViewById(R.id.tvId)).setText("" + mItem.getId());
@@ -88,7 +80,17 @@ public class StudentDetailFragment extends Fragment {
                      Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                      startActivityForResult(intent, REQUEST_CAMERA);
                  }
-             });
+                 });
+
+            Button assessButton = rootView.findViewById(R.id.button);
+            assessButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), AssessmentRecordActivity.class);
+                    intent.putExtra(StudentDetailFragment.STUDENT_ID, mItem.getId());
+                    startActivity(intent);
+                }
+            });
 
             if(mItem.getThumbnail() != null) {
                 byte[] decodedString = Base64.decode(mItem.getThumbnail(), Base64.DEFAULT);
@@ -108,9 +110,12 @@ public class StudentDetailFragment extends Fragment {
     }
 
     private void onCaptureImageResult(Intent data) {
-        newBitmap = (Bitmap) data.getExtras().get("data");
-        imageView.setImageBitmap(newBitmap);
-        setNewThumbnail(newBitmap);
+        String IMAGE_DATA_KEY = "data";
+        if(data.getExtras().containsKey(IMAGE_DATA_KEY)) {
+            Bitmap newBitmap = (Bitmap) data.getExtras().get(IMAGE_DATA_KEY);
+            imageView.setImageBitmap(newBitmap);
+            setNewThumbnail(newBitmap);
+        }
     }
 
     private String getLocalDateOfBirth(Context context, Date birthDate) {
@@ -145,7 +150,10 @@ public class StudentDetailFragment extends Fragment {
 
         ClassroomDBInteractor.set_student_thumbnail(mItem.getId(), encoded);
         mItem.setThumbnail(encoded);
-        adapter.notifyDataSetChanged();
+        //When launched from attendance screen, this will be stand-alone without the list on the left
+        if(adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {

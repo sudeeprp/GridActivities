@@ -86,6 +86,9 @@ public class Student implements Parcelable {
 
     public void setQualifier(String qualifier) { this.qualifier = qualifier; }
 
+    public void clearActivityRecords() {
+        academicRecords = null;
+    }
     public void setActivityAttribute(String subjectID, String chapterID, String activityID, String activityKey, String activityValue) {
         if(academicRecords == null) {
             academicRecords = new AcademicRecords();

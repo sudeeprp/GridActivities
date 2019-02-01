@@ -1,6 +1,7 @@
 package com.thinklearn.tide.interactor
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Environment
 import android.util.Log
 import org.json.JSONArray
@@ -19,12 +20,12 @@ val default_curriculum = """
 
 class Chapters {
     class ActivityInChapter(val activity_identifier: String, val mandatory: Boolean)
-    class Chapter(val name: String, val activities: ArrayList<ActivityInChapter>)
+    class Chapter(val id: String, val name: String, val activities: ArrayList<ActivityInChapter>)
     var chapter_list = ArrayList<Chapter>()
 
     fun getChapter(chapterID: String): Chapter? {
         for(chapter in chapter_list) {
-            if(chapter.name == chapterID) {
+            if(chapter.id.equals(chapterID, true)) {
                 return chapter
             }
         }
@@ -36,11 +37,11 @@ class Chapters {
             val chapters_array = JSONArray(chapters_json)
             try {
                 for(i in 0 until chapters_array.length()) {
-                    var chapterId = ""
+                    //In any curriculum, chapter_name will be there, but chapter_id is there in newer curriculum only
+                    val chapterName = chapters_array.getJSONObject(i).getString("chapter_name")
+                    var chapterId = chapterName
                     if(chapters_array.getJSONObject(i).has("chapter_id")) {
                         chapterId = chapters_array.getJSONObject(i).getString("chapter_id")
-                    } else {
-                        chapterId = chapters_array.getJSONObject(i).getString("chapter_name")
                     }
                     val chapterActivities = ArrayList<ActivityInChapter>()
                     val activities_json = chapters_array.getJSONObject(i).getJSONObject("activities")
@@ -53,7 +54,7 @@ class Chapters {
                             chapterActivities.add(ActivityInChapter(activityIdentifier, mandatory))
                         }
                     }
-                    chapter_list.add(Chapter(chapterId, chapterActivities))
+                    chapter_list.add(Chapter(chapterId, chapterName, chapterActivities))
                 }
             } catch(j: JSONException) {
                 Log.e("chapters file", chapters_file.toString() + ": " + j.message)
@@ -100,30 +101,36 @@ class ContentInteractor {
         var configValue = ""
         if(configFile.exists()) {
             val configJsonStr = configFile.readText()
-            val configJSON = JSONObject(configJsonStr)
-            if(configJSON.has(key)) {
-                configValue = configJSON.get(key).toString()
+            try {
+                val configJSON = JSONObject(configJsonStr)
+                if (configJSON.has(key)) {
+                    configValue = configJSON.get(key).toString()
+                }
+            } catch(j: JSONException) {
+                Log.e("config corrupted", filename + " JSON parse error: " + j.message)
             }
         }
         return configValue
     }
     fun getTokenFromDirlist(path: String, dirPrefix: String, tokenNumber: Int): ArrayList<String> {
-        var contentDirEntries = File(path).list().filter { File(path + "/" + it).isDirectory }
-        if(dirPrefix.isNotEmpty()) {
-            contentDirEntries = contentDirEntries.filter { it.startsWith(dirPrefix) }
-        }
         val tokens = arrayListOf<String>()
-        contentDirEntries.forEach {
-            val dirTokens = it.split("_")
-            if (dirTokens.size > 1) {
-                try {
-                    //The first token must be a grade-number for us to parse the grade/subject out
-                    parseInt(dirTokens[0])
-                    if (!tokens.contains(dirTokens[tokenNumber])) {
-                        tokens.plusAssign(dirTokens[tokenNumber])
+        if(File(path).list() != null) {
+            var contentDirEntries = File(path).list().filter { File(path + "/" + it).isDirectory }
+            if (dirPrefix.isNotEmpty()) {
+                contentDirEntries = contentDirEntries.filter { it.startsWith(dirPrefix) }
+            }
+            contentDirEntries.forEach {
+                val dirTokens = it.split("_")
+                if (dirTokens.size > 1) {
+                    try {
+                        //The first token must be a grade-number for us to parse the grade/subject out
+                        parseInt(dirTokens[0])
+                        if (!tokens.contains(dirTokens[tokenNumber])) {
+                            tokens.plusAssign(dirTokens[tokenNumber])
+                        }
+                    } catch (e: NumberFormatException) {
+                        //do nothing
                     }
-                } catch (e: NumberFormatException) {
-                    //do nothing
                 }
             }
         }
@@ -157,21 +164,40 @@ class ContentInteractor {
     fun get_grade_display_name(grade: String, context: Context, packageName: String): String {
         var gradeDisplayName = getConfig(grades_file, grade)
         if(gradeDisplayName.isEmpty()) {
-            gradeDisplayName = context.resources.getString(context.resources.getIdentifier
-                                    ("grade" + grade, "string", packageName))
+            try {
+                gradeDisplayName = context.resources.getString(context.resources.getIdentifier
+                ("grade" + grade, "string", packageName))
+            } catch(n: Resources.NotFoundException) {
+                gradeDisplayName = grade
+            }
         }
         return gradeDisplayName
     }
     fun get_subject_background_path(grade: String, subject: String): String {
         return chapters_directory(grade, subject) + subject_background_pic
     }
-    fun get_subject_display_name(subject: String, context: Context, packageName: String): String {
-        var subjectDisplayName = getConfig(subjects_file, subject)
+    fun get_subject_display_name(subjectID: String, context: Context, packageName: String): String {
+        var subjectDisplayName = getConfig(subjects_file, subjectID)
         if(subjectDisplayName.isEmpty()) {
-            subjectDisplayName = context.resources.getString(context.resources.getIdentifier
-                                    (subject, "string", packageName))
+            try {
+                subjectDisplayName = context.resources.getString(context.resources.getIdentifier
+                (subjectID, "string", packageName))
+            } catch(n: Resources.NotFoundException) {
+                subjectDisplayName = subjectID
+            }
         }
         return subjectDisplayName
+    }
+    fun get_chapter_display_name(gradeID: String, subjectID: String, chapterID: String): String {
+        var chapterDisplayName = chapterID
+        val chapters = chapters_and_activities(gradeID, subjectID)
+        for(chapter in chapters.chapter_list) {
+            if(chapter.id == chapterID) {
+                chapterDisplayName = chapter.name
+                break;
+            }
+        }
+        return chapterDisplayName
     }
     fun get_grades(): ArrayList<String> {
         var grades = getSetBefore_(content.content_path)

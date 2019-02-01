@@ -11,10 +11,10 @@ import android.widget.TextView;
 
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.dto.Teacher;
-import com.thinklearn.tide.dto.TeacherWelcomeOutput;
 import com.thinklearn.tide.interactor.AppInfo;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ClassroomProgressInteractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,9 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
             Teacher input = getIntent().getParcelableExtra("TEACHER_IDENTIFICATION");
             teacherName = input.getTeacherName();
         } else {
-            teacherName = ClassroomContext.selectedTeacher.getTeacherName();
+            if(ClassroomContext.selectedTeacher != null) {
+                teacherName = ClassroomContext.selectedTeacher.getTeacherName();
+            }
         }
         tvTeacherName.setText(teacherName);
 
@@ -49,13 +51,12 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
         final ImageView ivAttendance =  findViewById(R.id.ivAttendanceImage);
         final ImageView ivStudents =  findViewById(R.id.ivStudentImage);
         final ImageView ivDashboard =  findViewById(R.id.ivDashboard);
+        showDashboardStatus();
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent data = new Intent();
-                TeacherWelcomeOutput output = null;
                 if(v == ivAttendance) {
-                    output = new TeacherWelcomeOutput("Attendance");
                     Intent intent = new Intent(TeacherWelcomeActivity.this, AttendenceManagementActivity.class);
                     startActivityForResult(intent, 3);
                 } else if(v == ivStudents) {
@@ -73,5 +74,19 @@ public class TeacherWelcomeActivity extends AppCompatActivity {
         ivAttendance.setOnClickListener(listener);
         ivStudents.setOnClickListener(listener);
         ivDashboard.setOnClickListener(listener);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showDashboardStatus();
+    }
+    private void showDashboardStatus() {
+        ImageView dashboardStatus = findViewById(R.id.status_on_dashboard);
+        if(ClassroomProgressInteractor.class_has_assessment_pending()) {
+            dashboardStatus.setImageResource(R.drawable.chapter_assessment_ready2);
+        } else {
+            dashboardStatus.setImageResource(0);
+        }
+
     }
 }

@@ -115,6 +115,7 @@ object ClassroomDBInteractor {
         ClassroomInteractor.students.sortWith(compareBy { it.surname })
     }
     fun fill_academic_records(studentIndex: Int, finished_activities: DataSnapshot) {
+        ClassroomInteractor.students[studentIndex].clearActivityRecords();
         finished_activities.children.forEach { subjectSnapshot ->
             subjectSnapshot.children.forEach { chapterSnapshot ->
                 chapterSnapshot.children.forEach { activitySnapshot ->

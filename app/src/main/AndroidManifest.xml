@@ -74,6 +74,8 @@
         <activity
             android:name=".StudentGridActivity"
             android:screenOrientation="landscape" />
+        <activity android:name=".AssessmentRecordActivity"
+            android:parentActivityName=".StudentDetailActivity"></activity>
         <activity android:name=".SettingsUtilActivity"></activity>
     </application>
 

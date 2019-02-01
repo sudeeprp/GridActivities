@@ -21,6 +21,8 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 
+
+
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
 
@@ -67,7 +69,7 @@ public class StudentListActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        if (findViewById(R.id.student_detail_container) != null) {
+        if (findViewById(R.id.assessment_record_activity) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the
@@ -144,17 +146,17 @@ public class StudentListActivity extends AppCompatActivity {
                     Student item = (Student) view.getTag();
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
-                        arguments.putParcelable(StudentDetailFragment.STUDENT, item);
+                        arguments.putString(StudentDetailFragment.STUDENT_ID, item.getId());
                         StudentDetailFragment fragment = new StudentDetailFragment();
                         fragment.setAdapter(SimpleItemRecyclerViewAdapter.this);
                         fragment.setArguments(arguments);
                         mParentActivity.getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.student_detail_container, fragment)
+                                .replace(R.id.assessment_record_activity, fragment)
                                 .commit();
                     } else {
                         Context context = view.getContext();
                         Intent intent = new Intent(context, StudentDetailActivity.class);
-                        intent.putExtra(StudentDetailFragment.STUDENT, item);
+                        intent.putExtra(StudentDetailFragment.STUDENT_ID, item.getId());
 
                         context.startActivity(intent);
                     }

@@ -13,21 +13,21 @@ class AssessmentUnitTest {
     fun fill_curriculum(): Chapters {
         val chapterList = arrayListOf<Chapters.Chapter>()
         chapterList.add(Chapters.Chapter(
-                "chap11",
+                "chap11", "chap11",
                 arrayListOf(Chapters.ActivityInChapter("activity111", false),
                             Chapters.ActivityInChapter("activity112", true),
                             Chapters.ActivityInChapter("activity113", false)
                 )
         ))
         chapterList.add(Chapters.Chapter(
-                "chap12",
+                "chap12", "chap11",
                 arrayListOf(Chapters.ActivityInChapter("activity121", false),
                         Chapters.ActivityInChapter("activity122", true),
                         Chapters.ActivityInChapter("activity123", false)
                 )
         ))
         chapterList.add(Chapters.Chapter(
-                "chap13",
+                "chap13", "chap11",
                 arrayListOf(Chapters.ActivityInChapter("activity131", false),
                         Chapters.ActivityInChapter("activity132", true),
                         Chapters.ActivityInChapter("activity133", false)
@@ -54,9 +54,9 @@ class AssessmentUnitTest {
     fun academicsCompletedFirstChapter(): AcademicRecords {
         val academicRecords = AcademicRecords()
         with(academicRecords) {
-            setActivityAttribute("sub1", "chap11", "activity111", "status", "done")
+            setActivityAttribute("sub1", "chap11", "activity111", "status", ProgressInteractor.done_status)
             setActivityAttribute("sub1", "chap11", "activity111", "data_point", big_datapoint)
-            setActivityAttribute("sub1", "chap11", "activity112", "status", "done")
+            setActivityAttribute("sub1", "chap11", "activity112", "status", ProgressInteractor.approved_status)
             setActivityAttribute("sub1", "chap11", "activity112", "data_point", big_datapoint)
             setActivityAttribute("sub1", "chap12", "activity121", "data_point", brief_datapoint)
         }
@@ -65,7 +65,7 @@ class AssessmentUnitTest {
     fun fill_academicRecords(): AcademicRecords {
         val academicRecords = AcademicRecords()
         with(academicRecords) {
-            setActivityAttribute("sub1", "chap11", "activity111", "status", "done")
+            setActivityAttribute("sub1", "chap11", "activity111", "status", ProgressInteractor.done_status)
             setActivityAttribute("sub1", "chap11", "activity111", "data_point", big_datapoint)
             setActivityAttribute("sub1", "chap12", "activity121", "data_point", brief_datapoint)
         }
@@ -98,14 +98,14 @@ class AssessmentUnitTest {
         val academicRecords = fill_academicRecords()
         val assessmentRecords = ProgressInteractor.getStudentActivityRecords(academicRecords.getSubjectRecords())
         assessmentRecords.forEach {
-            println("{" + it.subject_name + " " + it.chapter_name + " " + it.activity_name + " " + it.assessment_status +
+            println("{" + it.subjectID + " " + it.chapterID + " " + it.activityID + " " + it.assessment_status +
                     " " + it.time_in_sec + " " + it.max_score + " " + it.actual_score + " " + it.evaluation + "}")
         }
         assertEquals(2, assessmentRecords.size)
     }
     @Test
     fun activitiesStatus_isCorrect() {
-        val chapter = Chapters.Chapter(name = "chap11",
+        val chapter = Chapters.Chapter(id = "chap11", name = "chap11",
                 activities = arrayListOf(Chapters.ActivityInChapter(activity_identifier = "activity111", mandatory = false)))
         val activityAcademics = fill_academicRecords().getSubjectRecords()["sub1"]!!.chapterRecords["chap11"]!!
         val activitiesStatus = ProgressInteractor.getActivitiesStatus(chapter, activityAcademics)

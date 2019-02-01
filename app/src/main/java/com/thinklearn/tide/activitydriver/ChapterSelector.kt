@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.interactor.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -47,8 +48,12 @@ class ChapterSelector : AppCompatActivity() {
             chaptersPage.loadUrl("file://" + ContentInteractor().chapters_page(grade, subject))
         }
         if(ClassroomContext.selectedStudent != null) {
-            chaptersPage.loadUrl("file://" +
-                    ClassroomInteractor.current_chapter_page(ClassroomContext.selectedStudent!!, subject))
+            val student: Student = ClassroomContext.selectedStudent!!
+            val student_current_chapter = ClassroomProgressInteractor
+                    .chapter_id_of_student(student, subject)
+            val chapter_page = ContentInteractor().chapters_directory(student.grade, subject) + "/" +
+                    student_current_chapter + "/index.html"
+            chaptersPage.loadUrl("file://" + chapter_page)
         }
     }
     override fun onBackPressed() {
@@ -74,6 +79,13 @@ class ChapterSelector : AppCompatActivity() {
                     activity_chapter, activity_identifier, activity_datapoint)
         }
     }
+    override fun onResume() {
+        super.onResume()
+        val chaptersPage = findViewById<WebView>(R.id.chapters_page)
+        if(chaptersPage != null) {
+            chaptersPage.evaluateJavascript("refresh_screen();", null)
+        }
+    }
 }
 
 class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
@@ -92,7 +104,6 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
     }
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
-        //TODO: Get status based on completion from ClassroomInteractor.
         var status = "pending"
         val current_chapter_id = ClassroomInteractor.get_active_chapter_id(grade, subject)
         if(current_chapter_id == chapterIdent) {
@@ -114,6 +125,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
             val studentsJSON = JSONArray()
             for(student in chapter.value) {
                 val studentJSON = JSONObject()
+                studentJSON.put("id", student.id)
                 //Names are too long when surname is included. Try with first names first
                 studentJSON.put("name", student.firstName) // + " " + student.surname)
                 var thumbnail = student.thumbnail
@@ -180,5 +192,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
         chaptersPage.post(Runnable {
             chaptersPage.loadUrl("file://" + chaptersUrl)
         })
+    }
+    @JavascriptInterface
+    fun diveToStudent(studentID: String) {
+        val intent = Intent(chapterContext, AssessmentRecordActivity::class.java)
+        intent.putExtra(StudentDetailFragment.STUDENT_ID, studentID)
+        chapterContext.startActivity(intent)
     }
 }

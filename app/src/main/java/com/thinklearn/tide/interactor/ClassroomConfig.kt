@@ -1,6 +1,8 @@
 package com.thinklearn.tide.interactor
 
 import android.os.Environment
+import android.util.Log
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 
@@ -41,9 +43,13 @@ object ClassroomConfig {
         var configValue = ""
         if(configFile.exists()) {
             val configJsonStr = configFile.readText()
-            val configJSON = JSONObject(configJsonStr)
-            if(configJSON.has(key)) {
-                configValue = configJSON.get(key).toString()
+            try {
+                val configJSON = JSONObject(configJsonStr)
+                if (configJSON.has(key)) {
+                    configValue = configJSON.get(key).toString()
+                }
+            } catch(j: JSONException) {
+                Log.d("Config parse", "Unexpected config in " + filename)
             }
         }
         if(configValue == "") {
