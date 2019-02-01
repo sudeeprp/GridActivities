@@ -169,7 +169,7 @@ object ProgressInteractor {
         var actual_score = ""
         var assessmentStatus = activityStatus
         //A tab assessment is ready for eval just by virtue of being present
-        if(activityStatus == null && activityID.contains("tab assessment")) {
+        if(activityStatus == null && activityID.toLowerCase().contains("tab assessment")) {
             assessmentStatus = ProgressInteractor.assessment_ready_status
         }
         val evaluation: ArrayList<String> = arrayListOf()
