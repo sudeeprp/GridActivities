@@ -155,8 +155,8 @@ object ProgressInteractor {
     }
     fun findEvalKey(evalJson: JSONObject): String? {
         evalJson.keys().forEach { key->
-            if(key.contains("correct", true) &&
-                    key.contains("attempt", true)) {
+            if((key.contains("correct", true) && key.contains("attempt", true))
+                    || key.contains("question", true)) {
                 return key
             }
         }

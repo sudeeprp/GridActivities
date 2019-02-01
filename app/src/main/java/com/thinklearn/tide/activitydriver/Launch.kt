@@ -69,7 +69,7 @@ class Launch : AppCompatActivity() {
     fun authenticateToken() {
         if(BuildConfig.BUILD_TYPE.contentEquals("release") ||
                 BuildConfig.BUILD_TYPE.contentEquals("debug")) {
-            dbConnectionStatus("Test data connected")
+            dbConnectionStatus("Test data")
             tokenAuthenticationDone()
             return
         }
