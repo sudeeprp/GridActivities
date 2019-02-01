@@ -103,7 +103,7 @@ class Launch : AppCompatActivity() {
     fun loadAndStart(start_mode: String) {
         if(selected_class_id != "") {
             setContentView(R.layout.activity_initial_load)
-            ClassroomDBInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : DBOpDone {
+            ClassroomDBInteractor.load(ClassroomInteractor.learningProjectDB(), selected_class_id, object : DBOpDone {
                 override fun onSuccess() {
                     ClassroomDBInteractor.removeLoadedEvent()
                     if (start_mode == ClassroomConfig.teacher_mode_value) {
@@ -137,7 +137,7 @@ class Launch : AppCompatActivity() {
             uploadClassroom()
         }
         dataStatus("Connecting to classrooms")
-        FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("classrooms").
+        FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB()).child("classrooms").
                 addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(classrooms_snapshot: DataSnapshot) {
                         val schools = arrayOfNulls<String>(classrooms_snapshot.childrenCount.toInt())

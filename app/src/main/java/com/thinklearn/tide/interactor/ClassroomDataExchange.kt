@@ -28,7 +28,7 @@ object ClassroomDataExchange {
             uploadMap.plusAssign(mapAssetsToDBKeys(class_id, classroomAndAssetsJSON))
             uploadMap.plusAssign(mapThumbnailsToDBKeys(class_id, classroomAndAssetsJSON))
 
-            val proj_ref = FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject())
+            val proj_ref = FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB())
             proj_ref.updateChildren(uploadMap)
                     .addOnSuccessListener{ uploaded.onSuccess() }
                     .addOnFailureListener{ uploaded.onFailure(it.message) }

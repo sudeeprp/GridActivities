@@ -10,7 +10,6 @@ object ClassroomDBInteractor {
         loadedEvent = null
     }
     fun load(learningProject: String, classroom_id: String, loaded_event: DBOpDone) {
-        ClassroomConfig.writeConfig(ClassroomConfig.learning_project_file, ClassroomConfig.project_name_key, learningProject)
         ClassroomConfig.writeConfig(ClassroomConfig.selected_class_file, ClassroomConfig.selected_class_key, classroom_id)
         ClassroomInteractor.loadedLearningProject = learningProject
         ClassroomInteractor.loadedClassroomID = classroom_id
@@ -52,10 +51,10 @@ object ClassroomDBInteractor {
                 })
     }
     fun db_classrooms_reference(): DatabaseReference {
-        return FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("classrooms")
+        return FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB()).child("classrooms")
     }
     fun db_classroom_assets_reference(): DatabaseReference {
-        return FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("classroom_assets")
+        return FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB()).child("classroom_assets")
     }
     fun db_teachers_reference(classroomId: String): DatabaseReference {
         return db_classroom_assets_reference().child(classroomId).child("teachers")
@@ -72,7 +71,7 @@ object ClassroomDBInteractor {
                 child(chapter).child(activity_id_to_firebase_id(activity_identifier))
     }
     fun db_activity_log_reference(): DatabaseReference {
-        return FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("activity_log")
+        return FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB()).child("activity_log")
     }
     fun activity_id_to_firebase_id(activity_id: String): String {
         return activity_id.replace('.', '^')

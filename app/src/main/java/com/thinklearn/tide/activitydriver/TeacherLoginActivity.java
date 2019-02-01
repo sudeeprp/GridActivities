@@ -36,7 +36,8 @@ public class TeacherLoginActivity extends AppCompatActivity implements TeacherIt
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_teacher_login);
-        ((TextView)findViewById(R.id.tvVersion)).setText(AppInfo.appVersion(this));
+        ((TextView)findViewById(R.id.tvVersion))
+                .setText(ClassroomInteractor.learningProjectName() + " " + AppInfo.appVersion(this));
 
         ClassroomInteractor.setTabMode(ClassroomConfig.teacher_mode_value);
 
