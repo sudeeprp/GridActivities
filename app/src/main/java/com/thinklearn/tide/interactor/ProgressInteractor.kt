@@ -110,7 +110,7 @@ object ProgressInteractor {
             summaryStatus = assessment_ready_status
         } else if(approved_found && !to_do_found) {
             summaryStatus = done_status
-        } else if(done_found && to_do_found) {
+        } else if((done_found || approved_found) && to_do_found) {
             summaryStatus = inprogress_status
         } else if(to_do_found) {
             summaryStatus = to_be_done_status
