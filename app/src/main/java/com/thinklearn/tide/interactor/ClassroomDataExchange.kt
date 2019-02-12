@@ -10,7 +10,9 @@ import java.util.*
 
 object ClassroomDataExchange {
     val class_id_key = "class_id"
+    val type_key = "type"
     val classroom_key = "classroom_details"
+    val classrooms_data_key = "classrooms"
     val teachers_key = "teachers"
     val students_key = "students"
     val thumbnails_key = "thumbnails"
@@ -20,64 +22,70 @@ object ClassroomDataExchange {
     fun get_last_exchange_file_path(): String {
         return last_exchange_folder_path + last_exchange_filename
     }
-    fun uploadClassroom(classroomAndAssetsJSON: JSONObject, uploaded: DBOpDone) {
-        if(classroomAndAssetsJSON.has(class_id_key)) {
-            val class_id: String = classroomAndAssetsJSON.getString(class_id_key)
-            val uploadMap = mutableMapOf<String, Any>()
-            uploadMap.plusAssign(mapClassDescriptionToDBKeys(class_id, classroomAndAssetsJSON))
-            uploadMap.plusAssign(mapAssetsToDBKeys(class_id, classroomAndAssetsJSON))
-            uploadMap.plusAssign(mapThumbnailsToDBKeys(class_id, classroomAndAssetsJSON))
-
-            val proj_ref = FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB())
-            proj_ref.updateChildren(uploadMap)
-                    .addOnSuccessListener{ uploaded.onSuccess() }
-                    .addOnFailureListener{ uploaded.onFailure(it.message) }
+    fun uploadAssets(assetsJSON: JSONObject, uploaded: DBOpDone) {
+        if(assetsJSON.has(class_id_key)) {
+            uploadClassroom(assetsJSON, uploaded)
+        } else if(assetsJSON.has(type_key) && assetsJSON.getString(type_key) == "consolidated a") {
+            uploadMultiClass(assetsJSON, uploaded)
         } else {
             throw JSONException("No class found")
         }
     }
-    fun jsonToMap(prefix: String, json: JSONObject): MutableMap<String, Any> {
+    fun uploadClassroom(classroomAndAssetsJSON: JSONObject, uploaded: DBOpDone) {
+        val class_id: String = classroomAndAssetsJSON.getString(class_id_key)
+        val uploadMap = mutableMapOf<String, Any>()
+        uploadMap.plusAssign(mapClassDescriptionToDBKeys(class_id, classroomAndAssetsJSON))
+        uploadMap.plusAssign(mapAssetsToDBKeys(class_id, classroomAndAssetsJSON))
+        uploadMap.plusAssign(mapThumbnailsToDBKeys(class_id, classroomAndAssetsJSON))
+
+        val proj_ref = FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB())
+        proj_ref.updateChildren(uploadMap)
+                .addOnSuccessListener{ uploaded.onSuccess() }
+                .addOnFailureListener{ uploaded.onFailure(it.message) }
+    }
+    fun jsonToDBpaths(prefix: String, json: JSONObject, jsonKey: String): MutableMap<String, Any> {
         val map = mutableMapOf<String, Any>()
-        json.keys().forEach {
-            map[prefix + it] = json.getString(it)
+        if(json.has(jsonKey)) {
+            val mapTobePathed = json.getJSONObject(jsonKey)
+            mapTobePathed.keys().forEach {
+                map[prefix + it] = mapTobePathed.getString(it)
+            }
         }
         return map
     }
+    fun uploadMultiClass(assetsJSON: JSONObject, uploaded: DBOpDone) {
+        val uploadMap = mutableMapOf<String, Any>()
+        uploadMap.plusAssign(jsonToDBpaths("/classrooms/", assetsJSON, classrooms_data_key))
+        uploadMap.plusAssign(jsonToDBpaths("/classroom_assets/", assetsJSON, teachers_key))
+        uploadMap.plusAssign(jsonToDBpaths("/classroom_assets/", assetsJSON, students_key))
+        if(uploadMap.isEmpty()) {
+            throw(JSONException("No class data"))
+        }
+        val proj_ref = FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB())
+        proj_ref.updateChildren(uploadMap)
+                .addOnSuccessListener{ uploaded.onSuccess() }
+                .addOnFailureListener{ uploaded.onFailure(it.message) }
+    }
     private fun mapClassDescriptionToDBKeys
             (class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
-        var classroomMap = mutableMapOf<String, Any>()
-        if (classroomAndAssetsJSON.has(classroom_key)) {
-            val classroomPart = classroomAndAssetsJSON.getJSONObject(classroom_key)
-            val classroom_prefix =  "/classrooms/" + class_id + "/"
-            classroomMap = jsonToMap(classroom_prefix, classroomPart)
-        }
-        return classroomMap
+        val classroom_prefix =  "/classrooms/" + class_id + "/"
+        return jsonToDBpaths(classroom_prefix, classroomAndAssetsJSON, classroom_key)
     }
     private fun mapAssetsToDBKeys(class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
         val assetMap = mutableMapOf<String, Any>()
         val class_asset_prefix = "/classroom_assets/" + class_id
 
-        if(classroomAndAssetsJSON.has(teachers_key)) {
-            val teachersPart = classroomAndAssetsJSON.getJSONObject(teachers_key)
-            val teachers_prefix = class_asset_prefix + "/teachers/"
-            assetMap.plusAssign(jsonToMap(teachers_prefix, teachersPart))
-        }
+        val teachers_prefix = class_asset_prefix + "/teachers/"
+        jsonToDBpaths(teachers_prefix, classroomAndAssetsJSON, teachers_key)
 
-        if(classroomAndAssetsJSON.has(students_key)) {
-            val studentsPart = classroomAndAssetsJSON.getJSONObject(students_key)
-            val students_prefix = class_asset_prefix + "/students/"
-            assetMap.plusAssign(jsonToMap(students_prefix, studentsPart))
-        }
+        val students_prefix = class_asset_prefix + "/students/"
+        jsonToDBpaths(students_prefix, classroomAndAssetsJSON, students_key)
+
         return assetMap
     }
     fun mapThumbnailsToDBKeys(class_id: String, classroomAndAssetsJSON: JSONObject): MutableMap<String, Any> {
-        var thumbnailMap = mutableMapOf<String, Any>()
-        if(classroomAndAssetsJSON.has(thumbnails_key)) {
-            val thumbnailPart = classroomAndAssetsJSON.getJSONObject(thumbnails_key)
-            val thumbnail_prefix = "/thumbnails/classrooms/" + class_id + "/"
-            thumbnailMap = jsonToMap(thumbnail_prefix, thumbnailPart)
-        }
-        return thumbnailMap
+        val thumbnail_prefix = "/thumbnails/classrooms/" + class_id + "/"
+        return jsonToDBpaths(thumbnail_prefix, classroomAndAssetsJSON, thumbnails_key)
     }
     fun exportClassroomData() {
         val exportJson = JSONObject()

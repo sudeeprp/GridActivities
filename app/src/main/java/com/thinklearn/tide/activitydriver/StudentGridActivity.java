@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thinklearn.tide.activitydriver.R.id.loginButton;
+import static com.thinklearn.tide.activitydriver.R.id.selected;
 
 public class StudentGridActivity extends AppCompatActivity implements StudentGridAdapter.StudentSelectedListener{
 
@@ -34,12 +35,13 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
         String selectedGender = getIntent().getStringExtra("selectedGender");
         String displayGrade = getString(
                 getResources().getIdentifier("grade" + selectedGrade,"string", getPackageName()));
-        String displayGender = getString(
-                getResources().getIdentifier(selectedGender, "string", getPackageName()));
-
-        findViewById(R.id.loginButton).setEnabled(false);
         ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
-        ((TextView) findViewById(R.id.selectedGender)).setText(": " +displayGender);
+        if(!selectedGender.isEmpty()) {
+            String displayGender = getString(
+                    getResources().getIdentifier(selectedGender, "string", getPackageName()));
+            ((TextView) findViewById(R.id.selectedGender)).setText(": " + displayGender);
+        }
+        findViewById(R.id.loginButton).setEnabled(false);
 
         studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender, true);
         GridView gridView = findViewById(R.id.gvStudentGrid);
