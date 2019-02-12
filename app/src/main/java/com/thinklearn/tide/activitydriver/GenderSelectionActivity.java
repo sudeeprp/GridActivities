@@ -26,17 +26,22 @@ public class GenderSelectionActivity extends AppCompatActivity implements View.O
         setTitle(getString(R.string.select_gender) + " (" + getString(R.string.current_grade) + ":" + selectedGrade + ")");
 
         List<Student> studentInputList = ClassroomInteractor.filterStudents(selectedGrade, false);
-        ArrayList<String> genderList = getUniqueGenders(studentInputList);
-        if(genderList.size() == 1) {
-            startNextActivity(genderList.get(0));
-        }
-        Button boyButton = (Button)findViewById(R.id.boy_button);
-        boyButton.setTag("boy");
-        boyButton.setOnClickListener(this);
+        if(studentInputList.size() > 24) {
+            ArrayList<String> genderList = getUniqueGenders(studentInputList);
+            if (genderList.size() == 1) {
+                startNextActivity(genderList.get(0));
+            }
+            Button boyButton = (Button) findViewById(R.id.boy_button);
+            boyButton.setTag("boy");
+            boyButton.setOnClickListener(this);
 
-        Button girlButton = (Button)findViewById(R.id.girl_button);
-        girlButton.setTag("girl");
-        girlButton.setOnClickListener(this);
+            Button girlButton = (Button) findViewById(R.id.girl_button);
+            girlButton.setTag("girl");
+            girlButton.setOnClickListener(this);
+        } else {
+            startNextActivity("");
+            finish();
+        }
     }
 
     private ArrayList<String> getUniqueGenders(List<Student> studentInputList) {

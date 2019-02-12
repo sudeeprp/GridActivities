@@ -24,7 +24,7 @@
     <string name="unknown_surname">Unknown Surname</string>
     <string name="unknow_classLabel">Unknown Class</string>
     <string name="unknown_year">Unknown Year</string>
-    <string name="unknown_gender">Unknown Gender</string>
+    <string name="unknown_gender">All</string>
     <string name="change_photo">Change Photo</string>
     <string name="title_activity_teacher_login">TeacherLogin</string>
     <string name="login">Login</string>
