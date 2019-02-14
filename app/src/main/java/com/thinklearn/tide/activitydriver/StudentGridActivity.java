@@ -35,11 +35,11 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
         String selectedGender = getIntent().getStringExtra("selectedGender");
         String displayGrade = getString(
                 getResources().getIdentifier("grade" + selectedGrade,"string", getPackageName()));
-        ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
+        ((TextView) findViewById(R.id.selectedClass)).setText(displayGrade);
         if(!selectedGender.isEmpty()) {
             String displayGender = getString(
                     getResources().getIdentifier(selectedGender, "string", getPackageName()));
-            ((TextView) findViewById(R.id.selectedGender)).setText(": " + displayGender);
+            ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
         }
         findViewById(R.id.loginButton).setEnabled(false);
 
