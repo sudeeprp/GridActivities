@@ -8,21 +8,14 @@ import java.util.HashMap;
 
 public class Student implements Parcelable {
 
-    private String id;
-
-    private String firstName;
-
-    private String surname;
-
+    private String id = "";
+    private String firstName = "";
+    private String surname = "";
     private Date birthDate;
-
-    private String gender;
-
-    private String grade;
-
-    private String thumbnail;
-
-    private String qualifier;
+    private String gender = "";
+    private String grade = "";
+    private String thumbnail = "";
+    private String qualifier = "";
 
     private AcademicRecords academicRecords;
 

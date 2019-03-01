@@ -25,6 +25,7 @@ import android.view.MenuItem;
 
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.List;
 
@@ -54,15 +55,18 @@ public class StudentListActivity extends AppCompatActivity {
         toolbar.setTitle(getTitle());
 
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
-        String displayGrade = getString(getResources().getIdentifier("grade" + selectedGrade,
-                        "string", getPackageName()));
+        ContentInteractor contentInteractor = new ContentInteractor();
+        String displayGrade = contentInteractor.get_grade_display_name(selectedGrade);
         ((TextView) findViewById(R.id.selectedClass)).setText(displayGrade);
 
         String selectedGender = getIntent().getStringExtra("selectedGender");
         if(!selectedGender.isEmpty()) {
-            String displayGender = getString(
-                    getResources().getIdentifier(selectedGender, "string", getPackageName()));
-            ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
+            int genderStrResource =
+                    getResources().getIdentifier(selectedGender, "string", getPackageName());
+            if(genderStrResource != 0) {
+                String displayGender = getString(genderStrResource);
+                ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
+            }
         }
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();

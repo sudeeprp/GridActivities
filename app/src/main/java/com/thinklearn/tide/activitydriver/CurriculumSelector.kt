@@ -2,7 +2,9 @@ package com.thinklearn.tide.activitydriver
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -34,14 +36,14 @@ class CurriculumSelector : AppCompatActivity() {
             showGrades()
         }
     }
-    fun make_drawableWithStatus(backgroundPath: String, defaultResource: Int, statusResource: Int): LayerDrawable {
-        var backgroundDrawable: Drawable? = null
-        var statusDrawable: Drawable? = null
+    fun make_drawableWithStatus(backgroundPath: String, statusResource: Int): LayerDrawable {
+        lateinit var backgroundDrawable: Drawable
+        lateinit var statusDrawable: Drawable
         val bk_bitmap = BitmapFactory.decodeFile(backgroundPath)
         if(bk_bitmap != null) {
             backgroundDrawable = BitmapDrawable(resources, bk_bitmap)
         } else {
-            backgroundDrawable = resources.getDrawable(defaultResource, null)
+            backgroundDrawable = ColorDrawable(Color.TRANSPARENT);
         }
         lateinit var finalDrawable: LayerDrawable
         if(statusResource != 0) {
@@ -61,7 +63,7 @@ class CurriculumSelector : AppCompatActivity() {
         button.transformationMethod = null
         button.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1.toFloat())
 
-        button.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        button.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             val rightPad = 40
             val bottomPad = 8
             //Put the status icon on bottom-right
@@ -93,11 +95,10 @@ class CurriculumSelector : AppCompatActivity() {
         val curriculumTable = findViewById<LinearLayout>(R.id.curriculum_table)
         val grades = ContentInteractor().get_grades()
         grades.forEach {
-            val gradeDisplayName = ContentInteractor().get_grade_display_name(it, this, packageName)
+            val gradeDisplayName = ContentInteractor().get_grade_display_name(it)
             val gradeButton = tabledButton(
                     make_drawableWithStatus(
                             ContentInteractor().get_grade_background_path(it),
-                            resources.getIdentifier("g" + it, "drawable", packageName),
                             gradeStatusResource(it)
                     ),
                     gradeDisplayName,
@@ -114,11 +115,10 @@ class CurriculumSelector : AppCompatActivity() {
         val subjectTable = findViewById<LinearLayout>(R.id.subject_table)
         val subjects = ContentInteractor().get_subjects(grade)
         subjects.forEachIndexed { index, subject ->
-            val subjectDisplayName = ContentInteractor().get_subject_display_name(subject, this, packageName)
+            val subjectDisplayName = ContentInteractor().get_subject_display_name(subject)
             val subjectButton = tabledButton(
                     make_drawableWithStatus(
                             ContentInteractor().get_subject_background_path(grade, subject),
-                            resources.getIdentifier("g" + grade + "_" + subject, "drawable", packageName),
                             subjectStatusResource(grade, subject)
                     ),
                     subjectDisplayName,

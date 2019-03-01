@@ -96,11 +96,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
 
     @JavascriptInterface
     fun getCurrentGrade(): String {
-        return ContentInteractor().get_grade_display_name(grade, chapterContext, chapterContext.packageName)
+        return ContentInteractor().get_grade_display_name(grade)
     }
     @JavascriptInterface
     fun getCurrentSubject(): String {
-        return ContentInteractor().get_subject_display_name(subject, chapterContext, chapterContext.packageName)
+        return ContentInteractor().get_subject_display_name(subject)
     }
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
