@@ -39,11 +39,9 @@ public class AssessmentRecordActivity extends AppCompatActivity {
             selectedStudent = student;
             Toolbar toolbar = findViewById(R.id.assessment_record_activity);
             if (toolbar != null) {
-                setSupportActionBar(toolbar);
-                getSupportActionBar().setHomeButtonEnabled(true);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle
+                toolbar.setTitle
                         (" " + selectedStudent.getFirstName() + " " + selectedStudent.getSurname());
+                setSupportActionBar(toolbar);
             }
             assessmentRecords = ClassroomProgressInteractor.getAssessmentRecords(selectedStudent);
             if(assessmentRecords != null && assessmentRecords.size() > 0) {
@@ -161,7 +159,7 @@ public class AssessmentRecordActivity extends AppCompatActivity {
         datapointHeading.setTag(tag);
         datapointHeading.setOnClickListener(listener);
         datapointHeading.setText(
-                contentInteractor.get_subject_display_name(activityRecord.getSubjectID(), this, getPackageName()) +
+                contentInteractor.get_subject_display_name(activityRecord.getSubjectID()) +
                 "\n" + contentInteractor.get_chapter_display_name(selectedStudent.getGrade(),
                                                                 activityRecord.getSubjectID(),
                                                                 activityRecord.getChapterID()) +

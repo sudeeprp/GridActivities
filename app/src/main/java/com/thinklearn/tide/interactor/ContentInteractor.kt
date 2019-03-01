@@ -126,7 +126,7 @@ class ContentInteractor {
                         //The first token must be a grade-number for us to parse the grade/subject out
                         parseInt(dirTokens[0])
                         if (!tokens.contains(dirTokens[tokenNumber])) {
-                            tokens.plusAssign(dirTokens[tokenNumber])
+                            tokens.plusAssign(dirTokens[tokenNumber].toLowerCase())
                         }
                     } catch (e: NumberFormatException) {
                         //do nothing
@@ -161,30 +161,20 @@ class ContentInteractor {
     fun get_grade_background_path(grade: String): String {
         return content.content_path + "/grade" + grade + "_logo.png"
     }
-    fun get_grade_display_name(grade: String, context: Context, packageName: String): String {
+    fun get_grade_display_name(grade: String): String {
         var gradeDisplayName = getConfig(grades_file, grade)
         if(gradeDisplayName.isEmpty()) {
-            try {
-                gradeDisplayName = context.resources.getString(context.resources.getIdentifier
-                ("grade" + grade, "string", packageName))
-            } catch(n: Resources.NotFoundException) {
-                gradeDisplayName = grade
-            }
+            gradeDisplayName = grade
         }
         return gradeDisplayName
     }
     fun get_subject_background_path(grade: String, subject: String): String {
         return chapters_directory(grade, subject) + subject_background_pic
     }
-    fun get_subject_display_name(subjectID: String, context: Context, packageName: String): String {
+    fun get_subject_display_name(subjectID: String): String {
         var subjectDisplayName = getConfig(subjects_file, subjectID)
         if(subjectDisplayName.isEmpty()) {
-            try {
-                subjectDisplayName = context.resources.getString(context.resources.getIdentifier
-                (subjectID, "string", packageName))
-            } catch(n: Resources.NotFoundException) {
-                subjectDisplayName = subjectID
-            }
+            subjectDisplayName = subjectID
         }
         return subjectDisplayName
     }

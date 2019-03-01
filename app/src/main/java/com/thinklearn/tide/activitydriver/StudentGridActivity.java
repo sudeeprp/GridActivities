@@ -12,6 +12,7 @@ import com.thinklearn.tide.adapter.StudentGridAdapter;
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,16 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
 
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
         String selectedGender = getIntent().getStringExtra("selectedGender");
-        String displayGrade = getString(
-                getResources().getIdentifier("grade" + selectedGrade,"string", getPackageName()));
+        ContentInteractor contentInteractor = new ContentInteractor();
+        String displayGrade = contentInteractor.get_grade_display_name(selectedGrade);
         ((TextView) findViewById(R.id.selectedClass)).setText(displayGrade);
         if(!selectedGender.isEmpty()) {
-            String displayGender = getString(
-                    getResources().getIdentifier(selectedGender, "string", getPackageName()));
-            ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
+            int genderStrResource =
+                    getResources().getIdentifier(selectedGender, "string", getPackageName());
+            if(genderStrResource != 0) {
+                String displayGender = getString(genderStrResource);
+                ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
+            }
         }
         findViewById(R.id.loginButton).setEnabled(false);
 
