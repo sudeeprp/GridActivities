@@ -129,7 +129,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
                 //Names are too long when surname is included. Try with first names first
                 studentJSON.put("name", student.firstName) // + " " + student.surname)
                 var thumbnail = student.thumbnail
-                if(thumbnail == null) {
+                if(thumbnail == null || thumbnail.isEmpty()) {
                     val bitmap = BitmapFactory.decodeResource(chapterContext.resources, R.drawable.student)
                     val baos = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos) //bm is the bitmap object
