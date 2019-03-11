@@ -182,9 +182,9 @@ class CurriculumActivity : AppCompatActivity() {
     }
     fun endActivity(datapoint: String) {
         var studentId = ClassroomContext.selectedStudent?.id
-        if(studentId == null) studentId = "-"
+        if(studentId == null || studentId.isEmpty()) studentId = "-"
         var teacherId = ClassroomContext.selectedTeacher?.id
-        if(teacherId == null) teacherId = "-"
+        if(teacherId == null || teacherId.isEmpty()) teacherId = "-"
         ClassroomDBInteractor.write_activity_log("{\"activity\": \"Launched\", " +
                 "\"student_id\": \"$studentId\", " +
                 "\"teacher_id\": \"$teacherId\", " +

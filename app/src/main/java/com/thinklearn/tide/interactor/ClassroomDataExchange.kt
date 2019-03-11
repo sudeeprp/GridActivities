@@ -134,7 +134,7 @@ object ClassroomDataExchange {
             studentsJson.put(it.id + "/birth_date/yyyy", birthyear)
             studentsJson.put(it.id + "/gender", it.gender)
             studentsJson.put(it.id + "/grade", it.grade)
-            if(it.qualifier != null) {
+            if(it.qualifier != null && it.qualifier.isNotEmpty()) {
                 studentsJson.put(it.id + "/qualifier", it.qualifier)
             }
         }

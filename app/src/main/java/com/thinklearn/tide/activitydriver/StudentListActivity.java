@@ -136,7 +136,8 @@ public class StudentListActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             Student studentInput = mValues.get(position);
             holder.tvStudentName.setText(studentInput.getFirstName() + " " + mValues.get(position).getSurname());
-            if(studentInput.getThumbnail() != null) {
+            String thumbnail = studentInput.getThumbnail();
+            if( thumbnail != null && !thumbnail.isEmpty()) {
                 byte[] decodedString = Base64.decode(studentInput.getThumbnail(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.tvStudentImage.setImageBitmap(decodedByte);
