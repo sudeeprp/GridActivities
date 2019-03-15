@@ -135,7 +135,8 @@ class CurriculumActivity : AppCompatActivity() {
         try {
             val pdfIntent: Intent = Intent(Intent.ACTION_VIEW)
             pdfIntent.setDataAndType(Uri.fromFile(File(contentStartPage)), "application/pdf")
-            pdfIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            pdfIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            pdfIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             finish()
             startActivity(pdfIntent)
         }
