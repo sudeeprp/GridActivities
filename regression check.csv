@@ -1,0 +1,37 @@
+﻿Area,Test case,Observation
+Launch,"Given no selection is present
+When I launch the app
+Then school selection is shown",Removed school selection using GridAdmin. Launched LearningGrid. Saw school selection
+Teacher login,"Given more than one teacher is present
+When Teacher login is shown
+Then I can select teacher and login",Selected ICD00006. Saw two teachers. Could login as each of them in turn.
+Teacher login,"Given one teacher is present
+When Teacher login is shown
+Then teacher auto selected, I can just login","Selected Sample School, Super teach two auto selected. Pressed login and saw teacher welcome screen"
+Student login,"Given school is selected
+When I select student mode
+Then grade selection is shown","Selected Sample School and launched as Student mode. Selected grade and gender. 
+Saw LearningGrid of current chapter"
+Settings,"Given a login screen
+When I select settings
+Then settings screen shows connection status",Went to connection status from teacher login screen
+Dashboard,"Given a class current chapter
+When I login as student and select sub+chap
+Then I can see my chapter grid",FR_CP1_CH5 selected. Login as Grone001. Saw chapter grid
+Dashboard,"Given a tab assessment result attempted
+When I login as teacher and select the student
+Then I can see the correct/wrong indications and mark as complete","FR_CP1_CH5 tab assessment_2 completed with one wrong and two right.
+Logged in as teacher, saw the indications and marked complete"
+Dashboard,"Given a finished tab assessment
+When teacher switches to next chapter
+Then completed-students move to next chapter",FR_CP1_CH5 tab assessment_2 marked complete. Moved to FR_CP1_CH6. Grone001 moved to FR_CP1_CH6
+Attendance,"Given a working day
+When I go to attendance screen and mark attendance
+Then it reflects in FB",Set date to a Friday. Marked AM/PM for students. Pressed Save. Went to FB. Saw attendance is stored
+Attendance,"Given the attendance screen
+When I tap a student
+Then I go to the student profile and I can change the profile pic and see assessment results","Tapped Grone001. Checked assessment records. Logged in as Grone001. Completed an assessment and checked approved stat. Changed photo and saw it being reflected.
+*FAULT: Logged in as Grtwo041 girl. Math_CP2_CH4 tab assessment_1.2 opens but shows blank."
+Students,"Given Students screen
+When I select a student
+Then I can change profile pic and see assessment results","Selected CP2 girl and checked pics, changed, and saw assessment results"
