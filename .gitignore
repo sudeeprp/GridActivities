@@ -9,11 +9,11 @@
 /build
 /captures
 /app/app.iml
-/app/release
-/app/ICproduction
 /app/google-services.json
 /app/src/debug
+/app/src/GAdebug
 /app/src/release
 /app/src/ICproduction
+/app/src/GAproduction
 /app/src/setup-google-services.bat
 .externalNativeBuild
