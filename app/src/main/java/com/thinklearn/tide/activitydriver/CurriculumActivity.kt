@@ -83,6 +83,7 @@ class CurriculumActivity : AppCompatActivity() {
     lateinit var subject: String
     lateinit var chapter: String
     lateinit var activity_identifier: String
+    var lastlogged_datapoint: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -186,13 +187,18 @@ class CurriculumActivity : AppCompatActivity() {
         if(studentId == null || studentId.isEmpty()) studentId = "-"
         var teacherId = ClassroomContext.selectedTeacher?.id
         if(teacherId == null || teacherId.isEmpty()) teacherId = "-"
-        ClassroomDBInteractor.write_activity_log("{\"activity\": \"Launched\", " +
-                "\"student_id\": \"$studentId\", " +
-                "\"teacher_id\": \"$teacherId\", " +
-                "\"subject\": \"$subject\", " +
-                "\"chapter\": \"$chapter\", " +
-                "\"activity_id\": \"$activity_identifier\", " +
-                "\"datapoint\": \"$datapoint\"}")
+        //Sometimes activities give a series of identical results.
+        //This object is only for one activity. So we need to write only if it's a different datapoint
+        if(lastlogged_datapoint == null || datapoint != lastlogged_datapoint) {
+            ClassroomDBInteractor.write_activity_log("{\"activity\": \"Launched\", " +
+                    "\"student_id\": \"$studentId\", " +
+                    "\"teacher_id\": \"$teacherId\", " +
+                    "\"subject\": \"$subject\", " +
+                    "\"chapter\": \"$chapter\", " +
+                    "\"activity_id\": \"$activity_identifier\", " +
+                    "\"datapoint\": \"$datapoint\"}")
+            lastlogged_datapoint = datapoint
+        }
 
         if (datapoint != "") {
             val studentActivityResult = Intent()
