@@ -7,7 +7,6 @@ import org.json.JSONObject
 import java.io.File
 
 object ClassroomConfig {
-    val learning_project_file = "learning_project.json"
     val project_name_key = "db_project_name"
 
     val selected_class_file = "selected_class.json"

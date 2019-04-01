@@ -96,11 +96,11 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
 
     @JavascriptInterface
     fun getCurrentGrade(): String {
-        return ContentInteractor().get_grade_display_name(grade, chapterContext, chapterContext.packageName)
+        return ContentInteractor().get_grade_display_name(grade)
     }
     @JavascriptInterface
     fun getCurrentSubject(): String {
-        return ContentInteractor().get_subject_display_name(subject, chapterContext, chapterContext.packageName)
+        return ContentInteractor().get_subject_display_name(subject)
     }
     @JavascriptInterface
     fun getChapterStatus(chapterIdent: String): String {
@@ -129,7 +129,7 @@ class ChapterSelectorInterface(val chapterContext: ChapterSelector) {
                 //Names are too long when surname is included. Try with first names first
                 studentJSON.put("name", student.firstName) // + " " + student.surname)
                 var thumbnail = student.thumbnail
-                if(thumbnail == null) {
+                if(thumbnail == null || thumbnail.isEmpty()) {
                     val bitmap = BitmapFactory.decodeResource(chapterContext.resources, R.drawable.student)
                     val baos = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos) //bm is the bitmap object

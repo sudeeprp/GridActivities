@@ -14,9 +14,9 @@
     <string name="id">ID</string>
     <string name="first_name">First Name</string>
     <string name="surname">Surname</string>
-    <string name="classLabel">Class</string>
+    <string name="classLabel">Class: </string>
     <string name="date_of_birth">Date of Birth</string>
-    <string name="gender">Gender</string>
+    <string name="gender">Gender: </string>
     <string name="am">AM</string>
     <string name="pm">PM</string>
     <string name="unknown_id">Unknown ID</string>
@@ -24,7 +24,7 @@
     <string name="unknown_surname">Unknown Surname</string>
     <string name="unknow_classLabel">Unknown Class</string>
     <string name="unknown_year">Unknown Year</string>
-    <string name="unknown_gender">Unknown Gender</string>
+    <string name="unknown_gender">All</string>
     <string name="change_photo">Change Photo</string>
     <string name="title_activity_teacher_login">TeacherLogin</string>
     <string name="login">Login</string>
@@ -67,7 +67,7 @@
     <string name="export_failed">Data export failed: </string>
     <string name="select_export_dest">Select a destination to export</string>
     <string name="no_sdcard">No SD Card found</string>
-    <string name="activity_duration_label">Time in secs</string>
+    <string name="activity_duration_label">Time in seconds</string>
     <string name="activity_max_score_label">Maximum score</string>
     <string name="activity_actual_score_label">Actual score</string>
     <string name="activity_datapoints_label">Data Points</string>

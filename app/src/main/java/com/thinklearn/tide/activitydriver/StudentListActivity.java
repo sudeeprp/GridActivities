@@ -25,6 +25,7 @@ import android.view.MenuItem;
 
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.List;
 
@@ -49,20 +50,24 @@ public class StudentListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_list);
 
-        String selectedGrade = getIntent().getStringExtra("selectedGrade");
-        String displayGrade = getString(getResources().getIdentifier("grade" + selectedGrade,
-                        "string", getPackageName()));
-        String selectedGender = getIntent().getStringExtra("selectedGender");
-        String displayGender = getString(
-                getResources().getIdentifier(selectedGender, "string", getPackageName()));
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.studentGradeSelectionBar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
-        ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
-        ((TextView) findViewById(R.id.selectedGender)).setText(": " +displayGender);
+        String selectedGrade = getIntent().getStringExtra("selectedGrade");
+        ContentInteractor contentInteractor = new ContentInteractor();
+        String displayGrade = contentInteractor.get_grade_display_name(selectedGrade);
+        ((TextView) findViewById(R.id.selectedClass)).setText(displayGrade);
 
+        String selectedGender = getIntent().getStringExtra("selectedGender");
+        if(!selectedGender.isEmpty()) {
+            int genderStrResource =
+                    getResources().getIdentifier(selectedGender, "string", getPackageName());
+            if(genderStrResource != 0) {
+                String displayGender = getString(genderStrResource);
+                ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
+            }
+        }
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -131,7 +136,8 @@ public class StudentListActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             Student studentInput = mValues.get(position);
             holder.tvStudentName.setText(studentInput.getFirstName() + " " + mValues.get(position).getSurname());
-            if(studentInput.getThumbnail() != null) {
+            String thumbnail = studentInput.getThumbnail();
+            if( thumbnail != null && !thumbnail.isEmpty()) {
                 byte[] decodedString = Base64.decode(studentInput.getThumbnail(), Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.tvStudentImage.setImageBitmap(decodedByte);

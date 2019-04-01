@@ -74,7 +74,8 @@ public class StudentGridAdapter extends BaseAdapter {
         ImageView studentImage =  gridView
                 .findViewById(R.id.ivStudentImage);
         Bitmap decodedByte = null;
-        if(studentList.get(position).getThumbnail() != null) {
+        String thumbnail = studentList.get(position).getThumbnail();
+        if( thumbnail != null && !thumbnail.isEmpty()) {
             byte[] decodedString = Base64.decode(currentStudent.getThumbnail(), Base64.DEFAULT);
             decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
         } else {

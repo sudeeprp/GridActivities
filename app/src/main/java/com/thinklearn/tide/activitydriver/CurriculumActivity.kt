@@ -135,7 +135,8 @@ class CurriculumActivity : AppCompatActivity() {
         try {
             val pdfIntent: Intent = Intent(Intent.ACTION_VIEW)
             pdfIntent.setDataAndType(Uri.fromFile(File(contentStartPage)), "application/pdf")
-            pdfIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            pdfIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            pdfIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             finish()
             startActivity(pdfIntent)
         }
@@ -182,9 +183,9 @@ class CurriculumActivity : AppCompatActivity() {
     }
     fun endActivity(datapoint: String) {
         var studentId = ClassroomContext.selectedStudent?.id
-        if(studentId == null) studentId = "-"
+        if(studentId == null || studentId.isEmpty()) studentId = "-"
         var teacherId = ClassroomContext.selectedTeacher?.id
-        if(teacherId == null) teacherId = "-"
+        if(teacherId == null || teacherId.isEmpty()) teacherId = "-"
         ClassroomDBInteractor.write_activity_log("{\"activity\": \"Launched\", " +
                 "\"student_id\": \"$studentId\", " +
                 "\"teacher_id\": \"$teacherId\", " +

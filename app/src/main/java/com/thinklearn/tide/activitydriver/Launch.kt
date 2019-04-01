@@ -80,7 +80,7 @@ class Launch : AppCompatActivity() {
             val authIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 `package` = "com.thinklearn.tide.grida"
-                putExtra(Intent.EXTRA_TEXT, "rfgt$%UJ")
+                putExtra(Intent.EXTRA_TEXT, getCallerID())
                 type = "text/plain"
             }
             if (packageManager.queryIntentActivities(authIntent, PackageManager.MATCH_DEFAULT_ONLY).size > 0) {
@@ -90,6 +90,15 @@ class Launch : AppCompatActivity() {
                 tokenAuthenticationDone()
             }
         }
+    }
+    fun getCallerID(): String {
+        var callerID = "unknown"
+        if(ClassroomInteractor.learningProjectName() == "IC") {
+            callerID = "rfgt$%UJ"
+        } else if(ClassroomInteractor.learningProjectName() == "GA") {
+            callerID = "slwk-ga"
+        }
+        return callerID
     }
     fun launchStartScreen() {
         selected_class_id = ClassroomInteractor.selectedClass()
@@ -103,7 +112,7 @@ class Launch : AppCompatActivity() {
     fun loadAndStart(start_mode: String) {
         if(selected_class_id != "") {
             setContentView(R.layout.activity_initial_load)
-            ClassroomDBInteractor.load(ClassroomInteractor.learningProject(), selected_class_id, object : DBOpDone {
+            ClassroomDBInteractor.load(ClassroomInteractor.learningProjectDB(), selected_class_id, object : DBOpDone {
                 override fun onSuccess() {
                     ClassroomDBInteractor.removeLoadedEvent()
                     if (start_mode == ClassroomConfig.teacher_mode_value) {
@@ -137,7 +146,7 @@ class Launch : AppCompatActivity() {
             uploadClassroom()
         }
         dataStatus("Connecting to classrooms")
-        FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProject()).child("classrooms").
+        FirebaseDatabase.getInstance().getReference(ClassroomInteractor.learningProjectDB()).child("classrooms").
                 addValueEventListener(object: ValueEventListener {
                     override fun onDataChange(classrooms_snapshot: DataSnapshot) {
                         val schools = arrayOfNulls<String>(classrooms_snapshot.childrenCount.toInt())
@@ -198,7 +207,7 @@ class Launch : AppCompatActivity() {
                 val classroomAndAssetsJSONstr = String(buffer)
                 try {
                     val cassetJSON = JSONObject(classroomAndAssetsJSONstr)
-                    ClassroomDataExchange.uploadClassroom(cassetJSON, object : DBOpDone {
+                    ClassroomDataExchange.uploadAssets(cassetJSON, object : DBOpDone {
                         override fun onSuccess() {
                             dbConnectionStatus("Classroom data uploaded successfully")
                         }

@@ -51,7 +51,8 @@ public class TeacherItemRecyclerViewAdapter extends RecyclerView.Adapter<Teacher
     @Override
     public void onBindViewHolder(@NonNull final TeacherviewHolder holder, int position) {
         holder.teacherName.setText(teacherWelcomeInputList.get(position).getTeacherName());
-        if(teacherWelcomeInputList.get(position).getThumbnail() != null) {
+        String thumbnail = teacherWelcomeInputList.get(position).getThumbnail();
+        if( thumbnail != null && !thumbnail.isEmpty()) {
             byte[] decodedString = Base64.decode(teacherWelcomeInputList.get(position).getThumbnail(), Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(Resources.getSystem(),decodedByte);

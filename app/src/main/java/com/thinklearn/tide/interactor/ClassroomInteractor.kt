@@ -1,5 +1,6 @@
 package com.thinklearn.tide.interactor
 
+import com.thinklearn.tide.activitydriver.BuildConfig
 import com.thinklearn.tide.dto.AttendanceInput
 import com.thinklearn.tide.dto.Student
 import com.thinklearn.tide.dto.Teacher
@@ -30,12 +31,12 @@ object ClassroomInteractor {
     var presentAM: MutableMap<String, MutableList<String>> = hashMapOf()
     var presentPM: MutableMap<String, MutableList<String>> = hashMapOf()
 
-    fun learningProject(): String {
-        if(loadedLearningProject == "") {
-            return ClassroomConfig.getConfig(ClassroomConfig.learning_project_file, ClassroomConfig.project_name_key, "ICDev")
-        } else {
-            return loadedLearningProject
-       }
+    fun learningProjectDB(): String {
+        return BuildConfig.PROJECT_DB
+    }
+    @JvmStatic
+    fun learningProjectName(): String {
+        return BuildConfig.PROJECT_NAME
     }
     fun selectedClass(): String {
         return ClassroomConfig.getConfig(ClassroomConfig.selected_class_file, ClassroomConfig.selected_class_key, "")

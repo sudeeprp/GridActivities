@@ -3,6 +3,7 @@ package com.thinklearn.tide.interactor
 import android.util.Log
 import com.thinklearn.tide.dto.AcademicRecords
 import com.thinklearn.tide.dto.ActivityID
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -33,10 +34,9 @@ object ProgressInteractor {
     //Keys from the DB
     val status_key = "status"
     val data_point_key = "data_point"
-    //Keys inside the data point
-    val time_in_sec_key = "Time taken in seconds"
-    val max_score_key = "Maximum score"
-    val actual_score_key = "Actual score"
+    enum class DatapointLabel {
+        time_in_sec, max_score, actual_score, evaluation
+    }
 
     //For student status screen, where activity status can be set
     //This goes by student record, *independent* of curriculum updates. So all data has to be in the subjectRecords only
@@ -110,7 +110,7 @@ object ProgressInteractor {
             summaryStatus = assessment_ready_status
         } else if(approved_found && !to_do_found) {
             summaryStatus = done_status
-        } else if(done_found && to_do_found) {
+        } else if((done_found || approved_found) && to_do_found) {
             summaryStatus = inprogress_status
         } else if(to_do_found) {
             summaryStatus = to_be_done_status
@@ -139,10 +139,19 @@ object ProgressInteractor {
         }
         return classChapter
     }
-    fun jsonGrab(json: JSONObject, key: String): String {
+    fun getDatapointString(datapointJson: JSONObject, datapointKeys: HashMap<DatapointLabel,String>, label: DatapointLabel): String {
         var value = ""
-        if(json.has(key)) {
-            value = json.get(key).toString()
+        val datapointJsonKey = datapointKeys.get(label)
+        if(datapointJsonKey != null && datapointJson.has(datapointJsonKey)) {
+            value = datapointJson.getString(datapointJsonKey)
+        }
+        return value
+    }
+    fun getDatapointArray(datapointJson: JSONObject, datapointKeys: HashMap<DatapointLabel,String>, label: DatapointLabel): JSONArray {
+        var value = JSONArray()
+        val datapointJsonKey = datapointKeys.get(label)
+        if(datapointJsonKey != null && datapointJson.has(datapointJsonKey)) {
+            value = datapointJson.getJSONArray(datapointJsonKey)
         }
         return value
     }
@@ -153,14 +162,34 @@ object ProgressInteractor {
         repairedJSONStr = repairedJSONStr.replace("n]", " \"n\"]")
         return repairedJSONStr
     }
-    fun findEvalKey(evalJson: JSONObject): String? {
-        evalJson.keys().forEach { key->
-            if((key.contains("correct", true) && key.contains("attempt", true))
-                    || key.contains("question", true)) {
-                return key
+    fun allHit(examinedStr: String, hits: List<String>): Boolean {
+        var allHitsFound = true
+        for(hit in hits) {
+            allHitsFound = allHitsFound and examinedStr.contains(hit, ignoreCase = true)
+        }
+        return allHitsFound
+    }
+    fun findDatapointKeys(datapointJson: JSONObject): HashMap<DatapointLabel,String> {
+        val datapoint_keys = hashMapOf<DatapointLabel,String>()
+        class KeyMapping(val key: DatapointLabel, val hits: List<String>)
+        val datapoint_map = listOf(
+                KeyMapping(DatapointLabel.time_in_sec, listOf("time", "sec")),
+                KeyMapping(DatapointLabel.max_score, listOf("max")),
+                KeyMapping(DatapointLabel.max_score, listOf("total")),
+                KeyMapping(DatapointLabel.actual_score, listOf("score")),
+                KeyMapping(DatapointLabel.evaluation, listOf("correct", "attempt")),
+                KeyMapping(DatapointLabel.evaluation, listOf("question")),
+                KeyMapping(DatapointLabel.evaluation, listOf("report"))
+        )
+        datapointJson.keys().forEach { key ->
+            for (keyMapping in datapoint_map) {
+                if (allHit(key, keyMapping.hits)) {
+                    datapoint_keys[keyMapping.key] = key
+                    break
+                }
             }
         }
-        return null
+        return datapoint_keys
     }
     fun makeActivityRecord(subjectID: String, chapterID: String, activityID: String,
                            activityStatus: String?, datapoint: String?): ActivityRecord {
@@ -176,16 +205,17 @@ object ProgressInteractor {
         if(datapoint != null) {
             val datapointJsonStr = repairJSONStr(datapoint)
             try {
-                val evalJson = JSONObject(datapointJsonStr)
-                time_in_sec = jsonGrab(evalJson, time_in_sec_key)
-                max_score = jsonGrab(evalJson, max_score_key)
-                actual_score = jsonGrab(evalJson, actual_score_key)
-                val eval_key = findEvalKey(evalJson)
-                if(eval_key != null) {
-                    val evaluationJson = evalJson.getJSONArray(eval_key)
-                    for (i in 0..(evaluationJson.length() - 1)) {
-                        evaluation.add(translateEvaluation(evaluationJson.get(i).toString()))
-                    }
+                var datapointJson = JSONObject(datapointJsonStr)
+                if(datapointJson.has("scorecard")) {
+                    datapointJson = datapointJson.getJSONObject("scorecard")
+                }
+                val datapointKeys = findDatapointKeys(datapointJson)
+                time_in_sec = getDatapointString(datapointJson, datapointKeys, DatapointLabel.time_in_sec).toString()
+                max_score = getDatapointString(datapointJson, datapointKeys, DatapointLabel.max_score).toString()
+                actual_score = getDatapointString(datapointJson, datapointKeys, DatapointLabel.actual_score).toString()
+                val evalJsonArray = getDatapointArray(datapointJson, datapointKeys, DatapointLabel.evaluation)
+                for (i in 0..(evalJsonArray.length() - 1)) {
+                    evaluation.add(translateEvaluation(evalJsonArray.get(i).toString()))
                 }
             } catch(j: JSONException) {
                 Log.d("Datapoint parse", "Datapoint is not a json string")
@@ -196,9 +226,11 @@ object ProgressInteractor {
     }
     fun translateEvaluation(raw_eval: String): String {
         var eval = ProgressInteractor.not_attempted
-        when(raw_eval) {
+        when(raw_eval.toLowerCase()) {
             "1" -> eval = ProgressInteractor.correct_result
+            "right" -> eval = ProgressInteractor.correct_result
             "0" -> eval = ProgressInteractor.incorrect_result
+            "wrong" -> eval = ProgressInteractor.incorrect_result
         }
         return eval
     }

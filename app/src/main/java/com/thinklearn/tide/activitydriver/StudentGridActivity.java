@@ -12,11 +12,13 @@ import com.thinklearn.tide.adapter.StudentGridAdapter;
 import com.thinklearn.tide.dto.Student;
 import com.thinklearn.tide.interactor.ClassroomContext;
 import com.thinklearn.tide.interactor.ClassroomInteractor;
+import com.thinklearn.tide.interactor.ContentInteractor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.thinklearn.tide.activitydriver.R.id.loginButton;
+import static com.thinklearn.tide.activitydriver.R.id.selected;
 
 public class StudentGridActivity extends AppCompatActivity implements StudentGridAdapter.StudentSelectedListener{
 
@@ -32,14 +34,18 @@ public class StudentGridActivity extends AppCompatActivity implements StudentGri
 
         String selectedGrade = getIntent().getStringExtra("selectedGrade");
         String selectedGender = getIntent().getStringExtra("selectedGender");
-        String displayGrade = getString(
-                getResources().getIdentifier("grade" + selectedGrade,"string", getPackageName()));
-        String displayGender = getString(
-                getResources().getIdentifier(selectedGender, "string", getPackageName()));
-
+        ContentInteractor contentInteractor = new ContentInteractor();
+        String displayGrade = contentInteractor.get_grade_display_name(selectedGrade);
+        ((TextView) findViewById(R.id.selectedClass)).setText(displayGrade);
+        if(!selectedGender.isEmpty()) {
+            int genderStrResource =
+                    getResources().getIdentifier(selectedGender, "string", getPackageName());
+            if(genderStrResource != 0) {
+                String displayGender = getString(genderStrResource);
+                ((TextView) findViewById(R.id.selectedGender)).setText(displayGender);
+            }
+        }
         findViewById(R.id.loginButton).setEnabled(false);
-        ((TextView) findViewById(R.id.selectedClass)).setText(": " +displayGrade);
-        ((TextView) findViewById(R.id.selectedGender)).setText(": " +displayGender);
 
         studentInputList = ClassroomInteractor.filterStudents(selectedGrade, selectedGender, true);
         GridView gridView = findViewById(R.id.gvStudentGrid);
